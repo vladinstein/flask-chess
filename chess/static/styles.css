@@ -35,6 +35,29 @@ footer {
     justify-content: center;
 }
 
+/* Main */
+
+.rank {
+    display: flex;
+    flex-direction: row;
+}
+
+.square {
+    border: 1px solid black;
+    height: 50px;
+    width: 50px;
+}
+
+.rank:nth-child(even) .square:nth-child(odd) {
+    background-color: black;
+    color: white;
+}
+
+.rank:nth-child(odd) .square:nth-child(even) {
+    background-color: black;
+    color: white;
+}
+
 /* Errors */
 
 .is-invalid {
