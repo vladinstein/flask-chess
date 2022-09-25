@@ -1,3 +1,4 @@
+import string
 from flask import render_template, request, redirect, url_for, flash
 from flask import session
 from flask_session import Session
@@ -51,7 +52,8 @@ def index():
 @app.route("/game/<int:game_id>")
 def game(game_id):
     game = Game.query.get(game_id)
-    return render_template('game.html', game=game)
+    files = string.ascii_lowercase[0:8]
+    return render_template('game.html', game=game, files=files)
 
 
 

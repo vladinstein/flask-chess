@@ -37,15 +37,35 @@ footer {
 
 /* Main */
 
+.board_main {
+    border: 1px solid black;
+}
+
 .rank {
     display: flex;
     flex-direction: row;
 }
 
+.index_row {
+    display: flex;
+    flex-direction: row;
+}
+
 .square {
-    border: 1px solid black;
-    height: 50px;
-    width: 50px;
+    height: 55px;
+    width: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.index_square {
+    font-size: 1.3rem;
+    height: 55px;
+    width: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .rank:nth-child(even) .square:nth-child(odd) {

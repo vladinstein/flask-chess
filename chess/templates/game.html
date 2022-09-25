@@ -8,21 +8,45 @@
 </div>
 <div class="board">
 {% if session['figures'] %}
-    {% for i in range(8) %}
-        <div class="rank">
-            {% for j in range(8) %}
-                <div class="square" data-x="{{i}}" data-y="{{j}}" >{{i,j}}</div>
-            {% endfor %}
-        </div>
-    {% endfor %}
-{% else %}
-    {% for i in range(8)|reverse %}
-    <div class="rank">
-        {% for j in range(8)|reverse %}
-            <div class="square" data-x="{{i}}" data-y="{{j}}" data-color="{{i+1}}" >{{i,j}}</div>
+    <div class="index_row">
+        {% for j in range(1, 9)|reverse %}
+            <div class="index_square">{{files[j-1]}}</div>
         {% endfor %}
     </div>
-    {% endfor %}
+    <div class="board_main">
+        {% for i in range(1, 9) %}
+            <div class="rank">
+                {% for j in range(1, 9)|reverse %}
+                    <div class="square" data-x="{{i}}" data-y="{{j}}" >{{i,files[j-1]}}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="index_row">
+        {% for j in range(1, 9)|reverse %}
+            <div class="index_square">{{files[j-1]}}</div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="index_row">
+        {% for j in range(1, 9) %}
+            <div class="index_square">{{files[j-1]}}</div>
+        {% endfor %}
+    </div>
+    <div class="board_main">
+        {% for i in range(1, 9)|reverse %}
+        <div class="rank">
+            {% for j in range(1, 9) %}
+                <div class="square" data-x="{{i}}" data-y="{{j}}">{{i,files[j-1]}}</div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="index_row">
+        {% for j in range(1, 9) %}
+            <div class="index_square" >{{files[j-1]}}</div>
+        {% endfor %}
+    </div>
 {% endif %}
 </div>
 <div class="your_move">
