@@ -3,7 +3,7 @@ from flask import render_template, request, redirect, url_for, flash
 from flask import session
 from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm
-from chess.models import Game
+from chess.models import Game, Rank
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 
@@ -12,8 +12,21 @@ def connect():
     session['sid'] = request.sid
     print(session['sid'])
 
-def create_game():
-    pass
+def create_game(game_id):
+    rank = {}
+    for i in range(1, 9):
+        if i == 1:
+            rank[i] = Rank(game_id=game_id, number=i, a=4, b=2, c=3, d=6, e=5, f=3, g=2, h=4)
+        elif i == 2:
+            rank[i] = Rank(game_id=game_id, number=i, a=1, b=1, c=1, d=1, e=1, f=1, g=1, h=1)
+        elif i == 7:
+            rank[i] = Rank(game_id=game_id, number=i, a=7, b=7, c=7, d=7, e=7, f=7, g=7, h=7)
+        elif i == 8:
+            rank[i] = Rank(game_id=game_id, number=i, a=10, b=8, c=9, d=12, e=11, f=9, g=8, h=10)
+        else:
+            rank[i] = Rank(game_id=game_id, number=i, a=0, b=0, c=0, d=0, e=0, f=0, g=0, h=0)
+        db.session.add(rank[i])
+    db.session.commit()
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -36,6 +49,7 @@ def index():
         game = Game(password=hashed_password, player_1=player_1)
         db.session.add(game)
         db.session.commit()
+        create_game(game.id)
         flash('You have created a game. Send the ID of your game to your opponent and wait for him\
               to connect.', 'success')
         return redirect(url_for('game', game_id=game.id))
@@ -54,9 +68,11 @@ def index():
 
 @app.route("/game/<int:game_id>")
 def game(game_id):
-    game = Game.query.get(game_id)
+    rank={}
+    for i in range (1, 9):
+        rank[i] = Rank.query.filter_by(game_id=game_id, number=i).first()   
     files = string.ascii_lowercase[0:8]
-    return render_template('game.html', game=game, files=files)
+    return render_template('game.html', files=files, rank=rank)
 
 
 
