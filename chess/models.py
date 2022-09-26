@@ -6,6 +6,24 @@ class Game(db.Model):
     white_sid = db.Column(db.String(120))
     black_sid = db.Column(db.String(120))
     player_1 = db.Column(db.Boolean, default = False, nullable=False)
+    ranks = db.relationship('Rank', backref='game', lazy=True)
 
     def __repr__(self):
         return f"Game('{self.id}')"
+
+class Rank(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
+    number = db.Column(db.Integer, nullable=False)
+    a = db.Column(db.Integer, nullable=False)
+    b = db.Column(db.Integer, nullable=False)
+    c = db.Column(db.Integer, nullable=False)
+    d = db.Column(db.Integer, nullable=False)
+    e = db.Column(db.Integer, nullable=False)
+    f = db.Column(db.Integer, nullable=False)
+    g = db.Column(db.Integer, nullable=False)
+    h = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return f"Rank('Game {self.game_id}, number {self.number}:\
+             {self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f}, {self.g}, {self.h}')"

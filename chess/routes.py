@@ -12,6 +12,9 @@ def connect():
     session['sid'] = request.sid
     print(session['sid'])
 
+def create_game():
+    pass
+
 @app.route("/", methods=['GET', 'POST'])
 def index():
     cr_form = CreateGameForm()
