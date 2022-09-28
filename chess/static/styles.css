@@ -44,6 +44,7 @@ footer {
 
 .board_main {
     border: 1px solid black;
+    background-color: rgb(173,189,143);
 }
 
 .rank {
@@ -64,8 +65,9 @@ footer {
 }
 
 .square {
-    height: 55px;
-    width: 55px;
+    font-size: 3.5rem;
+    height: 65px;
+    width: 65px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -73,21 +75,19 @@ footer {
 
 .index_square {
     font-size: 1.3rem;
-    height: 55px;
-    width: 55px;
+    height: 65px;
+    width: 65px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .rank:nth-child(even) .square:nth-child(odd) {
-    background-color: black;
-    color: white;
+    background-color: rgb(111,143,114);
 }
 
 .rank:nth-child(odd) .square:nth-child(even) {
-    background-color: black;
-    color: white;
+    background-color: rgb(111,143,114);
 }
 
 /* Errors */
