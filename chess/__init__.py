@@ -1,6 +1,4 @@
 from flask import Flask
-from flask import session
-from flask_session import Session
 from flask_socketio import SocketIO, emit
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy

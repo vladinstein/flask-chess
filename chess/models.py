@@ -26,4 +26,4 @@ class Rank(db.Model):
 
     def __repr__(self):
         return f"Rank('Game {self.game_id}, number {self.number}:\
-             {self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f}, {self.g}, {self.h}')"
+ {self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f}, {self.g}, {self.h}')"

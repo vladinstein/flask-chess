@@ -1,8 +1,12 @@
+game = true
+const socket = io();
+
 window.addEventListener('DOMContentLoaded', function addfigures() {
     var squares = document.querySelectorAll(".square");
     squares.forEach(function (square)
     {                
         figure = square.getAttribute('data-square');
+        moving = square.getAttribute('data-m');
         if (figure == 1) {
         square.innerHTML = '&#9817;'
         } else if (figure == 2) {
@@ -33,3 +37,21 @@ window.addEventListener('DOMContentLoaded', function addfigures() {
     });
 }
 );
+
+// Thank God! https://stackoverflow.com/questions/16893043/jquery-click-event-not-working-after-adding-class
+
+$(document).on('click', '.square[data-m="1"]', function() {
+    $('.square[data-m="1"]').attr('data-m', '2') 
+    $(this).attr('data-a', '1');
+    var x = $(this).attr('data-x')
+    var y = $(this).attr('data-y') 
+    var id = $('h4.game-id').attr('data-i')
+    socket.emit('take', {'x': x, 'y': y, 'id': id})       
+});
+
+$(document).on('click', '.square[data-a="1"]', function() {
+    $('.square[data-m="2"]').attr('data-m', '1')
+    $(this).attr('data-a', '0');       
+});
+
+

@@ -90,6 +90,50 @@ footer {
     background-color: rgb(111,143,114);
 }
 
+/* Hovers */
+
+[data-m='1']:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.square:nth-child(odd)[data-m='1']:hover {
+    box-shadow: inset 0 0 0 100px rgba(0, 0, 0, 0.1)
+}
+
+.square:nth-child(even)[data-m='1']:hover {
+    box-shadow: inset 0 0 0 100px rgba(0, 0, 0, 0.1)
+}
+
+/* Active */
+
+[data-a='1'] {
+    cursor: pointer;
+    background-color: rgba(0, 0, 255, 0.3);
+}
+
+.square:nth-child(odd)[data-a='1'] {
+    box-shadow: inset 0 0 0 100px rgba(0, 0, 255, 0.3);
+}
+
+.square:nth-child(even)[data-a='1'] {
+    box-shadow: inset 0 0 0 100px rgba(0, 0, 255, 0.3);
+}
+
+[data-a='1']:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 255, 0.4);
+}
+
+.square:nth-child(odd)[data-a='1']:hover {
+    box-shadow: inset 0 0 0 100px rgba(0, 0, 255, 0.4);
+}
+
+.square:nth-child(even)[data-a='1']:hover {
+    box-shadow: inset 0 0 0 100px rgba(0, 0, 255, 0.4);
+}
+
+
 /* Errors */
 
 .is-invalid {

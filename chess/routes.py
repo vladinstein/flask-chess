@@ -12,6 +12,17 @@ def connect():
     session['sid'] = request.sid
     print(session['sid'])
 
+@socketio.on('take')
+def moves(data):
+    print(data)
+    rank={}
+    files = string.ascii_lowercase[0:8]
+    y = files[int(data['y'])-1]
+    x = int(data['x'])
+    for i in range (1, 9):
+        rank[i] = Rank.query.filter_by(game_id=data['id'], number=i).first().__dict__
+    print(rank[x][y])
+   
 def create_game(game_id):
     rank = {}
     for i in range(1, 9):
@@ -27,6 +38,20 @@ def create_game(game_id):
             rank[i] = Rank(game_id=game_id, number=i, a=0, b=0, c=0, d=0, e=0, f=0, g=0, h=0)
         db.session.add(rank[i])
     db.session.commit()
+
+def white_check(game_id):
+    rank={}
+    can_move = []
+    files = string.ascii_lowercase[0:8]
+    for i in range (1, 9):
+        rank[i] = Rank.query.filter_by(game_id=game_id, number=i).first().__dict__
+    for i in range (1, 9):
+        for j in range (8):
+            if rank[i][files[j]] == 1: 
+                if rank[i+1][files[j]] == 0 or (j < 7 and rank[i+1][files[j+1]] > 6) \
+                    or (j > 0 and rank[i+1][files[j-1]] > 6):
+                        can_move.append([i, j+1])
+    return can_move
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -72,7 +97,9 @@ def game(game_id):
     for i in range (1, 9):
         rank[i] = Rank.query.filter_by(game_id=game_id, number=i).first()   
     files = string.ascii_lowercase[0:8]
-    return render_template('game.html', files=files, rank=rank)
+    moving = white_check(game_id)
+    print(moving)
+    return render_template('game.html', files=files, rank=rank, moving=moving, game_id=game_id)
 
 
 

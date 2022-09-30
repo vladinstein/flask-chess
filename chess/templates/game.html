@@ -29,7 +29,7 @@
                 {% for i in range(1, 9) %}
                     <div class="rank">
                         {% for j in range(1, 9)|reverse %}
-                            <div class="square" data-x="{{i}}" data-y="{{j}}" data-square="{{rank[i][files[j-1]]}}">{{i, j}} - {{rank[i][files[j-1]]}}</div>
+                            <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="0" data-a="0" data-square="{{rank[i][files[j-1]]}}"></div>
                         {% endfor %}
                     </div>
                 {% endfor %}
@@ -49,7 +49,11 @@
                 {% for i in range(1, 9)|reverse %}
                 <div class="rank">
                     {% for j in range(1, 9) %}
-                        <div class="square" data-x="{{i}}" data-y="{{j}}" data-square="{{rank[i][files[j-1]]}}">{{i, j}} - {{rank[i][files[j-1]]}}</div>
+                        {% if [i, j] in moving %}
+                            <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="1" data-a="0" data-square="{{rank[i][files[j-1]]}}"></div>
+                        {% else %}
+                            <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="0" data-a="0" data-square="{{rank[i][files[j-1]]}}"></div>
+                        {% endif %}
                     {% endfor %}
                 </div>
                 {% endfor %}
@@ -74,6 +78,7 @@
     </div>
 </div>
 <div class="your_move">
-    <h4>Your figures are {{ session['figures'] }}!</h4>
+    <h4 class="game-id" data-i="{{ game_id }}">Your figures are {{ session['figures'] }}! Your game ID is {{ game_id }}!</h4>
+    <h4>{{ moving[0], moving[1] }}!</h4>
 </div>
 {% endblock content %}
