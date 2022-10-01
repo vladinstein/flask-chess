@@ -52,16 +52,32 @@ $(document).on('click', '.square[data-m="1"]', function() {
 
 $(document).on('click', '.square[data-a="1"]', function() {
     $('.square[data-m="2"]').attr('data-m', '1')
-    $(this).attr('data-a', '0');       
+    $(this).attr('data-a', '0');  
+    $('.square[data-go="1"]').attr('data-go', '0')  
 });
 
+$(document).on('click', '.square[data-go="1"]', function() {
+    var text = $('.square[data-a="1"]').html()
+    $('.square[data-a="1"]').html($(this).html())
+    $(this).html(text)
+    var i = $('.square[data-a="1"]').attr('data-x')
+        j = $('.square[data-a="1"]').attr('data-y')
+    $('.square[data-a="1"]').attr('data-a', '0')  
+    $('.square[data-go="1"]').attr('data-go', '0')  
+    var x = $(this).attr('data-x')
+        y = $(this).attr('data-y')
+        id = $('h4.game-id').attr('data-i')
+    socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'id': id, 'figure': figure})
+});
+
+// https://stackoverflow.com/questions/34913675/how-to-iterate-keys-values-in-javascript
 $(document).ready(function(){
     socket.on('moves', (go, attack)=>{
     for (const [key, value] of Object.entries(go)) {
-    console.log(key, value);
+    $('.square[data-x=' + key + '][data-y=' + value + ']').attr('data-go', '1')
     }    
     for (const [key, value] of Object.entries(attack)) {
-    console.log(key, value);
+    $('.square[data-x=' + key + '][data-y=' + value + ']').attr('data-attack', '1')
     }       
     })
 })

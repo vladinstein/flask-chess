@@ -134,6 +134,35 @@ footer {
 }
 
 
+/* Figure moves */
+
+[data-go='1'] {
+    cursor: pointer;
+    background-color: rgba(0, 255, 0, 0.3);
+}
+
+.square:nth-child(odd)[data-go='1'] {
+    box-shadow: inset 0 0 0 100px rgba(0, 255, 0, 0.3);
+}
+
+.square:nth-child(even)[data-go='1'] {
+    box-shadow: inset 0 0 0 100px rgba(0, 255, 0, 0.3);
+}
+
+[data-go='1']:hover {
+    cursor: pointer;
+    background-color: rgba(0, 255, 0, 0.4);
+}
+
+.square:nth-child(odd)[data-go='1']:hover {
+    box-shadow: inset 0 0 0 100px rgba(0, 255, 0, 0.4);
+}
+
+.square:nth-child(even)[data-go='1']:hover {
+    box-shadow: inset 0 0 0 100px rgba(0, 255, 0, 0.4);
+}
+
+
 /* Errors */
 
 .is-invalid {
