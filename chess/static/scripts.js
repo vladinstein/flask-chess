@@ -1,5 +1,5 @@
-game = true
 const socket = io();
+'use strict';
 
 window.addEventListener('DOMContentLoaded', function addfigures() {
     var squares = document.querySelectorAll(".square");
@@ -33,7 +33,7 @@ window.addEventListener('DOMContentLoaded', function addfigures() {
         square.innerHTML = '&#9818;'
         } else if (figure == 0) {
         square.innerHTML = ''
-        }          
+        }  
     });
 }
 );
@@ -45,8 +45,9 @@ $(document).on('click', '.square[data-m="1"]', function() {
     $(this).attr('data-a', '1');
     var x = $(this).attr('data-x')
     var y = $(this).attr('data-y') 
+    var figure = $(this).attr('data-square')
     var id = $('h4.game-id').attr('data-i')
-    socket.emit('take', {'x': x, 'y': y, 'id': id})       
+    socket.emit('take', {'x': x, 'y': y, 'id': id, 'figure': figure})       
 });
 
 $(document).on('click', '.square[data-a="1"]', function() {
@@ -54,4 +55,13 @@ $(document).on('click', '.square[data-a="1"]', function() {
     $(this).attr('data-a', '0');       
 });
 
-
+$(document).ready(function(){
+    socket.on('moves', (go, attack)=>{
+    for (const [key, value] of Object.entries(go)) {
+    console.log(key, value);
+    }    
+    for (const [key, value] of Object.entries(attack)) {
+    console.log(key, value);
+    }       
+    })
+})

@@ -10,19 +10,93 @@ from random import getrandbits
 @socketio.on('connect')
 def connect():
     session['sid'] = request.sid
-    print(session['sid'])
 
 @socketio.on('take')
 def moves(data):
-    print(data)
-    rank={}
-    files = string.ascii_lowercase[0:8]
-    y = files[int(data['y'])-1]
+    figure = int(data['figure'])
+    game_id = int(data['id'])
+    y = int(data['y'])
     x = int(data['x'])
+    go = []
+    attack = []
+    go, attack = check_moves(game_id, x, y, figure)
+    go = dict(go)
+    attack = dict(attack)
+    socketio.emit('moves', data=(go, attack), room=session['sid'])
+
+
+def check_moves(game_id, x, y, figure):
+    go = []
+    attack = []
+    if figure == 1:
+        go, attack = white_pawn(game_id, x, y)
+    elif figure == 2:
+        go, attack = white_knight(game_id, x, y)
+    elif figure == 3:
+        go, attack = white_bishop(game_id, x, y)
+    elif figure == 4:
+        go, attack = white_rook(game_id, x, y)
+    elif figure == 5:
+        go, attack = white_queen(game_id, x, y)
+    elif figure == 6:
+        go, attack = white_king(game_id, x, y)
+    elif figure == 7:
+        go, attack = black_pawn(game_id, x, y)
+    elif figure == 8:
+        go, attack = black_knight(game_id, x, y)
+    elif figure == 9:
+        go, attack = black_bishop(game_id, x, y)
+    elif figure == 10:
+        go, attack = black_rook(game_id, x, y)
+    elif figure == 11:
+        go, attack = black_queen(game_id, x, y)
+    else:
+        go, attack = black_king(game_id, x, y)
+    return go, attack
+
+def white_pawn(game_id, x, y):
+    rank={}
+    can_go = []
+    can_attack = []
     for i in range (1, 9):
-        rank[i] = Rank.query.filter_by(game_id=data['id'], number=i).first().__dict__
-    print(rank[x][y])
-   
+        rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, 
+                                           Rank.f, Rank.g, Rank.h).filter_by(game_id=game_id, 
+                                           number=i).first()
+    if rank[x+1][y] == 0:
+        can_go.append([x+1, y])
+    if x == 2 and rank[x+2][y] == 0:
+        can_go.append([x+2, y])
+    if y > 1 and rank[x+1][y-1] > 6:
+        can_attack.append([x+1, y-1])
+    if y < 8 and rank[x+1][y+1] > 6:
+        can_attack.append([x+1, y+1])
+    print(can_go, can_attack)
+    return can_go, can_attack
+
+
+def white_knight(game_id, x, y):
+    pass
+def white_bishop(game_id, x, y):
+    pass
+def white_rook(game_id, x, y):
+    pass
+def white_queen(game_id, x, y):
+    pass
+def white_king(game_id, x, y):
+    pass
+def black_pawn(game_id, x, y):
+    pass
+def black_knight(game_id, x, y):
+    pass
+def black_bishop(game_id, x, y):
+    pass
+def black_rook(game_id, x, y):
+    pass
+def black_queen(game_id, x, y):
+    pass
+def black_king(game_id, x, y):
+    pass
+
 def create_game(game_id):
     rank = {}
     for i in range(1, 9):
@@ -42,15 +116,15 @@ def create_game(game_id):
 def white_check(game_id):
     rank={}
     can_move = []
-    files = string.ascii_lowercase[0:8]
     for i in range (1, 9):
-        rank[i] = Rank.query.filter_by(game_id=game_id, number=i).first().__dict__
+        rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, Rank.f,
+                                           Rank.g, Rank.h).filter_by(game_id=game_id, number=i).first()
     for i in range (1, 9):
-        for j in range (8):
-            if rank[i][files[j]] == 1: 
-                if rank[i+1][files[j]] == 0 or (j < 7 and rank[i+1][files[j+1]] > 6) \
-                    or (j > 0 and rank[i+1][files[j-1]] > 6):
-                        can_move.append([i, j+1])
+        for j in range (1, 9):
+            if rank[i][j] == 1: 
+                if rank[i+1][j] == 0 or (j < 8 and rank[i+1][j+1] > 6) \
+                    or (j > 1 and rank[i+1][j-1] > 6):
+                        can_move.append([i, j])
     return can_move
 
 @app.route("/", methods=['GET', 'POST'])
@@ -95,7 +169,8 @@ def index():
 def game(game_id):
     rank={}
     for i in range (1, 9):
-        rank[i] = Rank.query.filter_by(game_id=game_id, number=i).first()   
+        rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, Rank.f,
+                                           Rank.g, Rank.h).filter_by(game_id=game_id, number=i).first()   
     files = string.ascii_lowercase[0:8]
     moving = white_check(game_id)
     print(moving)
