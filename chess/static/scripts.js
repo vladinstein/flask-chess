@@ -1,6 +1,12 @@
 const socket = io();
 'use strict';
 
+socket.on("connect", () => {
+    var id = $('h4.game-id').attr('data-i')
+        figures = $('h4.game-id').attr('data-figures')
+    socket.emit('info', {'id': id, 'figures': figures}) 
+});
+
 window.addEventListener('DOMContentLoaded', function addfigures() {
     var squares = document.querySelectorAll(".square");
     squares.forEach(function (square)
@@ -47,7 +53,7 @@ $(document).on('click', '.square[data-m="1"]', function() {
     var y = $(this).attr('data-y') 
     var figure = $(this).attr('data-square')
     var id = $('h4.game-id').attr('data-i')
-    socket.emit('take', {'x': x, 'y': y, 'id': id, 'figure': figure})       
+    socket.emit('take', {'x': x, 'y': y, 'id': id, 'figure': figure})     
 });
 
 $(document).on('click', '.square[data-a="1"]', function() {
@@ -58,15 +64,19 @@ $(document).on('click', '.square[data-a="1"]', function() {
 
 $(document).on('click', '.square[data-go="1"]', function() {
     var text = $('.square[data-a="1"]').html()
+        figure = $('.square[data-a="1"]').attr('data-square')
     $('.square[data-a="1"]').html($(this).html())
     $(this).html(text)
+    $(this).attr('data-square', figure)
     var i = $('.square[data-a="1"]').attr('data-x')
         j = $('.square[data-a="1"]').attr('data-y')
+    $('.square[data-a="1"]').attr('data-square', '0')
     $('.square[data-a="1"]').attr('data-a', '0')  
     $('.square[data-go="1"]').attr('data-go', '0')  
     var x = $(this).attr('data-x')
         y = $(this).attr('data-y')
         id = $('h4.game-id').attr('data-i')
+        figure = $(this).attr('data-square')     
     socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'id': id, 'figure': figure})
 });
 
@@ -80,4 +90,25 @@ $(document).ready(function(){
     $('.square[data-x=' + key + '][data-y=' + value + ']').attr('data-attack', '1')
     }       
     })
-})
+    socket.on('opp_move', (data) => {
+        var text1 = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html()
+            text2 = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html()
+            figure = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square')
+        $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html(text1)
+        $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html(text2)
+        $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square', '0')
+        $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', figure)
+    })
+    socket.on('next_move', (moving)=>{
+        for (let obj of Object.values(moving)) {
+            $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
+            } 
+    })
+    socket.on('connected', (moving)=>{
+        $('.waiting').addClass('hidden')
+        for (let obj of Object.values(moving)) {
+            $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
+            } 
+    })
+});
+

@@ -19,8 +19,6 @@
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
     <!-- JQuery -->
     <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
-    <!-- Scripts File -->
-    <script src={{ url_for('static', filename='scripts.js') }}></script>
 </head>
 <body>
     <header>
@@ -38,6 +36,8 @@
     <main>
         {% block content %}
         {% endblock content %}
+        {% block scripts %}
+        {% endblock scripts %}
     </main>
     <footer>
         <small>Created by vladinstein.</small>

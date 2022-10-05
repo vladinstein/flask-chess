@@ -37,6 +37,9 @@ footer {
 
 /* Main */
 
+.hidden {
+    display: none; }
+
 .board {
     display: flex;
     flex-direction: row;
