@@ -59,7 +59,8 @@ $(document).on('click', '.square[data-m="1"]', function() {
 $(document).on('click', '.square[data-a="1"]', function() {
     $('.square[data-m="2"]').attr('data-m', '1')
     $(this).attr('data-a', '0');  
-    $('.square[data-go="1"]').attr('data-go', '0')  
+    $('.square[data-go="1"]').attr('data-go', '0')
+    $('.square[data-attack="1"]').attr('data-attack', '0')  
 });
 
 $(document).on('click', '.square[data-go="1"]', function() {
@@ -73,22 +74,22 @@ $(document).on('click', '.square[data-go="1"]', function() {
     $('.square[data-a="1"]').attr('data-square', '0')
     $('.square[data-a="1"]').attr('data-a', '0')  
     $('.square[data-go="1"]').attr('data-go', '0')  
+    $('.square[data-attack="1"]').attr('data-attack', '0')
     var x = $(this).attr('data-x')
         y = $(this).attr('data-y')
-        id = $('h4.game-id').attr('data-i')
-        figure = $(this).attr('data-square')     
+        id = $('h4.game-id').attr('data-i')    
     socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'id': id, 'figure': figure})
 });
 
 // https://stackoverflow.com/questions/34913675/how-to-iterate-keys-values-in-javascript
 $(document).ready(function(){
     socket.on('moves', (go, attack)=>{
-    for (const [key, value] of Object.entries(go)) {
-    $('.square[data-x=' + key + '][data-y=' + value + ']').attr('data-go', '1')
-    }    
-    for (const [key, value] of Object.entries(attack)) {
-    $('.square[data-x=' + key + '][data-y=' + value + ']').attr('data-attack', '1')
-    }       
+    for (let obj of Object.values(go)) {
+        $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-go', '1')
+    } 
+    for (let obj of Object.values(attack)) {
+        $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-attack', '1')
+    }     
     })
     socket.on('opp_move', (data) => {
         var text1 = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html()
@@ -100,6 +101,7 @@ $(document).ready(function(){
         $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', figure)
     })
     socket.on('next_move', (moving)=>{
+        $('.square[data-m="2"]').attr('data-m', '0')
         for (let obj of Object.values(moving)) {
             $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
             } 

@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}
-{% if not black_sid %}
+{% if not black_sid and session['figures'] == 0 %}
 <div class="waiting">
     <h4>Waiting for your opponent...</h4>
 </div>

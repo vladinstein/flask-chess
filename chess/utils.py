@@ -2,8 +2,8 @@ from chess.models import Rank
 from chess import db
 
 def check_moves(game_id, x, y, figure):
-    go = []
-    attack = []
+    go = {}
+    attack = {}
     if figure == 1:
         go, attack = white_pawn(game_id, x, y)
     elif figure == 2:
@@ -32,21 +32,28 @@ def check_moves(game_id, x, y, figure):
 
 def white_pawn(game_id, x, y):
     rank={}
-    can_go = []
-    can_attack = []
+    go = {}
+    attack = {}
     for i in range (1, 9):
         rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, 
                                            Rank.f, Rank.g, Rank.h).filter_by(game_id=game_id, 
                                            number=i).first()
+    z = 0
     if rank[x+1][y] == 0:
-        can_go.append([x+1, y])
-    if x == 2 and rank[x+2][y] == 0:
-        can_go.append([x+2, y])
+        go[z] = [x+1, y]
+        z += 1
+    if x == 2 and rank[x+1][y] == 0 and rank[x+2][y] == 0:
+        go[z] = [x+2, y]
+        z += 1
+    z = 0
     if y > 1 and rank[x+1][y-1] > 6:
-        can_attack.append([x+1, y-1])
+        attack[z] = [x+1, y-1]
+        z += 1
     if y < 8 and rank[x+1][y+1] > 6:
-        can_attack.append([x+1, y+1])
-    return can_go, can_attack
+        attack[z] = [x+1, y+1]
+        z += 1
+    print(attack)
+    return go, attack
 
 
 def white_knight(game_id, x, y):
@@ -61,21 +68,28 @@ def white_king(game_id, x, y):
     pass
 def black_pawn(game_id, x, y):
     rank={}
-    can_go = []
-    can_attack = []
+    go = {}
+    attack = {}
     for i in range (1, 9):
         rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, 
                                            Rank.f, Rank.g, Rank.h).filter_by(game_id=game_id, 
                                            number=i).first()
+    z = 0
     if rank[x-1][y] == 0:
-        can_go.append([x-1, y])
-    if x == 7 and rank[x-2][y] == 0:
-        can_go.append([x-2, y])
+        go[z] = [x-1, y]
+        z += 1
+    if x == 7 and rank[x-1][y] == 0 and rank[x-2][y] == 0:
+        go[z] = [x-2, y]
+        z += 1
+    z = 0
     if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0:
-        can_attack.append([x-1, y-1])
-    if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y-1] > 0:
-        can_attack.append([x-1, y+1])
-    return can_go, can_attack
+        attack[z] = [x-1, y-1]
+        z +=1
+    if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0:
+        attack[z] = [x-1, y+1]
+        z +=1
+    print(attack)
+    return go, attack
 def black_knight(game_id, x, y):
     pass
 def black_bishop(game_id, x, y):

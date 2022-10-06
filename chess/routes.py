@@ -49,11 +49,9 @@ def take(data):
     game_id = int(data['id'])
     y = int(data['y'])
     x = int(data['x'])
-    go = []
-    attack = []
+    go = {}
+    attack = {}
     go, attack = check_moves(game_id, x, y, figure)
-    go = dict(go)
-    attack = dict(attack)
     socketio.emit('moves', data=(go, attack), room=session['sid'])
 
 @socketio.on('go')
