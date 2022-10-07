@@ -6,7 +6,7 @@ from flask import make_response
 from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
-from chess.utils import check_moves, create_game, white_check, black_check
+from chess.utils import check_moves, create_game, can_move
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -39,7 +39,7 @@ def info(data):
         game.white_sid = session['sid']
     else:
         game.black_sid = session['sid']
-        moving = white_check(game_id)
+        moving = can_move(game_id, figures = 0)
         socketio.emit('connected', moving, room=game.white_sid)
     db.session.commit()
 
@@ -81,10 +81,10 @@ def go(data):
         game.p1_move = 1
     db.session.commit()
     if figure < 7:
-        moving = black_check(game_id)
+        moving = can_move(game_id, figures = 1)
         socketio.emit('next_move', moving, room=game.black_sid)
     else:
-        moving = white_check(game_id)  
+        moving = can_move(game_id, figures = 0)  
         socketio.emit('next_move', moving, room=game.white_sid)
 
 @app.route("/", methods=['GET', 'POST'])
@@ -145,9 +145,9 @@ def game(game_id):
     game = Game.query.filter_by(id=game_id).first()
     if game.black_sid:
         if session ['figures'] == 0 and game.p1_move == 1:
-            moving = white_check(game_id)
+            moving = can_move(game_id, figures = 0)
         elif session ['figures'] == 1 and game.p1_move == 0:
-            moving = black_check(game_id)
+            moving = can_move(game_id, figures = 1)
     response = make_response(render_template('game.html', files=files, rank=rank, moving=moving, 
                                              game_id=game_id, black_sid = game.black_sid))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'

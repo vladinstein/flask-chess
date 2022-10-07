@@ -5,32 +5,32 @@ def check_moves(game_id, x, y, figure):
     go = {}
     attack = {}
     if figure == 1:
-        go, attack = white_pawn(game_id, x, y)
+        go, attack = check_white_pawn(game_id, x, y)
     elif figure == 2:
-        go, attack = white_knight(game_id, x, y)
+        go, attack = check_white_knight(game_id, x, y)
     elif figure == 3:
-        go, attack = white_bishop(game_id, x, y)
+        go, attack = check_white_bishop(game_id, x, y)
     elif figure == 4:
-        go, attack = white_rook(game_id, x, y)
+        go, attack = check_white_rook(game_id, x, y)
     elif figure == 5:
-        go, attack = white_queen(game_id, x, y)
+        go, attack = check_white_queen(game_id, x, y)
     elif figure == 6:
-        go, attack = white_king(game_id, x, y)
+        go, attack = check_white_king(game_id, x, y)
     elif figure == 7:
-        go, attack = black_pawn(game_id, x, y)
+        go, attack = check_black_pawn(game_id, x, y)
     elif figure == 8:
-        go, attack = black_knight(game_id, x, y)
+        go, attack = check_black_knight(game_id, x, y)
     elif figure == 9:
-        go, attack = black_bishop(game_id, x, y)
+        go, attack = check_black_bishop(game_id, x, y)
     elif figure == 10:
-        go, attack = black_rook(game_id, x, y)
+        go, attack = check_black_rook(game_id, x, y)
     elif figure == 11:
-        go, attack = black_queen(game_id, x, y)
+        go, attack = check_black_queen(game_id, x, y)
     else:
-        go, attack = black_king(game_id, x, y)
+        go, attack = check_black_king(game_id, x, y)
     return go, attack
 
-def white_pawn(game_id, x, y):
+def check_white_pawn(game_id, x, y):
     rank={}
     go = {}
     attack = {}
@@ -52,21 +52,20 @@ def white_pawn(game_id, x, y):
     if y < 8 and rank[x+1][y+1] > 6:
         attack[z] = [x+1, y+1]
         z += 1
-    print(attack)
     return go, attack
 
 
-def white_knight(game_id, x, y):
+def check_white_knight(game_id, x, y):
     pass
-def white_bishop(game_id, x, y):
+def check_white_bishop(game_id, x, y):
     pass
-def white_rook(game_id, x, y):
+def check_white_rook(game_id, x, y):
     pass
-def white_queen(game_id, x, y):
+def check_white_queen(game_id, x, y):
     pass
-def white_king(game_id, x, y):
+def check_white_king(game_id, x, y):
     pass
-def black_pawn(game_id, x, y):
+def check_black_pawn(game_id, x, y):
     rank={}
     go = {}
     attack = {}
@@ -88,17 +87,16 @@ def black_pawn(game_id, x, y):
     if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0:
         attack[z] = [x-1, y+1]
         z +=1
-    print(attack)
     return go, attack
-def black_knight(game_id, x, y):
+def check_black_knight(game_id, x, y):
     pass
-def black_bishop(game_id, x, y):
+def check_black_bishop(game_id, x, y):
     pass
-def black_rook(game_id, x, y):
+def check_black_rook(game_id, x, y):
     pass
-def black_queen(game_id, x, y):
+def check_black_queen(game_id, x, y):
     pass
-def black_king(game_id, x, y):
+def check_black_king(game_id, x, y):
     pass
 
 def create_game(game_id):
@@ -117,34 +115,58 @@ def create_game(game_id):
         db.session.add(rank[i])
     db.session.commit()
 
-def white_check(game_id):
+def can_move(game_id, figures):
     rank={}
-    can_move = {}
+    moveable = {}
     for i in range (1, 9):
         rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, Rank.f,
                                            Rank.g, Rank.h).filter_by(game_id=game_id, number=i).first()
     x = 0
     for i in range (1, 9):
         for j in range (1, 9):
-            if rank[i][j] == 1: 
-                if rank[i+1][j] == 0 or (j < 8 and rank[i+1][j+1] > 6) \
+            if figures == 0:
+                if rank[i][j] == 1:
+                    add_moveable, x = can_move_white_pawn(rank, x, i, j )
+                    moveable.update(add_moveable)
+                if rank[i][j] == 2:
+                    pass
+                if rank[i][j] == 3:
+                    pass
+                if rank[i][j] == 4:
+                    pass
+                if rank[i][j] == 5:
+                    pass
+                if rank[i][j] == 6:
+                    pass
+            else:
+                if rank[i][j] == 7:
+                    add_moveable, x = can_move_black_pawn(rank, x, i, j)
+                    print(moveable)
+                if rank[i][j] == 8:
+                    pass
+                if rank[i][j] == 9:
+                    pass
+                if rank[i][j] == 10:
+                    pass
+                if rank[i][j] == 11:
+                    pass
+                if rank[i][j] == 12:
+                    pass
+    return moveable
+                
+def can_move_white_pawn(rank, x, i, j):
+    moveable = {}
+    if rank[i+1][j] == 0 or (j < 8 and rank[i+1][j+1] > 6) \
                     or (j > 1 and rank[i+1][j-1] > 6):
-                    can_move[x]=[i, j]
+                    moveable[x]=[i, j]
                     x += 1
-    return can_move
+    return moveable, x
 
-def black_check(game_id):
-    rank={}
-    can_move = {}
-    for i in range (1, 9):
-        rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, Rank.f,
-                                           Rank.g, Rank.h).filter_by(game_id=game_id, number=i).first()
-    x = 0
-    for i in range (1, 9):
-        for j in range (1, 9):
-            if rank[i][j] == 7: 
-                if rank[i-1][j] == 0 or (j < 8 and rank[i-1][j+1] < 7 and rank[i-1][j+1] > 0) \
+def can_move_black_pawn(rank, x, i, j):
+    moveable = {}
+    if rank[i-1][j] == 0 or (j < 8 and rank[i-1][j+1] < 7 and rank[i-1][j+1] > 0) \
                     or (j > 1 and rank[i-1][j-1] < 7 and rank[i-1][j-1] > 0):
-                    can_move[x]=[i, j]
+                    moveable[x]=[i, j]
                     x += 1
-    return can_move
+    return moveable, x
+
