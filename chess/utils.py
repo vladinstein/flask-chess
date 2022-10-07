@@ -1,36 +1,36 @@
 from chess.models import Rank
 from chess import db
 
-def check_moves(game_id, x, y, figure):
+def get_moves(game_id, x, y, figure):
     go = {}
     attack = {}
     if figure == 1:
-        go, attack = check_white_pawn(game_id, x, y)
+        go, attack = get_white_pawn_moves(game_id, x, y)
     elif figure == 2:
-        go, attack = check_white_knight(game_id, x, y)
+        go, attack = get_white_knight_moves(game_id, x, y)
     elif figure == 3:
-        go, attack = check_white_bishop(game_id, x, y)
+        go, attack = get_white_bishop_moves(game_id, x, y)
     elif figure == 4:
-        go, attack = check_white_rook(game_id, x, y)
+        go, attack = get_white_rook_moves(game_id, x, y)
     elif figure == 5:
-        go, attack = check_white_queen(game_id, x, y)
+        go, attack = get_white_queen_moves(game_id, x, y)
     elif figure == 6:
-        go, attack = check_white_king(game_id, x, y)
+        go, attack = get_white_king_moves(game_id, x, y)
     elif figure == 7:
-        go, attack = check_black_pawn(game_id, x, y)
+        go, attack = get_black_pawn_moves(game_id, x, y)
     elif figure == 8:
-        go, attack = check_black_knight(game_id, x, y)
+        go, attack = get_black_knight_moves(game_id, x, y)
     elif figure == 9:
-        go, attack = check_black_bishop(game_id, x, y)
+        go, attack = get_black_bishop_moves(game_id, x, y)
     elif figure == 10:
-        go, attack = check_black_rook(game_id, x, y)
+        go, attack = get_black_rook_moves(game_id, x, y)
     elif figure == 11:
-        go, attack = check_black_queen(game_id, x, y)
+        go, attack = get_black_queen_moves(game_id, x, y)
     else:
-        go, attack = check_black_king(game_id, x, y)
+        go, attack = get_black_king_moves(game_id, x, y)
     return go, attack
 
-def check_white_pawn(game_id, x, y):
+def get_white_pawn_moves(game_id, x, y):
     rank={}
     go = {}
     attack = {}
@@ -55,17 +55,17 @@ def check_white_pawn(game_id, x, y):
     return go, attack
 
 
-def check_white_knight(game_id, x, y):
+def get_white_knight_moves(game_id, x, y):
     pass
-def check_white_bishop(game_id, x, y):
+def get_white_bishop_moves(game_id, x, y):
     pass
-def check_white_rook(game_id, x, y):
+def get_white_rook_moves(game_id, x, y):
     pass
-def check_white_queen(game_id, x, y):
+def get_white_queen_moves(game_id, x, y):
     pass
-def check_white_king(game_id, x, y):
+def get_white_king_moves(game_id, x, y):
     pass
-def check_black_pawn(game_id, x, y):
+def get_black_pawn_moves(game_id, x, y):
     rank={}
     go = {}
     attack = {}
@@ -88,15 +88,15 @@ def check_black_pawn(game_id, x, y):
         attack[z] = [x-1, y+1]
         z +=1
     return go, attack
-def check_black_knight(game_id, x, y):
+def get_black_knight_moves(game_id, x, y):
     pass
-def check_black_bishop(game_id, x, y):
+def get_black_bishop_moves(game_id, x, y):
     pass
-def check_black_rook(game_id, x, y):
+def get_black_rook_moves(game_id, x, y):
     pass
-def check_black_queen(game_id, x, y):
+def get_black_queen_moves(game_id, x, y):
     pass
-def check_black_king(game_id, x, y):
+def get_black_king_moves(game_id, x, y):
     pass
 
 def create_game(game_id):
@@ -141,7 +141,7 @@ def can_move(game_id, figures):
             else:
                 if rank[i][j] == 7:
                     add_moveable, x = can_move_black_pawn(rank, x, i, j)
-                    print(moveable)
+                    moveable.update(add_moveable)
                 if rank[i][j] == 8:
                     pass
                 if rank[i][j] == 9:

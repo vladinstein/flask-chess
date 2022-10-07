@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}
-{% if not black_sid and session['figures'] == 0 %}
+{% if session['creator'] and not both_connected %}
 <div class="waiting">
     <h4>Waiting for your opponent...</h4>
 </div>
@@ -87,7 +87,7 @@
     </div>
 </div>
 <div class="your_move">
-    <h4 class="game-id" data-i="{{ game_id }}" data-figures="{{ session['figures'] }}">Your figures are {{ session['figures'] }}! Your game ID is {{ game_id }}!</h4>
+    <h4 class="game-id" data-i="{{ game_id }}">Your figures are {{ session['figures'] }}! Your game ID is {{ game_id }}!</h4>
     {% for key, value in moving.items() %}
         <li>{{ value[0], value[1] }}</li> 
     {% endfor %}

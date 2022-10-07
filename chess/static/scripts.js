@@ -3,8 +3,8 @@ const socket = io();
 
 socket.on("connect", () => {
     var id = $('h4.game-id').attr('data-i')
-        figures = $('h4.game-id').attr('data-figures')
-    socket.emit('info', {'id': id, 'figures': figures}) 
+        creator = $('h4.game-id').attr('data-creator')
+    socket.emit('info', {'id': id}) 
 });
 
 window.addEventListener('DOMContentLoaded', function addfigures() {
@@ -111,6 +111,9 @@ $(document).ready(function(){
         for (let obj of Object.values(moving)) {
             $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
             } 
+    })
+    socket.on('remove_waiting', ()=>{
+        $('.waiting').addClass('hidden') 
     })
 });
 

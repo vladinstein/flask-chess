@@ -7,6 +7,7 @@ class Game(db.Model):
     black_sid = db.Column(db.String(120))
     player_1 = db.Column(db.Boolean, default = False, nullable=False)
     p1_move = db.Column(db.Boolean, default = True, nullable=False)
+    both_connected = db.Column(db.Boolean, default = False, nullable=False)
     ranks = db.relationship('Rank', backref='game', lazy=True)
 
     def __repr__(self):

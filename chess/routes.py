@@ -6,7 +6,7 @@ from flask import make_response
 from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
-from chess.utils import check_moves, create_game, can_move
+from chess.utils import get_moves, create_game, can_move
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -33,15 +33,34 @@ def connect():
 @socketio.on('info')
 def info(data):
     game_id = int(data['id'])
-    figures = int(data['figures'])
     game = Game.query.filter_by(id=game_id).first()
-    if figures == 0:
-        game.white_sid = session['sid']
+    if session['creator']:
+        if session['figures'] == 0:
+            game.white_sid = session['sid']
+        if session['figures'] == 1:
+            game.black_sid = session['sid']
+        db.session.commit()
     else:
-        game.black_sid = session['sid']
-        moving = can_move(game_id, figures = 0)
-        socketio.emit('connected', moving, room=game.white_sid)
-    db.session.commit()
+        if not game.both_connected:
+            if session['figures'] == 0:
+                game.white_sid = session['sid'] 
+                moving = can_move(game_id, figures = 0)
+                socketio.emit('connected', moving, room=game.white_sid)
+                socketio.emit('remove_waiting', room=game.black_sid)
+                game.both_connected = 1
+            else:
+                game.black_sid = session['sid'] 
+                moving = can_move(game_id, figures = 0)
+                socketio.emit('connected', moving, room=game.white_sid)
+                game.both_connected = 1
+            db.session.commit()
+        else:
+            if session['figures'] == 0:
+                game.white_sid = session['sid'] 
+            else:
+                game.black_sid = session['sid']
+            db.session.commit()
+
 
 @socketio.on('take')
 def take(data):
@@ -51,7 +70,7 @@ def take(data):
     x = int(data['x'])
     go = {}
     attack = {}
-    go, attack = check_moves(game_id, x, y, figure)
+    go, attack = get_moves(game_id, x, y, figure)
     socketio.emit('moves', data=(go, attack), room=session['sid'])
 
 @socketio.on('go')
@@ -80,6 +99,7 @@ def go(data):
     else:
         game.p1_move = 1
     db.session.commit()
+    print(game.p1_move)
     if figure < 7:
         moving = can_move(game_id, figures = 1)
         socketio.emit('next_move', moving, room=game.black_sid)
@@ -92,6 +112,7 @@ def index():
     cr_form = CreateGameForm()
     jn_form = JoinGameForm()
     if cr_form.cr_submit.data and cr_form.validate():
+        session['creator'] = 1
         hashed_password = bcrypt.generate_password_hash(cr_form.password.data).decode('utf-8')
         if cr_form.figures.data == 'black':
             player_1 = True
@@ -114,6 +135,7 @@ def index():
               to connect.', 'success')
         return redirect(url_for('game', game_id=game.id))
     elif jn_form.jn_submit.data and jn_form.validate():
+        session['creator'] = 0
         game = Game.query.get(jn_form.game_id.data)
         if game and bcrypt.check_password_hash(game.password, jn_form.password.data):
             if game.player_1:
@@ -143,13 +165,14 @@ def game(game_id):
     files = string.ascii_lowercase[0:8]
     moving = {}
     game = Game.query.filter_by(id=game_id).first()
-    if game.black_sid:
+    # game.white_sid can be removed 
+    if game.black_sid and game.white_sid:
         if session ['figures'] == 0 and game.p1_move == 1:
             moving = can_move(game_id, figures = 0)
         elif session ['figures'] == 1 and game.p1_move == 0:
             moving = can_move(game_id, figures = 1)
     response = make_response(render_template('game.html', files=files, rank=rank, moving=moving, 
-                                             game_id=game_id, black_sid = game.black_sid))
+                                             game_id=game_id, both_connected = game.both_connected))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     return response
