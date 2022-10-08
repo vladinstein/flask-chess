@@ -63,12 +63,12 @@ $(document).on('click', '.square[data-a="1"]', function() {
     $('.square[data-attack="1"]').attr('data-attack', '0')  
 });
 
-$(document).on('click', '.square[data-go="1"]', function() {
+$(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', function() {
     $('.your_move').addClass('hidden')
     $('.opp_move').removeClass('hidden')
     var text = $('.square[data-a="1"]').html()
         figure = $('.square[data-a="1"]').attr('data-square')
-    $('.square[data-a="1"]').html($(this).html())
+    $('.square[data-a="1"]').html('')
     $(this).html(text)
     $(this).attr('data-square', figure)
     var i = $('.square[data-a="1"]').attr('data-x')
@@ -94,11 +94,10 @@ $(document).ready(function(){
     }     
     })
     socket.on('opp_move', (data) => {
-        var text1 = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html()
-            text2 = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html()
+        var text = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html()
             figure = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square')
-        $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html(text1)
-        $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html(text2)
+        $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html(text)
+        $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html('')
         $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square', '0')
         $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', figure)
     })
