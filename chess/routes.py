@@ -6,7 +6,7 @@ from flask import make_response
 from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
-from chess.utils import get_moves, create_game, can_move
+from chess.utils import get_moves, create_game, check_can_move
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -44,14 +44,15 @@ def info(data):
         if not game.both_connected:
             if session['figures'] == 0:
                 game.white_sid = session['sid'] 
-                moving = can_move(game_id, figures = 0)
+                moving = check_can_move(game_id, figures = 0)
                 socketio.emit('connected', moving, room=game.white_sid)
-                socketio.emit('remove_waiting', room=game.black_sid)
+                socketio.emit('wait_move_status', room=game.black_sid)
                 game.both_connected = 1
             else:
                 game.black_sid = session['sid'] 
-                moving = can_move(game_id, figures = 0)
+                moving = check_can_move(game_id, figures = 0)
                 socketio.emit('connected', moving, room=game.white_sid)
+                socketio.emit('wait_move_status', room=game.black_sid)
                 game.both_connected = 1
             db.session.commit()
         else:
@@ -101,10 +102,10 @@ def go(data):
     db.session.commit()
     print(game.p1_move)
     if figure < 7:
-        moving = can_move(game_id, figures = 1)
+        moving = check_can_move(game_id, figures = 1)
         socketio.emit('next_move', moving, room=game.black_sid)
     else:
-        moving = can_move(game_id, figures = 0)  
+        moving = check_can_move(game_id, figures = 0)  
         socketio.emit('next_move', moving, room=game.white_sid)
 
 @app.route("/", methods=['GET', 'POST'])
@@ -168,11 +169,12 @@ def game(game_id):
     # game.white_sid can be removed 
     if game.black_sid and game.white_sid:
         if session ['figures'] == 0 and game.p1_move == 1:
-            moving = can_move(game_id, figures = 0)
+            moving = check_can_move(game_id, figures = 0)
         elif session ['figures'] == 1 and game.p1_move == 0:
-            moving = can_move(game_id, figures = 1)
+            moving = check_can_move(game_id, figures = 1)
     response = make_response(render_template('game.html', files=files, rank=rank, moving=moving, 
-                                             game_id=game_id, both_connected = game.both_connected))
+                                             game_id=game_id, both_connected = game.both_connected,
+                                             p1_move = game.p1_move))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     return response

@@ -64,6 +64,8 @@ $(document).on('click', '.square[data-a="1"]', function() {
 });
 
 $(document).on('click', '.square[data-go="1"]', function() {
+    $('.your_move').addClass('hidden')
+    $('.opp_move').removeClass('hidden')
     var text = $('.square[data-a="1"]').html()
         figure = $('.square[data-a="1"]').attr('data-square')
     $('.square[data-a="1"]').html($(this).html())
@@ -105,15 +107,20 @@ $(document).ready(function(){
         for (let obj of Object.values(moving)) {
             $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
             } 
+        $('.your_move').removeClass('hidden')
+        $('.opp_move').addClass('hidden')
     })
     socket.on('connected', (moving)=>{
         $('.waiting').addClass('hidden')
+        $('.your_move').removeClass('hidden')
         for (let obj of Object.values(moving)) {
             $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
             } 
     })
-    socket.on('remove_waiting', ()=>{
+    socket.on('wait_move_status', ()=>{
         $('.waiting').addClass('hidden') 
+        $('.opp_move').removeClass('hidden')
     })
+
 });
 

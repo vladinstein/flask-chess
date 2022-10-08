@@ -115,7 +115,7 @@ def create_game(game_id):
         db.session.add(rank[i])
     db.session.commit()
 
-def can_move(game_id, figures):
+def check_can_move(game_id, figures):
     rank={}
     moveable = {}
     for i in range (1, 9):
@@ -126,7 +126,7 @@ def can_move(game_id, figures):
         for j in range (1, 9):
             if figures == 0:
                 if rank[i][j] == 1:
-                    add_moveable, x = can_move_white_pawn(rank, x, i, j )
+                    add_moveable, x = check_white_pawn_can_move(rank, x, i, j )
                     moveable.update(add_moveable)
                 if rank[i][j] == 2:
                     pass
@@ -140,7 +140,7 @@ def can_move(game_id, figures):
                     pass
             else:
                 if rank[i][j] == 7:
-                    add_moveable, x = can_move_black_pawn(rank, x, i, j)
+                    add_moveable, x = check_black_pawn_can_move(rank, x, i, j)
                     moveable.update(add_moveable)
                 if rank[i][j] == 8:
                     pass
@@ -154,7 +154,7 @@ def can_move(game_id, figures):
                     pass
     return moveable
                 
-def can_move_white_pawn(rank, x, i, j):
+def check_white_pawn_can_move(rank, x, i, j):
     moveable = {}
     if rank[i+1][j] == 0 or (j < 8 and rank[i+1][j+1] > 6) \
                     or (j > 1 and rank[i+1][j-1] > 6):
@@ -162,7 +162,7 @@ def can_move_white_pawn(rank, x, i, j):
                     x += 1
     return moveable, x
 
-def can_move_black_pawn(rank, x, i, j):
+def check_black_pawn_can_move(rank, x, i, j):
     moveable = {}
     if rank[i-1][j] == 0 or (j < 8 and rank[i-1][j+1] < 7 and rank[i-1][j+1] > 0) \
                     or (j > 1 and rank[i-1][j-1] < 7 and rank[i-1][j-1] > 0):

@@ -5,12 +5,30 @@
     <h4>Waiting for your opponent...</h4>
 </div>
 {% endif %}
-<div class="your_move">
-    <h4>Your move!</h4>
-</div>
-<div class="opp_move">
-    <h4>Your opponent's move!</h4>
-</div>
+{% if both_connected %} 
+    {% if (session['figures'] == 0 and p1_move) or (session['figures'] == 1 and not p1_move)  %}
+        <div class="your_move">
+            <h4>Your move!</h4>
+        </div>
+        <div class="opp_move hidden">
+            <h4>Your opponent's move!</h4>
+        </div>
+    {% elif (session['figures'] == 1 and p1_move) or (session['figures'] == 0 and not p1_move) %}
+    <div class="your_move hidden">
+        <h4>Your move!</h4>
+    </div>
+    <div class="opp_move">
+        <h4>Your opponent's move!</h4>
+    </div>
+    {% endif %}
+{% else %}
+    <div class="your_move hidden">
+        <h4>Your move!</h4>
+    </div>
+    <div class="opp_move hidden">
+        <h4>Your opponent's move!</h4>
+    </div>
+{% endif %}
 <div class="board">
     <div class="index_column">
         {% if session['figures'] %}
