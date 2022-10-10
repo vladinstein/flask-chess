@@ -56,7 +56,67 @@ def get_white_pawn_moves(game_id, x, y):
 
 
 def get_white_knight_moves(game_id, x, y):
-    pass
+    rank={}
+    go = {}
+    attack = {}
+    for i in range (1, 9):
+        rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, 
+                                           Rank.f, Rank.g, Rank.h).filter_by(game_id=game_id, 
+                                           number=i).first()
+    # dictionary of possible moves
+    z = 0
+    if x < 7 and y < 8 and rank[x+2][y+1] == 0:
+        go[z] = [x+2, y+1]
+        z += 1
+    if x < 8 and y < 7 and rank[x+1][y+2] == 0:
+        go[z] = [x+1, y+2]
+        z += 1
+    if x > 1 and y < 7 and rank[x-1][y+2] == 0:
+        go[z] = [x-1, y+2]
+        z += 1
+    if x > 2 and y < 8 and rank[x-2][y+1] == 0:
+        go[z] = [x-2, y+1]
+        z += 1
+    if x > 2 and y > 1 and rank[x-2][y-1] == 0:
+        go[z] = [x-2, y-1]
+        z += 1
+    if x > 1 and y > 2 and rank[x-1][y-2] == 0:
+        go[z] = [x-1, y-2]
+        z += 1
+    if x < 8 and y > 2 and rank[x+1][y-2] == 0:
+        go[z] = [x+1, y-2]
+        z += 1
+    if x < 7 and y > 1 and rank[x+2][y-1] == 0:
+        go[z] = [x+2, y-1]
+        z += 1   
+    # dictionary of possible attacks
+    z = 0
+    if x < 7 and y < 8 and rank[x+2][y+1] > 6:
+        attack[z] = [x+2, y+1]
+        z += 1
+    if x < 8 and y < 7 and rank[x+1][y+2] > 6:
+        attack[z] = [x+1, y+2]
+        z += 1
+    if x > 1 and y < 7 and rank[x-1][y+2] > 6:
+        attack[z] = [x-1, y+2]
+        z += 1
+    if x > 2 and y < 8 and rank[x-2][y+1] > 6:
+        attack[z] = [x-2, y+1]
+        z += 1
+    if x > 2 and y > 1 and rank[x-2][y-1] > 6:
+        attack[z] = [x-2, y-1]
+        z += 1
+    if x > 1 and y > 2 and rank[x-1][y-2] > 6:
+        attack[z] = [x-1, y-2]
+        z += 1
+    if x < 8 and y > 2 and rank[x+1][y-2] > 6:
+        attack[z] = [x+1, y-2]
+        z += 1
+    if x < 7 and y > 1 and rank[x+2][y-1] > 6:
+        attack[z] = [x+2, y-1]
+        z += 1
+    return go, attack
+
 def get_white_bishop_moves(game_id, x, y):
     pass
 def get_white_rook_moves(game_id, x, y):
@@ -121,52 +181,70 @@ def check_can_move(game_id, figures):
     for i in range (1, 9):
         rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, Rank.f,
                                            Rank.g, Rank.h).filter_by(game_id=game_id, number=i).first()
-    x = 0
-    for i in range (1, 9):
-        for j in range (1, 9):
+    z = 0
+    for x in range (1, 9):
+        for y in range (1, 9):
             if figures == 0:
-                if rank[i][j] == 1:
-                    add_moveable, x = check_white_pawn_can_move(rank, x, i, j )
+                if rank[x][y] == 1:
+                    add_moveable, z = check_white_pawn_can_move(rank, z, x, y )
                     moveable.update(add_moveable)
-                if rank[i][j] == 2:
+                if rank[x][y] == 2:
+                    add_moveable, z = check_white_knight_can_move(rank, z, x, y )
+                    moveable.update(add_moveable)
+                if rank[x][y] == 3:
                     pass
-                if rank[i][j] == 3:
+                if rank[x][y] == 4:
                     pass
-                if rank[i][j] == 4:
+                if rank[x][y] == 5:
                     pass
-                if rank[i][j] == 5:
-                    pass
-                if rank[i][j] == 6:
+                if rank[x][y] == 6:
                     pass
             else:
-                if rank[i][j] == 7:
-                    add_moveable, x = check_black_pawn_can_move(rank, x, i, j)
+                if rank[x][y] == 7:
+                    add_moveable, z = check_black_pawn_can_move(rank, z, x, y)
                     moveable.update(add_moveable)
-                if rank[i][j] == 8:
+                if rank[x][y] == 8:
                     pass
-                if rank[i][j] == 9:
+                if rank[x][y] == 9:
                     pass
-                if rank[i][j] == 10:
+                if rank[x][y] == 10:
                     pass
-                if rank[i][j] == 11:
+                if rank[x][y] == 11:
                     pass
-                if rank[i][j] == 12:
+                if rank[x][y] == 12:
                     pass
     return moveable
                 
-def check_white_pawn_can_move(rank, x, i, j):
+def check_white_pawn_can_move(rank, z, x, y):
     moveable = {}
-    if rank[i+1][j] == 0 or (j < 8 and rank[i+1][j+1] > 6) \
-                    or (j > 1 and rank[i+1][j-1] > 6):
-                    moveable[x]=[i, j]
-                    x += 1
-    return moveable, x
+    if x < 8:
+        if rank[x+1][y] == 0 or (y < 8 and rank[x+1][y+1] > 6) \
+        or (y > 1 and rank[x+1][y-1] > 6):
+            moveable[z]=[x, y]
+            z += 1
+    return moveable, z
 
-def check_black_pawn_can_move(rank, x, i, j):
+def check_black_pawn_can_move(rank, z, x, y):
     moveable = {}
-    if rank[i-1][j] == 0 or (j < 8 and rank[i-1][j+1] < 7 and rank[i-1][j+1] > 0) \
-                    or (j > 1 and rank[i-1][j-1] < 7 and rank[i-1][j-1] > 0):
-                    moveable[x]=[i, j]
-                    x += 1
-    return moveable, x
+    if x > 1:
+        if rank[x-1][y] == 0 or (y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0) \
+        or (y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0):
+            moveable[z]=[x, y]
+            z += 1
+    return moveable, z
+
+def check_white_knight_can_move(rank, z, x, y):
+    moveable = {}
+    if (x < 7 and y < 8 and rank[x+2][y+1] == 0) or (x < 8 and y < 7 and rank[x+1][y+2] == 0) or \
+    (x > 1 and y < 7 and rank[x-1][y+2] == 0) or (x > 2 and y < 8 and rank[x-2][y+1] == 0) or \
+    (x > 2 and y > 1 and rank[x-2][y-1] == 0) or (x > 1 and y > 2 and rank[x-1][y-2] == 0) or \
+    (x < 8 and y > 2 and rank[x+1][y-2] == 0) or (x < 7 and y > 1 and rank[x+2][y-1] == 0) or \
+    (x < 7 and y < 8 and rank[x+2][y+1] > 6) or (x < 8 and y < 7 and rank[x+1][y+2] > 6) or \
+    (x > 1 and y < 7 and rank[x-1][y+2] > 6) or (x > 2 and y < 8 and rank[x-2][y+1] > 6) or \
+    (x > 2 and y > 1 and rank[x-2][y-1] > 6) or (x > 1 and y > 2 and rank[x-1][y-2] > 6) or \
+    (x < 8 and y > 2 and rank[x+1][y-2] > 6) or (x < 7 and y > 1 and rank[x+2][y-1] > 6):
+        moveable[z]=[x, y]
+        z += 1
+    return moveable, z
+
 

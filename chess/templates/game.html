@@ -106,10 +106,6 @@
 </div>
 <div class="your_move">
     <h4 class="game-id" data-i="{{ game_id }}">Your figures are {{ session['figures'] }}! Your game ID is {{ game_id }}!</h4>
-    {% for key, value in moving.items() %}
-        <li>{{ value[0], value[1] }}</li> 
-    {% endfor %}
-    <h4>{{ moving.values() }}</h4>
 </div>
 {% endblock content %}
 {% block scripts %}
