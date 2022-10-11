@@ -119,7 +119,73 @@ def get_white_knight_moves(game_id, x, y):
     return go, attack
  
 def get_white_bishop_moves(game_id, x, y):
-    pass
+    go = {}
+    attack = {}
+    rank = get_board(game_id)
+    # we don't need a separate counter for attacks cause we don't really use keys anywhere 
+    z = 0
+    if x < 8 and y < 8:
+        if x > y:
+            steps = 9 - x
+        else:
+            steps = 9 - y
+        for i in range (1, steps):
+            if rank[x+i][y+i] == 0:
+                go[z] = [x+i, y+i]
+                z += 1
+            elif rank[x+i][y+i] > 6:
+                attack[z] = [x+i, y+i]
+                z += 1
+                break
+            else:
+                break
+    if x < 8 and y > 1:
+        if x > (9 - y) :
+            steps = 9 - x
+        else:
+            steps = y
+        for i in range (1, steps):
+            if rank[x+i][y-i] == 0:
+                go[z] = [x+i, y-i]
+                z += 1
+            elif rank[x+i][y-i] > 6:
+                attack[z] = [x+i, y-i]
+                z += 1
+                break
+            else:
+                break
+    if x > 1 and y > 1:
+        if x < y:
+            steps = x
+        else:
+            steps = y
+        for i in range (1, steps):
+            if rank[x-i][y-i] == 0:
+                go[z] = [x-i, y-i]
+                z += 1
+            elif rank[x-i][y-i] > 6:
+                attack[z] = [x-i, y-i]
+                z += 1
+                break
+            else:
+                break
+    if x > 1 and y < 8:
+        if (9 - x) > y:
+            steps = x
+        else:
+            steps = 9 - y
+        for i in range (1, steps):
+            if rank[x-i][y+i] == 0:
+                go[z] = [x-i, y+i]
+                z += 1
+            elif rank[x-i][y+i] > 6:
+                attack[z] = [x-i, y+i]
+                z += 1
+                break
+            else:
+                break
+    return go, attack
+
 def get_white_rook_moves(game_id, x, y):
     pass
 def get_white_queen_moves(game_id, x, y):
@@ -212,13 +278,14 @@ def check_can_move(game_id, figures):
         for y in range (1, 9):
             if figures == 0:
                 if rank[x][y] == 1:
-                    add_moveable, z = check_white_pawn_can_move(rank, z, x, y )
+                    add_moveable, z = check_white_pawn_can_move(rank, z, x, y)
                     moveable.update(add_moveable)
                 if rank[x][y] == 2:
-                    add_moveable, z = check_white_knight_can_move(rank, z, x, y )
+                    add_moveable, z = check_white_knight_can_move(rank, z, x, y)
                     moveable.update(add_moveable)
                 if rank[x][y] == 3:
-                    pass
+                    add_moveable, z = check_white_bishop_can_move(rank, z, x, y)
+                    moveable.update(add_moveable)
                 if rank[x][y] == 4:
                     pass
                 if rank[x][y] == 5:
@@ -295,4 +362,13 @@ def check_black_knight_can_move(rank, z, x, y):
         z += 1
     return moveable, z
 
+def check_white_bishop_can_move(rank, z, x, y):
+    moveable = {}
+    if (x < 8 and y < 8 and (rank[x+1][y+1] == 0 or rank[x+1][y+1] > 6)) or \
+    (x < 8 and y > 1 and (rank[x+1][y-1] == 0 or rank[x+1][y-1] > 6)) or \
+    (x > 1 and y > 1 and (rank[x-1][y-1] == 0 or rank[x-1][y-1] > 6)) or \
+    (x > 1 and y < 8 (rank[x-1][y+1] == 0 or rank[x-1][y+1] > 6)):
+        moveable[z]=[x, y]
+        z += 1
+    return moveable, z
 
