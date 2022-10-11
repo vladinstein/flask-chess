@@ -2,8 +2,6 @@ from chess.models import Rank
 from chess import db
 
 def get_moves(game_id, x, y, figure):
-    go = {}
-    attack = {}
     if figure == 1:
         go, attack = get_white_pawn_moves(game_id, x, y)
     elif figure == 2:
@@ -30,7 +28,8 @@ def get_moves(game_id, x, y, figure):
         go, attack = get_black_king_moves(game_id, x, y)
     return go, attack
 
-def get_board(game_id, rank):
+def get_board(game_id):
+    rank = {}
     for i in range (1, 9):
         rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, 
                                            Rank.f, Rank.g, Rank.h).filter_by(game_id=game_id, 
@@ -38,10 +37,9 @@ def get_board(game_id, rank):
     return rank
 
 def get_white_pawn_moves(game_id, x, y):
-    rank = {}
     go = {}
     attack = {}
-    rank = get_board(game_id, rank)
+    rank = get_board(game_id)
     z = 0
     if rank[x+1][y] == 0:
         go[z] = [x+1, y]
@@ -88,10 +86,8 @@ def get_knight_moves_part1(rank, x, y):
     return go
 
 def get_white_knight_moves(game_id, x, y):
-    rank={}
-    go = {}
     attack = {}
-    rank = get_board(game_id, rank)
+    rank = get_board(game_id)
     # dictionary of possible moves
     go = get_knight_moves_part1(rank, x, y)
     # dictionary of possible attacks
@@ -131,10 +127,9 @@ def get_white_queen_moves(game_id, x, y):
 def get_white_king_moves(game_id, x, y):
     pass
 def get_black_pawn_moves(game_id, x, y):
-    rank={}
     go = {}
     attack = {}
-    rank = get_board(game_id, rank)
+    rank = get_board(game_id)
     z = 0
     if rank[x-1][y] == 0:
         go[z] = [x-1, y]
@@ -152,10 +147,8 @@ def get_black_pawn_moves(game_id, x, y):
     return go, attack
 
 def get_black_knight_moves(game_id, x, y):
-    rank={}
-    go = {}
     attack = {}
-    rank = get_board(game_id, rank)
+    rank = get_board(game_id)
     # dictionary of possible moves
     go = get_knight_moves_part1(rank, x, y)
     # dictionary of possible attacks
@@ -212,11 +205,8 @@ def create_game(game_id):
     db.session.commit()
 
 def check_can_move(game_id, figures):
-    rank={}
-    moveable = {}
-    for i in range (1, 9):
-        rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, Rank.f,
-                                           Rank.g, Rank.h).filter_by(game_id=game_id, number=i).first()
+    rank = get_board(game_id)
+    moveable = {} 
     z = 0
     for x in range (1, 9):
         for y in range (1, 9):
