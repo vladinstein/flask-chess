@@ -1,3 +1,4 @@
+from tkinter import W
 from chess.models import Rank
 from chess import db
 
@@ -10,16 +11,14 @@ def get_moves(game_id, x, y, figure):
         go, attack = get_bishop_moves(game_id, x, y)
     elif figure == 4 or figure == 10:
         go, attack = get_rook_moves(game_id, x, y)
-    elif figure == 5:
-        go, attack = get_white_queen_moves(game_id, x, y)
+    elif figure == 5 or figure == 11:
+        go, attack = get_queen_moves(game_id, x, y)
     elif figure == 6:
         go, attack = get_white_king_moves(game_id, x, y)
     elif figure == 7:
         go, attack = get_black_pawn_moves(game_id, x, y)
     elif figure == 8:
         go, attack = get_black_knight_moves(game_id, x, y)
-    elif figure == 11:
-        go, attack = get_black_queen_moves(game_id, x, y)
     else:
         go, attack = get_black_king_moves(game_id, x, y)
     return go, attack
@@ -129,7 +128,7 @@ def get_bishop_moves(game_id, x, y):
             if rank[x+i][y+i] == 0:
                 go[z] = [x+i, y+i]
                 z += 1
-            elif (rank[x][y] == 3 and rank[x+i][y+i] > 6) or (rank[x][y] == 9  and rank[x+i][y+i] < 7):
+            elif (rank[x][y] < 7 and rank[x+i][y+i] > 6) or (rank[x][y] > 6  and rank[x+i][y+i] < 7):
                 attack[z] = [x+i, y+i]
                 z += 1
                 break
@@ -144,7 +143,7 @@ def get_bishop_moves(game_id, x, y):
             if rank[x+i][y-i] == 0:
                 go[z] = [x+i, y-i]
                 z += 1
-            elif (rank[x][y] == 3 and rank[x+i][y-i] > 6) or (rank[x][y] == 9 and rank[x+i][y-i] < 7):
+            elif (rank[x][y] < 7 and rank[x+i][y-i] > 6) or (rank[x][y] > 6 and rank[x+i][y-i] < 7):
                 attack[z] = [x+i, y-i]
                 z += 1
                 break
@@ -159,7 +158,7 @@ def get_bishop_moves(game_id, x, y):
             if rank[x-i][y-i] == 0:
                 go[z] = [x-i, y-i]
                 z += 1
-            elif (rank[x][y] == 3 and rank[x-i][y-i] > 6) or (rank[x][y] == 9 and rank[x-i][y-i] < 7):
+            elif (rank[x][y] < 7 and rank[x-i][y-i] > 6) or (rank[x][y] > 6 and rank[x-i][y-i] < 7):
                 attack[z] = [x-i, y-i]
                 z += 1
                 break
@@ -174,7 +173,7 @@ def get_bishop_moves(game_id, x, y):
             if rank[x-i][y+i] == 0:
                 go[z] = [x-i, y+i]
                 z += 1
-            elif (rank[x][y] == 3 and rank[x-i][y+i] > 6) or (rank[x][y] == 9 and rank[x-i][y+i] < 7):
+            elif (rank[x][y] < 7 and rank[x-i][y+i] > 6) or (rank[x][y] > 6 and rank[x-i][y+i] < 7):
                 attack[z] = [x-i, y+i]
                 z += 1
                 break
@@ -186,14 +185,15 @@ def get_rook_moves(game_id, x, y):
     go = {}
     attack = {}
     rank = get_board(game_id)
-    z = 0 
+    # we use 20 here, so that we can merge dicts later (indexes need to be different)
+    z = 20
     if y < 8:
         steps = 9 - y
         for i in range (1, steps):
             if rank[x][y+i] == 0:
                 go[z] = [x, y+i]
                 z += 1
-            elif (rank[x][y] == 4 and rank[x][y+i] > 6) or (rank[x][y] == 10 and rank[x][y+i] < 7):
+            elif (rank[x][y] < 7 and rank[x][y+i] > 6) or (rank[x][y] > 6 and rank[x][y+i] < 7):
                 attack[z] = [x, y+i]
                 z += 1
                 break
@@ -205,7 +205,7 @@ def get_rook_moves(game_id, x, y):
             if rank[x+i][y] == 0:
                 go[z] = [x+i, y]
                 z += 1
-            elif (rank[x][y] == 4 and rank[x+i][y] > 6) or (rank[x][y] == 10 and rank[x+i][y] < 7):
+            elif (rank[x][y] < 7 and rank[x+i][y] > 6) or (rank[x][y] > 6 and rank[x+i][y] < 7):
                 attack[z] = [x+i, y]
                 z += 1
                 break
@@ -217,7 +217,7 @@ def get_rook_moves(game_id, x, y):
             if rank[x][y-i] == 0:
                 go[z] = [x, y-i]
                 z += 1
-            elif (rank[x][y] == 4 and rank[x][y-i] > 6) or (rank[x][y] == 10 and rank[x][y-i] < 7):
+            elif (rank[x][y] < 7 and rank[x][y-i] > 6) or (rank[x][y] > 6 and rank[x][y-i] < 7):
                 attack[z] = [x, y-i]
                 z += 1
                 break
@@ -229,7 +229,7 @@ def get_rook_moves(game_id, x, y):
             if rank[x-i][y] == 0:
                 go[z] = [x-i, y]
                 z += 1
-            elif (rank[x][y] == 4 and rank[x-i][y] > 6) or (rank[x][y] == 10 and rank[x-i][y] < 7):
+            elif (rank[x][y] < 7 and rank[x-i][y] > 6) or (rank[x][y] > 6 and rank[x-i][y] < 7):
                 attack[z] = [x-i, y]
                 z += 1
                 break
@@ -237,8 +237,13 @@ def get_rook_moves(game_id, x, y):
                 break
     return go, attack
 
-def get_white_queen_moves(game_id, x, y):
-    pass
+def get_queen_moves(game_id, x, y):
+    go, attack = get_bishop_moves(game_id, x, y)
+    go_2, attack_2 = get_rook_moves(game_id, x, y)
+    go.update(go_2)
+    attack.update(attack_2)
+    return go, attack
+
 def get_white_king_moves(game_id, x, y):
     pass
 def get_black_pawn_moves(game_id, x, y):
@@ -294,8 +299,6 @@ def get_black_knight_moves(game_id, x, y):
         z += 1
     return go, attack
 
-def get_black_queen_moves(game_id, x, y):
-    pass
 def get_black_king_moves(game_id, x, y):
     pass
 
@@ -335,7 +338,8 @@ def check_can_move(game_id, figures):
                     add_moveable, z = check_white_rook_can_move(rank, z, x, y)
                     moveable.update(add_moveable)
                 if rank[x][y] == 5:
-                    pass
+                    add_moveable, z = check_white_queen_can_move(rank, z, x, y)
+                    moveable.update(add_moveable)
                 if rank[x][y] == 6:
                     pass
             else:
@@ -352,7 +356,8 @@ def check_can_move(game_id, figures):
                     add_moveable, z = check_black_rook_can_move(rank, z, x, y)
                     moveable.update(add_moveable)
                 if rank[x][y] == 11:
-                    pass
+                    add_moveable, z = check_black_queen_can_move(rank, z, x, y)
+                    moveable.update(add_moveable)
                 if rank[x][y] == 12:
                     pass
     return moveable
@@ -444,4 +449,16 @@ def check_black_rook_can_move(rank, z, x, y):
     (y > 1 and (rank[x][y-1] < 7)) or (x > 1 and (rank[x-1][y] < 7)):
         moveable[z]=[x, y]
         z += 1
+    return moveable, z
+
+def check_white_queen_can_move(rank, z, x, y):
+    moveable, z = check_white_bishop_can_move(rank, z, x, y)
+    moveable_2, z = check_white_rook_can_move(rank, z, x, y)
+    moveable.update(moveable_2)
+    return moveable, z
+
+def check_black_queen_can_move(rank, z, x, y):
+    moveable, z = check_black_bishop_can_move(rank, z, x, y)
+    moveable_2, z = check_black_rook_can_move(rank, z, x, y)
+    moveable.update(moveable_2)
     return moveable, z
