@@ -15,6 +15,7 @@ def get_moves(game_id, x, y, figure):
         go, attack = get_queen_moves(game_id, x, y)
     elif figure == 6 or figure == 12:
         go, attack = get_king_moves(game_id, x, y)
+        go, attack = remove_checks(game_id, go, attack)
     elif figure == 7:
         go, attack = get_black_pawn_moves(game_id, x, y)
     elif figure == 8:
@@ -248,50 +249,125 @@ def get_king_moves(game_id, x, y):
     go_2, attack_2 = get_rook_moves(game_id, x, y, 10)
     go.update(go_2)
     attack.update(attack_2)
-    # rank = get_board(game_id)
-    # enemy_attacks = {} 
-    # z = 40
-    # for x in range (1, 9):
-    #     for y in range (1, 9):
-    #         if session['figures'] == 1:
-    #             if rank[x][y] == 1:
-    #                 add_attacks, z = get_white_pawn_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #             if rank[x][y] == 2:
-    #                 add_attacks, z = get_white_knight_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #             if rank[x][y] == 3:
-    #                 add_attacks, z = get_bishop_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #             if rank[x][y] == 4:
-    #                 add_attacks, z = get_rook_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #             if rank[x][y] == 5:
-    #                 add_attacks, z = get_queen_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #             if rank[x][y] == 6:
-    #                 add_attacks, z = get_king_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #         else:
-    #             if rank[x][y] == 7:
-    #                 add_attacks, z = get_black_pawn_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #             if rank[x][y] == 8:
-    #                 add_attacks, z = get_black_knight_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #             if rank[x][y] == 9:
-    #                 add_attacks, z = get_bishop_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #             if rank[x][y] == 10:
-    #                 add_attacks, z = get_rook_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #             if rank[x][y] == 11:
-    #                 add_attacks, z = get_queen_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    #             if rank[x][y] == 12:
-    #                 add_attacks, z = get_king_moves(game_id, x, y)
-    #                 enemy_attacks.update(add_attacks)
-    # return enemy_attacks
+    return go, attack
+
+def remove_checks(game_id, go, attack):  
+    print(go, attack)
+    rank = get_board(game_id)
+    for x in range (1, 9):
+        for y in range (1, 9):
+            if session['figures'] == 1:
+                if rank[x][y] == 1:
+                    checks1, checks2 = get_white_pawn_moves(game_id, x, y)
+                    for key, value in go.items():
+                        print(key, value)
+                        print(checks1.values())
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+                if rank[x][y] == 2:
+                    checks1, checks2 = get_white_knight_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+                if rank[x][y] == 3:
+                    checks1, checks2 = get_bishop_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+                if rank[x][y] == 4:
+                    checks1, checks2 = get_rook_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+                if rank[x][y] == 5:
+                    checks1, checks2 = get_queen_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+                if rank[x][y] == 6:
+                    checks1, checks2 = get_king_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+            else:
+                if rank[x][y] == 7:
+                    checks1, checks2 = get_black_pawn_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+                if rank[x][y] == 8:
+                    checks1, checks2 = get_black_knight_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+                if rank[x][y] == 9:
+                    checks1, checks2 = get_bishop_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+                if rank[x][y] == 10:
+                    checks1, checks2 = get_rook_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+                if rank[x][y] == 11:
+                    checks1, checks2 = get_queen_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
+                if rank[x][y] == 12:
+                    checks1, checks2 = get_king_moves(game_id, x, y)
+                    for key, value in go.items():
+                        if value in checks2.values():
+                            go.pop(key)
+                            break
+                        if value in checks1.values():
+                            go.pop(key)
+                            break
     return go, attack
 
 def get_black_pawn_moves(game_id, x, y):
@@ -461,7 +537,7 @@ def check_white_bishop_can_move(rank, z, x, y):
     if (x < 8 and y < 8 and (rank[x+1][y+1] == 0 or rank[x+1][y+1] > 6)) or \
     (x < 8 and y > 1 and (rank[x+1][y-1] == 0 or rank[x+1][y-1] > 6)) or \
     (x > 1 and y > 1 and (rank[x-1][y-1] == 0 or rank[x-1][y-1] > 6)) or \
-    (x > 1 and y < 8 (rank[x-1][y+1] == 0 or rank[x-1][y+1] > 6)):
+    (x > 1 and y < 8 and (rank[x-1][y+1] == 0 or rank[x-1][y+1] > 6)):
         moveable[z]=[x, y]
         z += 1
     return moveable, z
