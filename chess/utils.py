@@ -4,9 +4,9 @@ from chess.routes import session
 
 def get_moves(game_id, x, y, figure):
     if figure == 1:
-        go, attack = get_white_pawn_moves(game_id, x, y)
+        go, attack, _ = get_white_pawn_moves(game_id, x, y)
     elif figure == 2:
-        go, attack = get_white_knight_moves(game_id, x, y)
+        go, attack, _ = get_white_knight_moves(game_id, x, y)
     elif figure == 3 or figure == 9:
         go, attack = get_bishop_moves(game_id, x, y)
     elif figure == 4 or figure == 10:
@@ -17,9 +17,9 @@ def get_moves(game_id, x, y, figure):
         go, attack = get_king_moves(game_id, x, y)
         go, attack = remove_checks(game_id, go, attack)
     elif figure == 7:
-        go, attack = get_black_pawn_moves(game_id, x, y)
+        go, attack, _ = get_black_pawn_moves(game_id, x, y)
     elif figure == 8:
-        go, attack = get_black_knight_moves(game_id, x, y)
+        go, attack, _ = get_black_knight_moves(game_id, x, y)
     return go, attack
 
 def get_board(game_id):
@@ -33,6 +33,7 @@ def get_board(game_id):
 def get_white_pawn_moves(game_id, x, y):
     go = {}
     attack = {}
+    defence = {}
     rank = get_board(game_id)
     z = 0
     if rank[x+1][y] == 0:
@@ -45,10 +46,16 @@ def get_white_pawn_moves(game_id, x, y):
     if y > 1 and rank[x+1][y-1] > 6:
         attack[z] = [x+1, y-1]
         z += 1
+    elif y > 1 and rank[x+1][y-1] < 7 and rank[x+1][y-1] > 0:
+        defence[z] = [x+1, y-1]
+        z += 1
     if y < 8 and rank[x+1][y+1] > 6:
         attack[z] = [x+1, y+1]
         z += 1
-    return go, attack
+    elif y < 8 and rank[x+1][y+1] < 7 and rank[x+1][y+1] > 0:
+        defence[z] = [x+1, y-1]
+        z += 1
+    return go, attack, defence
 
 def get_knight_moves_part1(rank, x, y):
     go = {}
@@ -81,6 +88,7 @@ def get_knight_moves_part1(rank, x, y):
 
 def get_white_knight_moves(game_id, x, y):
     attack = {}
+    defence = {}
     rank = get_board(game_id)
     # dictionary of possible moves
     go = get_knight_moves_part1(rank, x, y)
@@ -89,28 +97,52 @@ def get_white_knight_moves(game_id, x, y):
     if x < 7 and y < 8 and rank[x+2][y+1] > 6:
         attack[z] = [x+2, y+1]
         z += 1
+    elif x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0:
+        defence[z] = [x+2, y+1]
+        z += 1
     if x < 8 and y < 7 and rank[x+1][y+2] > 6:
         attack[z] = [x+1, y+2]
+        z += 1
+    elif x < 8 and y < 7 and rank[x+1][y+2] < 7 and rank[x+1][y+2] > 0:
+        defence[z] = [x+1, y+2]
         z += 1
     if x > 1 and y < 7 and rank[x-1][y+2] > 6:
         attack[z] = [x-1, y+2]
         z += 1
+    elif x > 1 and y < 7 and rank[x-1][y+2] < 7 and rank[x-1][y+2] > 0:
+        defence[z] = [x-1, y+2]
+        z += 1
     if x > 2 and y < 8 and rank[x-2][y+1] > 6:
         attack[z] = [x-2, y+1]
+        z += 1
+    elif x > 2 and y < 8 and rank[x-2][y+1] < 7 and rank[x-2][y+1] > 0:
+        defence[z] = [x-2, y+1]
         z += 1
     if x > 2 and y > 1 and rank[x-2][y-1] > 6:
         attack[z] = [x-2, y-1]
         z += 1
+    elif x > 2 and y > 1 and rank[x-2][y-1] < 7 and rank[x-2][y-1] > 0:
+        defence[z] = [x-2, y-1]
+        z += 1
     if x > 1 and y > 2 and rank[x-1][y-2] > 6:
         attack[z] = [x-1, y-2]
+        z += 1
+    elif x > 1 and y > 2 and rank[x-1][y-2] and rank[x-1][y-2] > 0:
+        defence[z] = [x-1, y-2]
         z += 1
     if x < 8 and y > 2 and rank[x+1][y-2] > 6:
         attack[z] = [x+1, y-2]
         z += 1
+    elif x < 8 and y > 2 and rank[x+1][y-2] < 7 and rank[x+1][y-2] > 0:
+        defence[z] = [x+1, y-2]
+        z += 1
     if x < 7 and y > 1 and rank[x+2][y-1] > 6:
         attack[z] = [x+2, y-1]
         z += 1
-    return go, attack
+    elif x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0:
+        defence[z] = [x+2, y-1]
+        z += 1
+    return go, attack, defence
 
 def get_bishop_moves(game_id, x, y, step=1):
     go = {}
@@ -373,6 +405,7 @@ def remove_checks(game_id, go, attack):
 def get_black_pawn_moves(game_id, x, y):
     go = {}
     attack = {}
+    defence = {}
     rank = get_board(game_id)
     z = 0
     if rank[x-1][y] == 0:
@@ -385,13 +418,20 @@ def get_black_pawn_moves(game_id, x, y):
     if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0:
         attack[z] = [x-1, y-1]
         z +=1
+    elif y > 1 and rank[x-1][y-1] > 6:
+        defence[z] = [x-1, y-1]
+        z +=1
     if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0:
         attack[z] = [x-1, y+1]
         z +=1
-    return go, attack
+    elif y < 8 and rank[x-1][y+1] > 6:
+        defence[z] = [x-1, y+1]
+        z +=1
+    return go, attack, defence
 
 def get_black_knight_moves(game_id, x, y):
     attack = {}
+    defence = {}
     rank = get_board(game_id)
     # dictionary of possible moves
     go = get_knight_moves_part1(rank, x, y)
@@ -400,28 +440,52 @@ def get_black_knight_moves(game_id, x, y):
     if x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0:
         attack[z] = [x+2, y+1]
         z += 1
+    elif x < 7 and y < 8 and rank[x+2][y+1] > 6:
+        defence[z] = [x+2, y+1]
+        z += 1
     if x < 8 and y < 7 and rank[x+1][y+2] < 7 and rank[x+1][y+2] > 0:
         attack[z] = [x+1, y+2]
+        z += 1
+    elif x < 8 and y < 7 and rank[x+1][y+2] > 6:
+        defence[z] = [x+1, y+2]
         z += 1
     if x > 1 and y < 7 and rank[x-1][y+2] < 7 and rank[x-1][y+2] > 0:
         attack[z] = [x-1, y+2]
         z += 1
+    elif x > 1 and y < 7 and rank[x-1][y+2] > 6:
+        defence[z] = [x-1, y+2]
+        z += 1
     if x > 2 and y < 8 and rank[x-2][y+1] < 7 and rank[x-2][y+1] > 0:
         attack[z] = [x-2, y+1]
+        z += 1
+    elif x > 2 and y < 8 and rank[x-2][y+1] > 6:
+        defence[z] = [x-2, y+1]
         z += 1
     if x > 2 and y > 1 and rank[x-2][y-1] < 7 and rank[x-2][y-1] > 0:
         attack[z] = [x-2, y-1]
         z += 1
+    elif x > 2 and y > 1 and rank[x-2][y-1] > 6:
+        defence[z] = [x-2, y-1]
+        z += 1
     if x > 1 and y > 2 and rank[x-1][y-2] < 7 and rank[x-1][y-2] > 0:
         attack[z] = [x-1, y-2]
+        z += 1
+    elif x > 1 and y > 2 and rank[x-1][y-2] > 6:
+        defence[z] = [x-1, y-2]
         z += 1
     if x < 8 and y > 2 and rank[x+1][y-2] < 7 and rank[x+1][y-2] > 0:
         attack[z] = [x+1, y-2]
         z += 1
+    elif x < 8 and y > 2 and rank[x+1][y-2] > 6:
+        defence[z] = [x+1, y-2]
+        z += 1
     if x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0:
         attack[z] = [x+2, y-1]
         z += 1
-    return go, attack
+    elif x < 7 and y > 1 and rank[x+2][y-1] > 6:
+        defence[z] = [x+2, y-1]
+        z += 1
+    return go, attack, defence
 
 def create_game(game_id):
     rank = {}
