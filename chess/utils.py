@@ -4,22 +4,21 @@ from chess.routes import session
 
 def get_moves(game_id, x, y, figure):
     if figure == 1:
-        go, attack, _ = get_white_pawn_moves(game_id, x, y)
+        go, attack, _, _ = get_white_pawn_moves(game_id, x, y)
     elif figure == 2:
-        go, attack, _ = get_white_knight_moves(game_id, x, y)
+        go, attack, _, _ = get_white_knight_moves(game_id, x, y)
     elif figure == 3 or figure == 9:
-        go, attack = get_bishop_moves(game_id, x, y)
+        go, attack, _, _ = get_bishop_moves(game_id, x, y)
     elif figure == 4 or figure == 10:
-        go, attack = get_rook_moves(game_id, x, y)
+        go, attack, _, _ = get_rook_moves(game_id, x, y)
     elif figure == 5 or figure == 11:
-        go, attack = get_queen_moves(game_id, x, y)
+        go, attack, _, _ = get_queen_moves(game_id, x, y)
     elif figure == 6 or figure == 12:
-        go, attack = get_king_moves(game_id, x, y)
-        go, attack = remove_checks(game_id, go, attack)
+        go, attack, _, _ = get_king_moves(game_id, x, y)
     elif figure == 7:
-        go, attack, _ = get_black_pawn_moves(game_id, x, y)
+        go, attack, _, _ = get_black_pawn_moves(game_id, x, y)
     elif figure == 8:
-        go, attack, _ = get_black_knight_moves(game_id, x, y)
+        go, attack, _, _ = get_black_knight_moves(game_id, x, y)
     return go, attack
 
 def get_board(game_id):
@@ -30,12 +29,11 @@ def get_board(game_id):
                                            number=i).first()
     return rank
 
-def get_white_pawn_moves(game_id, x, y):
+def get_white_pawn_moves(game_id, x, y, z=0):
     go = {}
     attack = {}
     defence = {}
     rank = get_board(game_id)
-    z = 0
     if rank[x+1][y] == 0:
         go[z] = [x+1, y]
         z += 1
@@ -46,20 +44,19 @@ def get_white_pawn_moves(game_id, x, y):
     if y > 1 and rank[x+1][y-1] > 6:
         attack[z] = [x+1, y-1]
         z += 1
-    elif y > 1 and rank[x+1][y-1] < 7 and rank[x+1][y-1] > 0:
+    elif y > 1 and ((rank[x+1][y-1] < 7 and rank[x+1][y-1] > 0) or rank[x+1][y-1] == 0):
         defence[z] = [x+1, y-1]
         z += 1
     if y < 8 and rank[x+1][y+1] > 6:
         attack[z] = [x+1, y+1]
         z += 1
-    elif y < 8 and rank[x+1][y+1] < 7 and rank[x+1][y+1] > 0:
+    elif y < 8 and ((rank[x+1][y+1] < 7 and rank[x+1][y+1] > 0) or rank[x+1][y+1] == 0):
         defence[z] = [x+1, y-1]
         z += 1
-    return go, attack, defence
+    return go, attack, defence, z
 
-def get_knight_moves_part1(rank, x, y):
+def get_knight_moves_part1(rank, x, y, z=0):
     go = {}
-    z = 0
     if x < 7 and y < 8 and rank[x+2][y+1] == 0:
         go[z] = [x+2, y+1]
         z += 1
@@ -84,16 +81,15 @@ def get_knight_moves_part1(rank, x, y):
     if x < 7 and y > 1 and rank[x+2][y-1] == 0:
         go[z] = [x+2, y-1]
         z += 1 
-    return go
+    return go, z
 
-def get_white_knight_moves(game_id, x, y):
+def get_white_knight_moves(game_id, x, y, z=0):
     attack = {}
     defence = {}
     rank = get_board(game_id)
     # dictionary of possible moves
-    go = get_knight_moves_part1(rank, x, y)
+    go, z = get_knight_moves_part1(rank, x, y, z)
     # dictionary of possible attacks
-    z = 0
     if x < 7 and y < 8 and rank[x+2][y+1] > 6:
         attack[z] = [x+2, y+1]
         z += 1
@@ -142,14 +138,14 @@ def get_white_knight_moves(game_id, x, y):
     elif x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0:
         defence[z] = [x+2, y-1]
         z += 1
-    return go, attack, defence
+    return go, attack, defence, z
 
-def get_bishop_moves(game_id, x, y, step=1):
+def get_bishop_moves(game_id, x, y, step=1, z=0):
     go = {}
     attack = {}
+    defence = {}
     rank = get_board(game_id)
-    # we don't need a separate counter for attacks cause we don't really use keys anywhere 
-    z = 0
+    # we don't need a separate counter for attacks cause we don't really use keys anywhere
     if x < 8 and y < 8:
         if x > y:
             squares_num = 9 - x
@@ -163,7 +159,9 @@ def get_bishop_moves(game_id, x, y, step=1):
                 attack[z] = [x+i, y+i]
                 z += 1
                 break
-            else:
+            elif (rank[x][y] < 7 and rank[x+i][y+i] < 7) or (rank[x][y] > 6  and rank[x+i][y+i] > 6):
+                defence[z] = [x+i, y+i]
+                z += 1
                 break
     if x < 8 and y > 1:
         if x > (9 - y) :
@@ -178,7 +176,9 @@ def get_bishop_moves(game_id, x, y, step=1):
                 attack[z] = [x+i, y-i]
                 z += 1
                 break
-            else:
+            elif (rank[x][y] < 7 and rank[x+i][y-i] < 7) or (rank[x][y] > 6 and rank[x+i][y-i] > 6):
+                defence[z] = [x+i, y-i]
+                z += 1
                 break
     if x > 1 and y > 1:
         if x < y:
@@ -193,7 +193,9 @@ def get_bishop_moves(game_id, x, y, step=1):
                 attack[z] = [x-i, y-i]
                 z += 1
                 break
-            else:
+            elif (rank[x][y] < 7 and rank[x-i][y-i] < 7) or (rank[x][y] > 6 and rank[x-i][y-i] > 6):
+                defence[z] = [x-i, y-i]
+                z += 1
                 break
     if x > 1 and y < 8:
         if (9 - x) > y:
@@ -208,16 +210,18 @@ def get_bishop_moves(game_id, x, y, step=1):
                 attack[z] = [x-i, y+i]
                 z += 1
                 break
-            else:
+            elif (rank[x][y] < 7 and rank[x-i][y+i] < 7) or (rank[x][y] > 6 and rank[x-i][y+i] > 6):
+                defence[z] = [x-i, y+i]
+                z += 1
                 break
-    return go, attack
+    return go, attack, defence, z
  
-def get_rook_moves(game_id, x, y, step=1):
+def get_rook_moves(game_id, x, y, step=1, z=0):
     go = {}
     attack = {}
+    defence = {}
     rank = get_board(game_id)
     # we use 20 here, so that we can merge dicts later (indexes need to be different)
-    z = 20
     if y < 8:
         squares_num = 9 - y
         for i in range (1, squares_num, step):
@@ -228,7 +232,9 @@ def get_rook_moves(game_id, x, y, step=1):
                 attack[z] = [x, y+i]
                 z += 1
                 break
-            else:
+            elif (rank[x][y] < 7 and rank[x][y+i] < 7) or (rank[x][y] > 6 and rank[x][y+i] > 6):
+                defence[z] = [x, y+i]
+                z += 1
                 break
     if x < 8:
         squares_num = 9 - x
@@ -240,7 +246,9 @@ def get_rook_moves(game_id, x, y, step=1):
                 attack[z] = [x+i, y]
                 z += 1
                 break
-            else:
+            elif (rank[x][y] < 7 and rank[x+i][y] < 7) or (rank[x][y] > 6 and rank[x+i][y] > 6):
+                defence[z] = [x+i, y]
+                z += 1
                 break
     if y > 1:
         squares_num = y
@@ -252,7 +260,9 @@ def get_rook_moves(game_id, x, y, step=1):
                 attack[z] = [x, y-i]
                 z += 1
                 break
-            else:
+            elif (rank[x][y] < 7 and rank[x][y-i] < 7) or (rank[x][y] > 6 and rank[x][y-i] > 6):
+                defence[z] = [x, y-i]
+                z += 1
                 break
     if x > 1:
         squares_num = x
@@ -264,150 +274,66 @@ def get_rook_moves(game_id, x, y, step=1):
                 attack[z] = [x-i, y]
                 z += 1
                 break
-            else:
+            elif (rank[x][y] < 7 and rank[x-i][y] < 7) or (rank[x][y] > 6 and rank[x-i][y] > 6):
+                defence[z] = [x-i, y]
+                z += 1
                 break
-    return go, attack
+    return go, attack, defence, z
 
-def get_queen_moves(game_id, x, y):
-    go, attack = get_bishop_moves(game_id, x, y)
-    go_2, attack_2 = get_rook_moves(game_id, x, y)
+def get_queen_moves(game_id, x, y, z=0):
+    go, attack, defence, z = get_bishop_moves(game_id, x, y, 1, z)
+    go_2, attack_2, defence_2, z = get_rook_moves(game_id, x, y, 1, z)
     go.update(go_2)
     attack.update(attack_2)
-    return go, attack
+    defence.update(defence_2)
+    return go, attack, defence, z
 
-def get_king_moves(game_id, x, y):
+def get_king_moves(game_id, x, y, z=0):
     #pass 10 so it's used as a step in the for loops, so that it can move only one square
-    go, attack = get_bishop_moves(game_id, x, y, 10)
-    go_2, attack_2 = get_rook_moves(game_id, x, y, 10)
+    go, attack, defence, z = get_bishop_moves(game_id, x, y, 10, z)
+    go_2, attack_2, defence_2, z = get_rook_moves(game_id, x, y, 10, z)
     go.update(go_2)
     attack.update(attack_2)
-    return go, attack
+    defence.update(defence_2)
+    return go, attack, defence, z
 
-def remove_checks(game_id, go, attack):  
-    print(go, attack)
-    rank = get_board(game_id)
-    for x in range (1, 9):
-        for y in range (1, 9):
-            if session['figures'] == 1:
-                if rank[x][y] == 1:
-                    checks1, checks2 = get_white_pawn_moves(game_id, x, y)
-                    for key, value in go.items():
-                        print(key, value)
-                        print(checks1.values())
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-                if rank[x][y] == 2:
-                    checks1, checks2 = get_white_knight_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-                if rank[x][y] == 3:
-                    checks1, checks2 = get_bishop_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-                if rank[x][y] == 4:
-                    checks1, checks2 = get_rook_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-                if rank[x][y] == 5:
-                    checks1, checks2 = get_queen_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-                if rank[x][y] == 6:
-                    checks1, checks2 = get_king_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-            else:
-                if rank[x][y] == 7:
-                    checks1, checks2 = get_black_pawn_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-                if rank[x][y] == 8:
-                    checks1, checks2 = get_black_knight_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-                if rank[x][y] == 9:
-                    checks1, checks2 = get_bishop_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-                if rank[x][y] == 10:
-                    checks1, checks2 = get_rook_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-                if rank[x][y] == 11:
-                    checks1, checks2 = get_queen_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-                if rank[x][y] == 12:
-                    checks1, checks2 = get_king_moves(game_id, x, y)
-                    for key, value in go.items():
-                        if value in checks2.values():
-                            go.pop(key)
-                            break
-                        if value in checks1.values():
-                            go.pop(key)
-                            break
-    return go, attack
+# def calculate_attacks_possible_checks(game_id):
+#     rank = get_board(game_id)
+#     for x in range (1, 9):
+#         for y in range (1, 9):
+#             if session['figures'] == 1:
+#                 if rank[x][y] == 1:
+#                     _, attack, defence  = get_white_pawn_moves(game_id, x, y)
+#                 if rank[x][y] == 2:
+#                     go, attack, defence = get_white_knight_moves(game_id, x, y)
+#                 if rank[x][y] == 3:
+#                     go, attack, defence = get_bishop_moves(game_id, x, y)
+#                 if rank[x][y] == 4:
+#                     go, attack, defence = get_rook_moves(game_id, x, y)
+#                 if rank[x][y] == 5:
+#                     go, attack, defence = get_queen_moves(game_id, x, y)
+#                 if rank[x][y] == 6:
+#                     go, attack, defence = get_king_moves(game_id, x, y)
+#             else:
+#                 if rank[x][y] == 7:
+#                     _, attack, defence = get_black_pawn_moves(game_id, x, y)
+#                 if rank[x][y] == 8:
+#                     go, attack, defence = get_black_knight_moves(game_id, x, y)
+#                 if rank[x][y] == 9:
+#                     go, attack, defence = get_bishop_moves(game_id, x, y)
+#                 if rank[x][y] == 10:
+#                     go, attack, defence = get_rook_moves(game_id, x, y)
+#                 if rank[x][y] == 11:
+#                     go, attack, defence = get_queen_moves(game_id, x, y)
+#                 if rank[x][y] == 12:
+#                     go, attack, defence = get_king_moves(game_id, x, y)
+#     return go, attack, defence
 
-def get_black_pawn_moves(game_id, x, y):
+def get_black_pawn_moves(game_id, x, y, z=0):
     go = {}
     attack = {}
     defence = {}
     rank = get_board(game_id)
-    z = 0
     if rank[x-1][y] == 0:
         go[z] = [x-1, y]
         z += 1
@@ -418,25 +344,24 @@ def get_black_pawn_moves(game_id, x, y):
     if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0:
         attack[z] = [x-1, y-1]
         z +=1
-    elif y > 1 and rank[x-1][y-1] > 6:
+    elif y > 1 and (rank[x-1][y-1] > 6 or rank[x-1][y-1] == 0):
         defence[z] = [x-1, y-1]
         z +=1
     if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0:
         attack[z] = [x-1, y+1]
         z +=1
-    elif y < 8 and rank[x-1][y+1] > 6:
+    elif y < 8 and (rank[x-1][y+1] > 6 or rank[x-1][y+1] == 0):
         defence[z] = [x-1, y+1]
         z +=1
-    return go, attack, defence
+    return go, attack, defence, z
 
 def get_black_knight_moves(game_id, x, y):
     attack = {}
     defence = {}
     rank = get_board(game_id)
     # dictionary of possible moves
-    go = get_knight_moves_part1(rank, x, y)
+    go, z = get_knight_moves_part1(rank, x, y, z)
     # dictionary of possible attacks
-    z = 0
     if x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0:
         attack[z] = [x+2, y+1]
         z += 1
@@ -485,7 +410,7 @@ def get_black_knight_moves(game_id, x, y):
     elif x < 7 and y > 1 and rank[x+2][y-1] > 6:
         defence[z] = [x+2, y-1]
         z += 1
-    return go, attack, defence
+    return go, attack, defence, z
 
 def create_game(game_id):
     rank = {}
