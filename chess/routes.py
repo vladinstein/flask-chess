@@ -62,7 +62,6 @@ def info(data):
                 game.black_sid = session['sid']
             db.session.commit()
 
-
 @socketio.on('take')
 def take(data):
     figure = int(data['figure'])

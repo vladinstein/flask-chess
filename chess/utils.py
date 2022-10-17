@@ -1,6 +1,8 @@
+import string
 from chess.models import Rank
 from chess import db
 from chess.routes import session
+from chess.models import DefenceWhite, DefenceBlack
 
 def get_moves(game_id, x, y, figure):
     if figure == 1:
@@ -15,6 +17,7 @@ def get_moves(game_id, x, y, figure):
         go, attack, _, _ = get_queen_moves(game_id, x, y)
     elif figure == 6 or figure == 12:
         go, attack, _, _ = get_king_moves(game_id, x, y)
+        go, attack = remove_checks(game_id, go, attack)
     elif figure == 7:
         go, attack, _, _ = get_black_pawn_moves(game_id, x, y)
     elif figure == 8:
@@ -40,7 +43,6 @@ def get_white_pawn_moves(game_id, x, y, z=0):
     if x == 2 and rank[x+1][y] == 0 and rank[x+2][y] == 0:
         go[z] = [x+2, y]
         z += 1
-    z = 0
     if y > 1 and rank[x+1][y-1] > 6:
         attack[z] = [x+1, y-1]
         z += 1
@@ -51,7 +53,7 @@ def get_white_pawn_moves(game_id, x, y, z=0):
         attack[z] = [x+1, y+1]
         z += 1
     elif y < 8 and ((rank[x+1][y+1] < 7 and rank[x+1][y+1] > 0) or rank[x+1][y+1] == 0):
-        defence[z] = [x+1, y-1]
+        defence[z] = [x+1, y+1]
         z += 1
     return go, attack, defence, z
 
@@ -354,10 +356,39 @@ def calculate_attacks_possible_checks(game_id):
     return attack, into_check
 
 def add_defences_to_db(game_id, into_check):
+    files = string.ascii_lowercase[0:8] 
     for i in range(1, 9):
+        if session['figures'] == 0:
+            defence = DefenceWhite.query.filter_by(game_id=game_id, number=i).first()
+        else:
+            defence = DefenceBlack.query.filter_by(game_id=game_id, number=i).first() 
         for j in range(1, 9):
             if [i, j] in into_check.values():
                 print('victory', i, j)
+                setattr(defence, files[j-1], 1)
+        db.session.commit()
+
+def remove_checks(game_id, go, attack):
+    defence = {}
+    if session['figures'] == 1:
+        for i in range (1, 9):
+            defence[i] = DefenceWhite.query.with_entities(DefenceWhite.game_id, DefenceWhite.a, DefenceWhite.b, DefenceWhite.c, DefenceWhite.d, DefenceWhite.e, 
+                                            DefenceWhite.f, DefenceWhite.g, DefenceWhite.h).filter_by(game_id=game_id, 
+                                            number=i).first()
+    else:
+        for i in range (1, 9):
+            defence[i] = DefenceBlack.query.with_entities(DefenceBlack.game_id, DefenceBlack.a, DefenceBlack.b, DefenceBlack.c, DefenceBlack.d, DefenceBlack.e, 
+                                            DefenceBlack.f, DefenceBlack.g, DefenceBlack.h).filter_by(game_id=game_id, 
+                                            number=i).first()
+    for key, value in list(go.items()):
+            print(key, value)
+            if defence[value[0]][value[1]] == 1:
+                del go[key]
+    for key, value in list(attack.items()):
+            print(key, value)
+            if defence[value[0]][value[1]] == 1:
+                del attack[key]
+    return go, attack
 
 def get_black_pawn_moves(game_id, x, y, z=0):
     go = {}
@@ -370,19 +401,18 @@ def get_black_pawn_moves(game_id, x, y, z=0):
     if x == 7 and rank[x-1][y] == 0 and rank[x-2][y] == 0:
         go[z] = [x-2, y]
         z += 1
-    z = 0
     if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0:
         attack[z] = [x-1, y-1]
-        z +=1
+        z += 1
     elif y > 1 and (rank[x-1][y-1] > 6 or rank[x-1][y-1] == 0):
         defence[z] = [x-1, y-1]
-        z +=1
+        z += 1
     if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0:
         attack[z] = [x-1, y+1]
-        z +=1
+        z += 1
     elif y < 8 and (rank[x-1][y+1] > 6 or rank[x-1][y+1] == 0):
         defence[z] = [x-1, y+1]
-        z +=1
+        z += 1
     return go, attack, defence, z
 
 def get_black_knight_moves(game_id, x, y, z=0):
@@ -445,6 +475,10 @@ def get_black_knight_moves(game_id, x, y, z=0):
 def create_game(game_id):
     rank = {}
     for i in range(1, 9):
+        defence_white = DefenceWhite(game_id=game_id, number=i)
+        db.session.add(defence_white)
+        defence_black = DefenceBlack(game_id=game_id, number=i)
+        db.session.add(defence_black)
         if i == 1:
             rank[i] = Rank(game_id=game_id, number=i, a=4, b=2, c=3, d=5, e=6, f=3, g=2, h=4)
         elif i == 2:
