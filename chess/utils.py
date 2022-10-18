@@ -408,6 +408,30 @@ def remove_checks(game_id, go, attack):
                 del attack[key]
     return go, attack
 
+def check_if_check(game_id):
+    rank = get_board(game_id)
+    for x in range (1, 9): 
+        for y in range (1, 9):
+            if rank[x][y] == 6 and session['figures'] == 1:
+                attacks = Attacks.query.with_entities(Attacks.game_id, Attacks.a, Attacks.b, Attacks.c,
+                                            Attacks.d, Attacks.e, Attacks.f, Attacks.g, 
+                                            Attacks.h).filter_by(game_id=game_id, number=x).first()
+                if attacks[y] == 1:
+                    return True
+                else:
+                    return False
+            elif rank[x][y] == 12 and session['figures'] == 0:
+                attacks = Attacks.query.with_entities(Attacks.game_id, Attacks.a, Attacks.b, Attacks.c,
+                                            Attacks.d, Attacks.e, Attacks.f, Attacks.g, 
+                                            Attacks.h).filter_by(game_id=game_id, number=x).first()
+                if attacks[y] == 1:
+                    return True
+                else:
+                    return False
+    return False
+
+                
+
 def get_black_pawn_moves(game_id, x, y, z=0):
     go = {}
     attack = {}

@@ -6,7 +6,8 @@ from flask import make_response
 from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
-from chess.utils import get_moves, create_game, check_can_move, calculate_attacks_possible_checks, add_attacks_defences_to_db
+from chess.utils import get_moves, create_game, check_can_move, calculate_attacks_possible_checks, \
+                        add_attacks_defences_to_db, check_if_check
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -90,6 +91,8 @@ def go(data):
     db.session.commit()
     all_attacks, into_check = calculate_attacks_possible_checks(game_id)
     add_attacks_defences_to_db(game_id, into_check, all_attacks)
+    check = check_if_check(game_id)
+    print(check)
     game = Game.query.filter_by(id=game_id).first()
     if session['figures'] == 0:
         socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y}, room=game.black_sid)
