@@ -1,8 +1,7 @@
 import string
-from chess.models import Rank
+from chess.models import Rank, DefenceWhite, DefenceBlack, Attacks
 from chess import db
 from chess.routes import session
-from chess.models import DefenceWhite, DefenceBlack
 
 def get_moves(game_id, x, y, figure):
     if figure == 1:
@@ -301,6 +300,7 @@ def get_king_moves(game_id, x, y, z=0):
 
 def calculate_attacks_possible_checks(game_id):
     into_check = {}
+    all_attacks = {}
     rank = get_board(game_id)
     z = 0
     for x in range (1, 9):
@@ -309,64 +309,81 @@ def calculate_attacks_possible_checks(game_id):
                 if rank[x][y] == 1:
                     _, attack, defence, z  = get_white_pawn_moves(game_id, x, y, z)
                     into_check.update(defence)
+                    all_attacks.update(attack)
                 if rank[x][y] == 2:
                     go, attack, defence, z = get_white_knight_moves(game_id, x, y, z)
                     into_check.update(go)
                     into_check.update(defence)
+                    all_attacks.update(attack)
                 if rank[x][y] == 3:
                     go, attack, defence, z = get_bishop_moves(game_id, x, y, 1, z)
                     into_check.update(go)
                     into_check.update(defence)
+                    all_attacks.update(attack)
                 if rank[x][y] == 4:
                     go, attack, defence, z = get_rook_moves(game_id, x, y, 1, z)
                     into_check.update(go)
                     into_check.update(defence)
+                    all_attacks.update(attack)
                 if rank[x][y] == 5:
                     go, attack, defence, z = get_queen_moves(game_id, x, y, z)
                     into_check.update(go)
                     into_check.update(defence)
+                    all_attacks.update(attack)
                 if rank[x][y] == 6:
                     go, attack, defence, z = get_king_moves(game_id, x, y, z)
                     into_check.update(go)
                     into_check.update(defence)
+                    all_attacks.update(attack)
             else:
                 if rank[x][y] == 7:
                     _, attack, defence, z = get_black_pawn_moves(game_id, x, y, z)
                     into_check.update(defence)
+                    all_attacks.update(attack)
                 if rank[x][y] == 8:
                     go, attack, defence, z = get_black_knight_moves(game_id, x, y, z)
                     into_check.update(go)
                     into_check.update(defence)
+                    all_attacks.update(attack)
                 if rank[x][y] == 9:
                     go, attack, defence, z = get_bishop_moves(game_id, x, y, 1, z)
                     into_check.update(go)
                     into_check.update(defence)
+                    all_attacks.update(attack)
                 if rank[x][y] == 10:
                     go, attack, defence, z = get_rook_moves(game_id, x, y, 1, z)
                     into_check.update(go)
                     into_check.update(defence)
+                    all_attacks.update(attack)
                 if rank[x][y] == 11:
                     go, attack, defence, z = get_queen_moves(game_id, x, y, z)
                     into_check.update(go)
                     into_check.update(defence)
+                    all_attacks.update(attack)
                 if rank[x][y] == 12:
                     go, attack, defence, z = get_king_moves(game_id, x, y, z)
                     into_check.update(go)
                     into_check.update(defence)
-    return attack, into_check
+                    all_attacks.update(attack)
+    return all_attacks, into_check
 
-def add_defences_to_db(game_id, into_check):
+def add_attacks_defences_to_db(game_id, into_check, all_attacks):
     files = string.ascii_lowercase[0:8] 
     for i in range(1, 9):
         if session['figures'] == 0:
             defence = DefenceWhite.query.filter_by(game_id=game_id, number=i).first()
         else:
-            defence = DefenceBlack.query.filter_by(game_id=game_id, number=i).first() 
+            defence = DefenceBlack.query.filter_by(game_id=game_id, number=i).first()
+        attacks = Attacks.query.filter_by(game_id=game_id, number=i).first()
         for j in range(1, 9):
             if [i, j] in into_check.values():
                 setattr(defence, files[j-1], 1)
             else:
                 setattr(defence, files[j-1], 0)
+            if [i, j] in all_attacks.values():
+                setattr(attacks, files[j-1], 1)
+            else:
+                setattr(attacks, files[j-1], 0)
         db.session.commit()
 
 def remove_checks(game_id, go, attack):
@@ -480,6 +497,8 @@ def create_game(game_id):
         db.session.add(defence_white)
         defence_black = DefenceBlack(game_id=game_id, number=i)
         db.session.add(defence_black)
+        attacks = Attacks(game_id=game_id, number=i)
+        db.session.add(attacks)
         if i == 1:
             rank[i] = Rank(game_id=game_id, number=i, a=4, b=2, c=3, d=5, e=6, f=3, g=2, h=4)
         elif i == 2:
