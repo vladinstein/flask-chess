@@ -364,8 +364,9 @@ def add_defences_to_db(game_id, into_check):
             defence = DefenceBlack.query.filter_by(game_id=game_id, number=i).first() 
         for j in range(1, 9):
             if [i, j] in into_check.values():
-                print('victory', i, j)
                 setattr(defence, files[j-1], 1)
+            else:
+                setattr(defence, files[j-1], 0)
         db.session.commit()
 
 def remove_checks(game_id, go, attack):
