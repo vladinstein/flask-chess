@@ -100,6 +100,10 @@ $(document).ready(function(){
         $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html('')
         $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square', '0')
         $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', figure)
+        if ((data['check'] == 1 && $('.under_check').hasClass('hidden')) || (data['check'] == 0 && 
+        !$('.under_check').hasClass('hidden'))) {
+            $('.under_check').toggleClass('hidden')
+          }
     })
     socket.on('next_move', (moving)=>{
         $('.square[data-m="2"]').attr('data-m', '0')

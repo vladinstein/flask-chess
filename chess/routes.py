@@ -91,14 +91,19 @@ def go(data):
     db.session.commit()
     all_attacks, into_check = calculate_attacks_possible_checks(game_id)
     add_attacks_defences_to_db(game_id, into_check, all_attacks)
-    check = check_if_check(game_id)
-    print(check)
+    check = int(check_if_check(game_id))
     game = Game.query.filter_by(id=game_id).first()
     if session['figures'] == 0:
-        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y}, room=game.black_sid)
+        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
     else:
-        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y}, room=game.white_sid)
+        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.white_sid)
     moving = {}
+    if session['figures'] == 0:
+        if game.p2_check != check:
+            game.p2_check = check
+    else:
+        if game.p1_check != check:
+            game.p1_check = check
     if game.p1_move:
         game.p1_move = 0
     else:
@@ -177,7 +182,8 @@ def game(game_id):
             moving = check_can_move(game_id, figures = 1)
     response = make_response(render_template('game.html', files=files, rank=rank, moving=moving, 
                                              game_id=game_id, both_connected = game.both_connected,
-                                             p1_move = game.p1_move))
+                                             p1_move = game.p1_move, p1_check = game.p1_check,
+                                             p2_check = game.p2_check))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     return response

@@ -6,6 +6,15 @@
 </div>
 {% endif %}
 {% if both_connected %} 
+    {% if (session['figures'] == 0 and p1_check) or (session['figures'] == 1 and p2_check) %}
+        <div class="under_check">
+            <h4>Check!</h4>
+        </div>
+    {% else  %}
+        <div class="under_check hidden">
+            <h4>Check!</h4>
+        </div>
+    {% endif %}
     {% if (session['figures'] == 0 and p1_move) or (session['figures'] == 1 and not p1_move)  %}
         <div class="your_move">
             <h4>Your move!</h4>
@@ -22,6 +31,9 @@
     </div>
     {% endif %}
 {% else %}
+    <div class="under_check hidden">
+        <h4>Check!</h4>
+    </div>
     <div class="your_move hidden">
         <h4>Your move!</h4>
     </div>
