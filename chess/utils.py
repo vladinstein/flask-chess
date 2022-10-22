@@ -1,5 +1,5 @@
 import string
-from chess.models import Rank, DefenceWhite, DefenceBlack, Attacks
+from chess.models import Rank, Defences, Attacks
 from chess import db
 from chess.routes import session
 
@@ -298,14 +298,14 @@ def get_king_moves(game_id, x, y, z=0):
     defence.update(defence_2)
     return go, attack, defence, z
 
-def calculate_attacks_possible_checks(game_id):
+def calculate_attacks_possible_checks(game_id, opp=False):
     into_check = {}
     all_attacks = {}
     rank = get_board(game_id)
     z = 0
     for x in range (1, 9):
         for y in range (1, 9):
-            if session['figures'] == 0:
+            if (session['figures'] == 0 and not opp) or (session['figures'] == 1 and opp):
                 if rank[x][y] == 1:
                     _, attack, defence, z  = get_white_pawn_moves(game_id, x, y, z)
                     into_check.update(defence)
@@ -370,16 +370,13 @@ def calculate_attacks_possible_checks(game_id):
 def add_attacks_defences_to_db(game_id, into_check, all_attacks):
     files = string.ascii_lowercase[0:8] 
     for i in range(1, 9):
-        if session['figures'] == 0:
-            defence = DefenceWhite.query.filter_by(game_id=game_id, number=i).first()
-        else:
-            defence = DefenceBlack.query.filter_by(game_id=game_id, number=i).first()
+        defences = Defences.query.filter_by(game_id=game_id, number=i).first()
         attacks = Attacks.query.filter_by(game_id=game_id, number=i).first()
         for j in range(1, 9):
             if [i, j] in into_check.values():
-                setattr(defence, files[j-1], 1)
+                setattr(defences, files[j-1], 1)
             else:
-                setattr(defence, files[j-1], 0)
+                setattr(defences, files[j-1], 0)
             if [i, j] in all_attacks.values():
                 setattr(attacks, files[j-1], 1)
             else:
@@ -387,32 +384,27 @@ def add_attacks_defences_to_db(game_id, into_check, all_attacks):
         db.session.commit()
 
 def remove_checks(game_id, go, attack):
-    defence = {}
-    if session['figures'] == 1:
-        for i in range (1, 9):
-            defence[i] = DefenceWhite.query.with_entities(DefenceWhite.game_id, DefenceWhite.a, DefenceWhite.b, DefenceWhite.c, DefenceWhite.d, DefenceWhite.e, 
-                                            DefenceWhite.f, DefenceWhite.g, DefenceWhite.h).filter_by(game_id=game_id, 
-                                            number=i).first()
-    else:
-        for i in range (1, 9):
-            defence[i] = DefenceBlack.query.with_entities(DefenceBlack.game_id, DefenceBlack.a, DefenceBlack.b, DefenceBlack.c, DefenceBlack.d, DefenceBlack.e, 
-                                            DefenceBlack.f, DefenceBlack.g, DefenceBlack.h).filter_by(game_id=game_id, 
-                                            number=i).first()
+    defences = {}
+    for i in range (1, 9):
+        defences[i] = Defences.query.with_entities(Defences.game_id, Defences.a, Defences.b, 
+                                        Defences.c, Defences.d, Defences.e, 
+                                        Defences.f, Defences.g, Defences.h).filter_by(game_id=game_id,
+                                        number=i).first()
     for key, value in list(go.items()):
             print(key, value)
-            if defence[value[0]][value[1]] == 1:
+            if defences[value[0]][value[1]] == 1:
                 del go[key]
     for key, value in list(attack.items()):
             print(key, value)
-            if defence[value[0]][value[1]] == 1:
+            if defences[value[0]][value[1]] == 1:
                 del attack[key]
     return go, attack
 
-def check_if_check(game_id):
+def check_if_check(game_id, opp=False):
     rank = get_board(game_id)
     for x in range (1, 9): 
         for y in range (1, 9):
-            if rank[x][y] == 6 and session['figures'] == 1:
+            if rank[x][y] == 6 and ((session['figures'] == 1 and not opp) or (session['figures'] == 0 and opp)):
                 attacks = Attacks.query.with_entities(Attacks.game_id, Attacks.a, Attacks.b, Attacks.c,
                                             Attacks.d, Attacks.e, Attacks.f, Attacks.g, 
                                             Attacks.h).filter_by(game_id=game_id, number=x).first()
@@ -420,7 +412,7 @@ def check_if_check(game_id):
                     return True
                 else:
                     return False
-            elif rank[x][y] == 12 and session['figures'] == 0:
+            elif rank[x][y] == 12 and ((session['figures'] == 0 and not opp) or (session['figures'] == 1 and opp)):
                 attacks = Attacks.query.with_entities(Attacks.game_id, Attacks.a, Attacks.b, Attacks.c,
                                             Attacks.d, Attacks.e, Attacks.f, Attacks.g, 
                                             Attacks.h).filter_by(game_id=game_id, number=x).first()
@@ -429,8 +421,6 @@ def check_if_check(game_id):
                 else:
                     return False
     return False
-
-                
 
 def get_black_pawn_moves(game_id, x, y, z=0):
     go = {}
@@ -517,10 +507,8 @@ def get_black_knight_moves(game_id, x, y, z=0):
 def create_game(game_id):
     rank = {}
     for i in range(1, 9):
-        defence_white = DefenceWhite(game_id=game_id, number=i)
+        defence_white = Defences(game_id=game_id, number=i)
         db.session.add(defence_white)
-        defence_black = DefenceBlack(game_id=game_id, number=i)
-        db.session.add(defence_black)
         attacks = Attacks(game_id=game_id, number=i)
         db.session.add(attacks)
         if i == 1:

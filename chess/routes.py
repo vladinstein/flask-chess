@@ -75,7 +75,7 @@ def take(data):
     socketio.emit('moves', data=(go, attack), room=session['sid'])
 
 @socketio.on('go')
-def go(data):
+def go(data):    
     figure = int(data['figure'])
     game_id = int(data['id'])
     y = int(data['y'])
@@ -84,37 +84,60 @@ def go(data):
     j = int(data['j'])
     files = string.ascii_lowercase[0:8]
     rank = Rank.query.filter_by(game_id=game_id, number=x).first()
+    move_to = getattr(rank, files[y-1])
     setattr(rank, files[y-1], figure)
     db.session.commit()
     rank = Rank.query.filter_by(game_id=game_id, number=i).first()
+    move_from = getattr(rank, files[j-1])
     setattr(rank, files[j-1], 0)
     db.session.commit()
-    all_attacks, into_check = calculate_attacks_possible_checks(game_id)
+    #calculate if there is a check to himself after this players move
+    all_attacks, into_check = calculate_attacks_possible_checks(game_id, opp=True)
     add_attacks_defences_to_db(game_id, into_check, all_attacks)
-    check = int(check_if_check(game_id))
+    check = int(check_if_check(game_id, opp=True))
     game = Game.query.filter_by(id=game_id).first()
-    if session['figures'] == 0:
-        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
+    #if there is a check to himself after his move, his move is reversed
+    if check:
+            rank = Rank.query.filter_by(game_id=game_id, number=x).first()
+            setattr(rank, files[y-1], move_to)
+            rank = Rank.query.filter_by(game_id=game_id, number=i).first()
+            setattr(rank, files[j-1], move_from)
+            db.session.commit()
+            if figure < 7:
+                moving = check_can_move(game_id, figures = 0)
+                socketio.emit('reverse_move', {'i': i, 'j': j, 'x': x, 'y': y}, room=game.white_sid)
+                socketio.emit('next_move', moving, room=game.white_sid)
+            else:
+                moving = check_can_move(game_id, figures = 1)  
+                socketio.emit('reverse_move', {'i': i, 'j': j, 'x': x, 'y': y}, room=game.black_sid)
+                socketio.emit('next_move', moving, room=game.black_sid)
     else:
-        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.white_sid)
-    moving = {}
-    if session['figures'] == 0:
-        if game.p2_check != check:
-            game.p2_check = check
-    else:
-        if game.p1_check != check:
-            game.p1_check = check
-    if game.p1_move:
-        game.p1_move = 0
-    else:
-        game.p1_move = 1
-    db.session.commit()
-    if figure < 7:
-        moving = check_can_move(game_id, figures = 1)
-        socketio.emit('next_move', moving, room=game.black_sid)
-    else:
-        moving = check_can_move(game_id, figures = 0)  
-        socketio.emit('next_move', moving, room=game.white_sid)
+        #calculate this players attacks, defences and see if there is a check for the opponent 
+        all_attacks, into_check = calculate_attacks_possible_checks(game_id)
+        add_attacks_defences_to_db(game_id, into_check, all_attacks)
+        check = int(check_if_check(game_id))
+        if session['figures'] == 0:
+            socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
+        else:
+            socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.white_sid)
+        moving = {}
+        if session['figures'] == 0:
+            if game.p2_check != check:
+                game.p2_check = check
+        else:
+            if game.p1_check != check:
+                game.p1_check = check
+        if game.p1_move:
+            game.p1_move = 0
+        else:
+            game.p1_move = 1
+        db.session.commit()
+        if figure < 7:
+            moving = check_can_move(game_id, figures = 1)
+            socketio.emit('next_move', moving, room=game.black_sid)
+        else:
+            moving = check_can_move(game_id, figures = 0)  
+            socketio.emit('next_move', moving, room=game.white_sid)
 
 @app.route("/", methods=['GET', 'POST'])
 def index():

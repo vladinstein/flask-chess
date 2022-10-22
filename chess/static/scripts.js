@@ -103,7 +103,18 @@ $(document).ready(function(){
         if ((data['check'] == 1 && $('.under_check').hasClass('hidden')) || (data['check'] == 0 && 
         !$('.under_check').hasClass('hidden'))) {
             $('.under_check').toggleClass('hidden')
-          }
+        }
+    })
+    socket.on('reverse_move', (data) => {
+        var text = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html()
+            figure = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square')
+        $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html(text)
+        $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
+        $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
+        $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square', figure)
+        if ($('.under_check').hasClass('hidden')) {
+            $('.under_check').toggleClass('hidden')
+        }
     })
     socket.on('next_move', (moving)=>{
         $('.square[data-m="2"]').attr('data-m', '0')
