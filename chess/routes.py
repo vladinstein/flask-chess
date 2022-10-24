@@ -112,14 +112,17 @@ def go(data):
                 socketio.emit('reverse_move', {'i': i, 'j': j, 'x': x, 'y': y}, room=game.black_sid)
                 socketio.emit('next_move', moving, room=game.black_sid)
     else:
+
         #calculate this players attacks, defences and see if there is a check for the opponent 
         all_attacks, into_check = calculate_attacks_possible_checks(game_id)
         add_attacks_defences_to_db(game_id, into_check, all_attacks)
         check = int(check_if_check(game_id))
         if session['figures'] == 0:
             socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
+            socketio.emit('remove_check', room=game.white_sid)
         else:
             socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.white_sid)
+            socketio.emit('remove_check', room=game.black_sid)
         moving = {}
         if session['figures'] == 0:
             if game.p2_check != check:

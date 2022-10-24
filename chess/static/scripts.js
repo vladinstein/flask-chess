@@ -109,6 +109,11 @@ $(document).ready(function(){
             $('.under_check').toggleClass('hidden')
         }
     })
+    socket.on('remove_check', () => {
+        if (!$('.under_check').hasClass('hidden')) {
+            $('.under_check').toggleClass('hidden')
+        }
+    })
     socket.on('reverse_move', (data) => {
         var text = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html()
             figure = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square')
