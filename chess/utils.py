@@ -41,6 +41,14 @@ def get_defences(game_id):
                                         number=i).first()
     return defences
 
+def get_attacks(game_id):
+    attacks = {}
+    for i in range (1, 9):
+        attacks[i] = Attacks.query.with_entities(Attacks.game_id, Attacks.a, Attacks.b, Attacks.c,
+                                            Attacks.d, Attacks.e, Attacks.f, Attacks.g,
+                                            Attacks.h).filter_by(game_id=game_id, number=i).first()
+    return attacks
+
 def get_king_coordinates(game_id):
     rank = get_board(game_id)
     for x in range (1, 9): 
@@ -461,21 +469,16 @@ def remove_checks(game_id, moves):
 
 def check_if_check(game_id, opp=False):
     rank = get_board(game_id)
+    attacks = get_attacks(game_id)
     for x in range (1, 9): 
         for y in range (1, 9):
             if rank[x][y] == 6 and ((session['figures'] == 1 and not opp) or (session['figures'] == 0 and opp)):
-                attacks = Attacks.query.with_entities(Attacks.game_id, Attacks.a, Attacks.b, Attacks.c,
-                                            Attacks.d, Attacks.e, Attacks.f, Attacks.g, 
-                                            Attacks.h).filter_by(game_id=game_id, number=x).first()
-                if attacks[y] == 1:
+                if attacks[x][y] == 1:
                     return True
                 else:
                     return False
             elif rank[x][y] == 12 and ((session['figures'] == 0 and not opp) or (session['figures'] == 1 and opp)):
-                attacks = Attacks.query.with_entities(Attacks.game_id, Attacks.a, Attacks.b, Attacks.c,
-                                            Attacks.d, Attacks.e, Attacks.f, Attacks.g, 
-                                            Attacks.h).filter_by(game_id=game_id, number=x).first()
-                if attacks[y] == 1:
+                if attacks[x][y] == 1:
                     return True
                 else:
                     return False
@@ -486,9 +489,9 @@ def check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_fi
     x = king_coordinates[0]
     y = king_coordinates[1]
     z = 0
-    if session['figures'] == 0:
-        king_moveable, _ = check_white_king_can_move(game_id, rank, z, x, y)
     if session['figures'] == 1:
+        king_moveable, _ = check_white_king_can_move(game_id, rank, z, x, y)
+    if session['figures'] == 0:
         king_moveable, _ = check_black_king_can_move(game_id, rank, z, x, y)
     if king_moveable:
         return True
