@@ -7,7 +7,7 @@ from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
 from chess.utils import get_moves, create_game, check_can_move, calculate_attacks_possible_checks, \
-                        add_attacks_defences_to_db, check_if_check
+                        add_attacks_defences_to_db, check_if_check, get_king_coordinates, check_checkmate
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -92,7 +92,7 @@ def go(data):
     setattr(rank, files[j-1], 0)
     db.session.commit()
     #calculate if there is a check to himself after this players move
-    all_attacks, into_check = calculate_attacks_possible_checks(game_id, opp=True)
+    all_attacks, into_check, _, _ = calculate_attacks_possible_checks(game_id, opp=True)
     add_attacks_defences_to_db(game_id, into_check, all_attacks)
     check = int(check_if_check(game_id, opp=True))
     game = Game.query.filter_by(id=game_id).first()
@@ -112,11 +112,14 @@ def go(data):
                 socketio.emit('reverse_move', {'i': i, 'j': j, 'x': x, 'y': y}, room=game.black_sid)
                 socketio.emit('next_move', moving, room=game.black_sid)
     else:
-
-        #calculate this players attacks, defences and see if there is a check for the opponent 
-        all_attacks, into_check = calculate_attacks_possible_checks(game_id)
+        #calculate this players attacks, defences and see if there is a check for the opponent
+        king_coordinates = get_king_coordinates(game_id)
+        all_attacks, into_check, attack_king_coord, attack_king_figures = calculate_attacks_possible_checks(
+                                                                          game_id, king_coordinates=king_coordinates)
         add_attacks_defences_to_db(game_id, into_check, all_attacks)
         check = int(check_if_check(game_id))
+        checkmate = int(check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures))
+        print(checkmate)
         if session['figures'] == 0:
             socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
             socketio.emit('remove_check', room=game.white_sid)

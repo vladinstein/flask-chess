@@ -16,7 +16,8 @@ def get_moves(game_id, x, y, figure):
         go, attack, _, _ = get_queen_moves(game_id, x, y)
     elif figure == 6 or figure == 12:
         go, attack, _, _ = get_king_moves(game_id, x, y)
-        go, attack = remove_checks(game_id, go, attack)
+        go = remove_checks(game_id, go)
+        attack = remove_checks(game_id, attack)
     elif figure == 7:
         go, attack, _, _ = get_black_pawn_moves(game_id, x, y)
     elif figure == 8:
@@ -31,9 +32,26 @@ def get_board(game_id):
                                            number=i).first()
     return rank
 
+def get_defences(game_id):
+    defences = {}
+    for i in range (1, 9):
+        defences[i] = Defences.query.with_entities(Defences.game_id, Defences.a, Defences.b, 
+                                        Defences.c, Defences.d, Defences.e, 
+                                        Defences.f, Defences.g, Defences.h).filter_by(game_id=game_id,
+                                        number=i).first()
+    return defences
+
+def get_king_coordinates(game_id):
+    rank = get_board(game_id)
+    for x in range (1, 9): 
+        for y in range (1, 9):
+            if (session['figures'] == 1 and rank[x][y] == 6) or (session['figures'] == 0 and rank[x][y] == 12):
+                return [x, y]
+
 def get_white_pawn_moves(game_id, x, y, z=0):
     go = {}
     attack = {}
+    attack_figure = {}
     defence = {}
     rank = get_board(game_id)
     if rank[x+1][y] == 0:
@@ -298,74 +316,125 @@ def get_king_moves(game_id, x, y, z=0):
     defence.update(defence_2)
     return go, attack, defence, z
 
-def calculate_attacks_possible_checks(game_id, opp=False):
+def calculate_attacks_possible_checks(game_id, opp=False, king_coordinates=[0, 0]):
     into_check = {}
     all_attacks = {}
+    attack_king_coord = {}
+    attack_king_figures = []
     rank = get_board(game_id)
     z = 0
+    king_idx = 0
     for x in range (1, 9):
         for y in range (1, 9):
             if (session['figures'] == 0 and not opp) or (session['figures'] == 1 and opp):
                 if rank[x][y] == 1:
                     _, attack, defence, z  = get_white_pawn_moves(game_id, x, y, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(defence)
                     all_attacks.update(attack)
                 if rank[x][y] == 2:
                     go, attack, defence, z = get_white_knight_moves(game_id, x, y, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(go)
                     into_check.update(defence)
                     all_attacks.update(attack)
                 if rank[x][y] == 3:
                     go, attack, defence, z = get_bishop_moves(game_id, x, y, 1, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(go)
                     into_check.update(defence)
                     all_attacks.update(attack)
                 if rank[x][y] == 4:
                     go, attack, defence, z = get_rook_moves(game_id, x, y, 1, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(go)
                     into_check.update(defence)
                     all_attacks.update(attack)
                 if rank[x][y] == 5:
                     go, attack, defence, z = get_queen_moves(game_id, x, y, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(go)
                     into_check.update(defence)
                     all_attacks.update(attack)
                 if rank[x][y] == 6:
                     go, attack, defence, z = get_king_moves(game_id, x, y, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(go)
                     into_check.update(defence)
                     all_attacks.update(attack)
             else:
                 if rank[x][y] == 7:
                     _, attack, defence, z = get_black_pawn_moves(game_id, x, y, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(defence)
                     all_attacks.update(attack)
                 if rank[x][y] == 8:
                     go, attack, defence, z = get_black_knight_moves(game_id, x, y, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(go)
                     into_check.update(defence)
                     all_attacks.update(attack)
                 if rank[x][y] == 9:
                     go, attack, defence, z = get_bishop_moves(game_id, x, y, 1, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(go)
                     into_check.update(defence)
                     all_attacks.update(attack)
                 if rank[x][y] == 10:
                     go, attack, defence, z = get_rook_moves(game_id, x, y, 1, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(go)
                     into_check.update(defence)
                     all_attacks.update(attack)
                 if rank[x][y] == 11:
                     go, attack, defence, z = get_queen_moves(game_id, x, y, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(go)
                     into_check.update(defence)
                     all_attacks.update(attack)
                 if rank[x][y] == 12:
                     go, attack, defence, z = get_king_moves(game_id, x, y, z)
+                    if king_coordinates in attack.values():
+                        attack_king_coord[king_idx] = [x, y]
+                        attack_king_figures.append(rank[x][y])
+                        king_idx += 1
                     into_check.update(go)
                     into_check.update(defence)
                     all_attacks.update(attack)
-    return all_attacks, into_check
+    return all_attacks, into_check, attack_king_coord, attack_king_figures
 
 def add_attacks_defences_to_db(game_id, into_check, all_attacks):
     files = string.ascii_lowercase[0:8] 
@@ -383,22 +452,12 @@ def add_attacks_defences_to_db(game_id, into_check, all_attacks):
                 setattr(attacks, files[j-1], 0)
         db.session.commit()
 
-def remove_checks(game_id, go, attack):
-    defences = {}
-    for i in range (1, 9):
-        defences[i] = Defences.query.with_entities(Defences.game_id, Defences.a, Defences.b, 
-                                        Defences.c, Defences.d, Defences.e, 
-                                        Defences.f, Defences.g, Defences.h).filter_by(game_id=game_id,
-                                        number=i).first()
-    for key, value in list(go.items()):
-            print(key, value)
+def remove_checks(game_id, moves):
+    defences = get_defences(game_id)
+    for key, value in list(moves.items()):
             if defences[value[0]][value[1]] == 1:
-                del go[key]
-    for key, value in list(attack.items()):
-            print(key, value)
-            if defences[value[0]][value[1]] == 1:
-                del attack[key]
-    return go, attack
+                del moves[key]
+    return moves
 
 def check_if_check(game_id, opp=False):
     rank = get_board(game_id)
@@ -421,6 +480,20 @@ def check_if_check(game_id, opp=False):
                 else:
                     return False
     return False
+
+def check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures):
+    rank = get_board(game_id)
+    x = king_coordinates[0]
+    y = king_coordinates[1]
+    z = 0
+    if session['figures'] == 0:
+        king_moveable, _ = check_white_king_can_move(game_id, rank, z, x, y)
+    if session['figures'] == 1:
+        king_moveable, _ = check_black_king_can_move(game_id, rank, z, x, y)
+    if king_moveable:
+        return True
+    else:
+        return False
 
 def get_black_pawn_moves(game_id, x, y, z=0):
     go = {}
@@ -543,8 +616,11 @@ def check_can_move(game_id, figures):
                 if rank[x][y] == 4:
                     add_moveable, z = check_white_rook_can_move(rank, z, x, y)
                     moveable.update(add_moveable)
-                if rank[x][y] == 5 or rank[x][y] == 6:
-                    add_moveable, z = check_white_queen_king_can_move(rank, z, x, y)
+                if rank[x][y] == 5:
+                    add_moveable, z = check_white_queen_can_move(rank, z, x, y)
+                    moveable.update(add_moveable)
+                if rank[x][y] == 6:
+                    add_moveable, z = check_white_king_can_move(game_id, rank, z, x, y)
                     moveable.update(add_moveable)
             else:
                 if rank[x][y] == 7:
@@ -559,8 +635,11 @@ def check_can_move(game_id, figures):
                 if rank[x][y] == 10:
                     add_moveable, z = check_black_rook_can_move(rank, z, x, y)
                     moveable.update(add_moveable)
-                if rank[x][y] == 11 or rank[x][y] == 12:
-                    add_moveable, z = check_black_queen_king_can_move(rank, z, x, y)
+                if rank[x][y] == 11:
+                    add_moveable, z = check_black_queen_can_move(rank, z, x, y)
+                    moveable.update(add_moveable)
+                if rank[x][y] == 12:
+                    add_moveable, z = check_black_king_can_move(game_id, rank, z, x, y)
                     moveable.update(add_moveable)
     return moveable
                 
@@ -653,14 +732,42 @@ def check_black_rook_can_move(rank, z, x, y):
         z += 1
     return moveable, z
 
-def check_white_queen_king_can_move(rank, z, x, y):
+def check_white_queen_can_move(rank, z, x, y):
     moveable, z = check_white_bishop_can_move(rank, z, x, y)
     moveable_2, z = check_white_rook_can_move(rank, z, x, y)
     moveable.update(moveable_2)
     return moveable, z
 
-def check_black_queen_king_can_move(rank, z, x, y):
+def check_white_king_can_move(game_id, rank, z, x, y):   
+    moveable = {}
+    defences = get_defences(game_id)
+    if (x < 8 and y < 8 and not defences[x+1][y+1] and (rank[x+1][y+1] == 0 or rank[x+1][y+1] > 6)) or \
+    (x < 8 and y > 1 and not defences[x+1][y-1] and (rank[x+1][y-1] == 0 or rank[x+1][y-1] > 6)) or \
+    (x > 1 and y > 1 and not defences[x-1][y-1] and (rank[x-1][y-1] == 0 or rank[x-1][y-1] > 6)) or \
+    (x > 1 and y < 8 and not defences[x-1][y+1] and (rank[x-1][y+1] == 0 or rank[x-1][y+1] > 6)) or \
+    (y < 8 and not defences[x][y+1] and (rank[x][y+1] == 0 or rank[x][y+1] > 6)) or \
+    (x < 8 and not defences[x+1][y] and (rank[x+1][y] == 0 or rank[x+1][y] > 6)) or \
+    (y > 1 and not defences[x][y-1] and (rank[x][y-1] == 0 or rank[x][y-1] > 6)) or \
+    (x > 1 and not defences[x-1][y] and (rank[x-1][y] == 0 or rank[x-1][y] > 6)):
+        moveable[z]=[x, y]
+        z += 1
+    return moveable, z
+
+def check_black_queen_can_move(rank, z, x, y):
     moveable, z = check_black_bishop_can_move(rank, z, x, y)
     moveable_2, z = check_black_rook_can_move(rank, z, x, y)
     moveable.update(moveable_2)
+    return moveable, z
+
+def check_black_king_can_move(game_id, rank, z, x, y):
+    moveable = {}
+    defences = get_defences(game_id)
+    if (x < 8 and y < 8 and not defences[x+1][y+1] and rank[x+1][y+1] < 7) or \
+    (x < 8 and y > 1 and not defences[x+1][y-1] and rank[x+1][y-1] < 7) or \
+    (x > 1 and y > 1 and not defences[x-1][y-1] and rank[x-1][y-1] < 7) or \
+    (x > 1 and y < 8 and not defences[x-1][y+1] and rank[x-1][y+1] < 7) or\
+    (y < 8 and not defences[x][y+1] and rank[x][y+1] < 7) or (x < 8 and not defences[x+1][y] and rank[x+1][y] < 7) or \
+    (y > 1 and not defences[x][y-1] and rank[x][y-1] < 7) or (x > 1 and not defences[x-1][y] and rank[x-1][y] < 7):
+        moveable[z]=[x, y]
+        z += 1
     return moveable, z
