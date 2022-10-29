@@ -6,8 +6,8 @@ from flask import make_response
 from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
-from chess.utils import get_moves, create_game, check_can_move, calculate_attacks_possible_checks, \
-                        add_attacks_defences_to_db, check_if_check, get_king_coordinates, check_checkmate
+from chess.utils import get_moves, create_game, check_can_move, calculate_attacks, calculate_possible_checks, add_defences_to_db, \
+                        check_if_check, get_king_coordinates, check_checkmate
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -92,9 +92,8 @@ def go(data):
     setattr(rank, files[j-1], 0)
     db.session.commit()
     #calculate if there is a check to himself after this players move
-    all_attacks, into_check, _, _ = calculate_attacks_possible_checks(game_id, opp=True)
-    add_attacks_defences_to_db(game_id, into_check, all_attacks)
-    check = int(check_if_check(game_id, opp=True))
+    all_attacks, _, _ = calculate_attacks(game_id, opp=True)
+    check = int(check_if_check(game_id, all_attacks, opp=True))
     game = Game.query.filter_by(id=game_id).first()
     #if there is a check to himself after his move, his move is reversed
     if check:
@@ -114,12 +113,13 @@ def go(data):
     else:
         #calculate this players attacks, defences and see if there is a check for the opponent
         king_coordinates = get_king_coordinates(game_id)
-        all_attacks, into_check, attack_king_coord, attack_king_figures = calculate_attacks_possible_checks(
-                                                                          game_id, king_coordinates=king_coordinates)
-        add_attacks_defences_to_db(game_id, into_check, all_attacks)
-        check = int(check_if_check(game_id))
-        checkmate = int(check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures))
-        print(checkmate)
+        all_attacks, attack_king_coord, attack_king_figures = calculate_attacks(game_id, king_coordinates=king_coordinates)
+        into_check = calculate_possible_checks(game_id)
+        add_defences_to_db(game_id, into_check)
+        check = int(check_if_check(game_id, all_attacks))
+        if check:
+            checkmate = int(check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures))
+            print(checkmate, king_coordinates, attack_king_coord, attack_king_figures)
         if session['figures'] == 0:
             socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
             socketio.emit('remove_check', room=game.white_sid)
