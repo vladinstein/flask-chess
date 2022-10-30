@@ -7,7 +7,7 @@ from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
 from chess.utils import get_moves, create_game, check_can_move, calculate_attacks, calculate_possible_checks, add_defences_to_db, \
-                        check_if_check, get_king_coordinates, check_checkmate
+                        check_if_check, get_king_coordinates, check_checkmate, remove_checks, find_checklines
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -116,9 +116,16 @@ def go(data):
         all_attacks, attack_king_coord, attack_king_figures = calculate_attacks(game_id, king_coordinates=king_coordinates)
         into_check = calculate_possible_checks(game_id)
         add_defences_to_db(game_id, into_check)
+        checklines = find_checklines(game_id)
+        print(checklines)
+        for value in checklines.values():
+            if (3, 7) in value:
+                print('yes')
         check = int(check_if_check(game_id, all_attacks))
         if check:
-            checkmate = int(check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures))
+            all_attacks, _, _ = calculate_attacks(game_id, opp=True)
+            all_attacks = remove_checks(game_id, all_attacks)
+            checkmate = int(check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures, all_attacks))
             print(checkmate, king_coordinates, attack_king_coord, attack_king_figures)
         if session['figures'] == 0:
             socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)

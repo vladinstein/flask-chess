@@ -49,11 +49,12 @@ def get_attacks(game_id):
                                             Attacks.h).filter_by(game_id=game_id, number=i).first()
     return attacks
 
-def get_king_coordinates(game_id):
+def get_king_coordinates(game_id, opp=True):
     rank = get_board(game_id)
     for x in range (1, 9): 
         for y in range (1, 9):
-            if (session['figures'] == 1 and rank[x][y] == 6) or (session['figures'] == 0 and rank[x][y] == 12):
+            if (((session['figures'] == 1 and rank[x][y] == 6) or (session['figures'] == 0 and rank[x][y] == 12)) and opp) or \
+               (((session['figures'] == 1 and rank[x][y] == 12) or (session['figures'] == 0 and rank[x][y] == 6)) and not opp):
                 return [x, y]
 
 def get_white_pawn_moves(game_id, x, y, z=0):
@@ -522,7 +523,7 @@ def check_if_check(game_id, all_attacks, opp=False):
                     return False
     return False
 
-def check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures):
+def check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures, all_attacks):
     rank = get_board(game_id)
     x = king_coordinates[0]
     y = king_coordinates[1]
@@ -535,10 +536,14 @@ def check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_fi
     if len(attack_king_coord) == 2 and not king_moveable:
         return True
     #when check is from adjasent square:
-    for i, j in attack_king_coord.values():
-        if ((i == x - 1 and j == y -1) or (i == x - 1 and j == y) or (i == x - 1 and j == y + 1) or (i == x and j == y + 1) or
-           (i == x + 1 and j == y + 1) or (i == x + 1 and j == y) or (i == x + 1 and j == y - 1) or
-           (i == x and j == y - 1)) and not king_moveable:
+    if len(attack_king_coord) == 1:
+        i = attack_king_coord[0][0]
+        j = attack_king_coord[0][1]
+        if ((i == x - 1 and j == y - 1) or (i == x - 1 and j == y) or (i == x - 1 and j == y + 1) or (i == x and j == y + 1) or
+            (i == x + 1 and j == y + 1) or (i == x + 1 and j == y) or (i == x + 1 and j == y - 1) or
+            (i == x and j == y - 1)) and not king_moveable and not [i, j] in all_attacks.values():
+            return True
+        if attack_king_figures[0] == 2 and not king_moveable and not [i, j] in all_attacks.values():
             return True
     return False
 
@@ -643,6 +648,46 @@ def create_game(game_id):
             rank[i] = Rank(game_id=game_id, number=i, a=0, b=0, c=0, d=0, e=0, f=0, g=0, h=0)
         db.session.add(rank[i])
     db.session.commit()
+
+def find_checklines(game_id):
+    king_coord = get_king_coordinates(game_id, opp=False)
+    i = king_coord[0]
+    j = king_coord[1]
+    rank = get_board(game_id)
+    checklines = {}
+    checkline_idx = 0
+    for x in range (1, 9):
+        for y in range (1, 9):
+            if session['figures'] == 0:
+                if rank[x][y] == 9 and (x - y == i - j) and x - i > 1:
+                    line = []
+                    all_count = 0
+                    your_count = 0
+                    for count in range(1, x - i):
+                        line.append((i+count, j+count))
+                        if rank[i+count][j+count]:
+                            all_count += 1
+                        if rank[i+count][j+count] and rank[i+count][j+count] < 7:
+                            your_count += 1
+                    if your_count == 1 and all_count == 1:
+                        checklines[checkline_idx] = line
+                        checkline_idx += 1
+                if rank[x][y] == 9 and (x - y == i - j) and i - x > 1:
+                    line = []
+                    all_count = 0
+                    your_count = 0
+                    for count in range(1, i - x):
+                        line.append((x+count, y+count))
+                        if rank[x+count][y+count]:
+                            all_count += 1
+                        if rank[x+count][y+count] and rank[x+count][y+count] < 7:
+                            your_count += 1
+                    if your_count == 1 and all_count == 1:
+                        checklines[checkline_idx] = line
+                        checkline_idx += 1
+    return checklines
+
+
 
 def check_can_move(game_id, figures):
     rank = get_board(game_id)
