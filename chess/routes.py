@@ -118,9 +118,10 @@ def go(data):
         add_defences_to_db(game_id, into_check)
         checklines = find_checklines(game_id)
         print(checklines)
-        for value in checklines.values():
-            if (3, 7) in value:
-                print('yes')
+        for elem in checklines:
+            if [3, 3] in elem.values():
+                if  [4, 2] in elem.values():
+                    print('bingo')
         check = int(check_if_check(game_id, all_attacks))
         if check:
             all_attacks, _, _ = calculate_attacks(game_id, opp=True)

@@ -174,6 +174,8 @@ def get_bishop_moves(game_id, x, y, step=1, z=0):
     defence = {}
     rank = get_board(game_id)
     # we don't need a separate counter for attacks cause we don't really use keys anywhere
+    #here we are going to add that extra if
+    # if ([x, y] in checklines and x+1 y+1 in checklines) or [x, y] not in checklines:
     if x < 8 and y < 8:
         if x > y:
             squares_num = 9 - x
@@ -654,40 +656,107 @@ def find_checklines(game_id):
     i = king_coord[0]
     j = king_coord[1]
     rank = get_board(game_id)
-    checklines = {}
-    checkline_idx = 0
+    checklines = []
     for x in range (1, 9):
         for y in range (1, 9):
             if session['figures'] == 0:
-                if rank[x][y] == 9 and (x - y == i - j) and x - i > 1:
-                    line = []
+                if (rank[x][y] == 9 or rank[x][y] == 11) and (x - y == i - j) and x - i > 1:
+                    line = {}
                     all_count = 0
                     your_count = 0
                     for count in range(1, x - i):
-                        line.append((i+count, j+count))
+                        line[count-1] = [i+count, j+count]
                         if rank[i+count][j+count]:
                             all_count += 1
                         if rank[i+count][j+count] and rank[i+count][j+count] < 7:
                             your_count += 1
                     if your_count == 1 and all_count == 1:
-                        checklines[checkline_idx] = line
-                        checkline_idx += 1
-                if rank[x][y] == 9 and (x - y == i - j) and i - x > 1:
-                    line = []
+                        checklines.append(line)
+                if (rank[x][y] == 9 or rank[x][y] == 11) and (x - y == i - j) and i - x > 1:
+                    line = {}
                     all_count = 0
                     your_count = 0
                     for count in range(1, i - x):
-                        line.append((x+count, y+count))
+                        line[count-1] = [x+count, y+count]
                         if rank[x+count][y+count]:
                             all_count += 1
                         if rank[x+count][y+count] and rank[x+count][y+count] < 7:
                             your_count += 1
                     if your_count == 1 and all_count == 1:
-                        checklines[checkline_idx] = line
-                        checkline_idx += 1
+                        checklines.append(line)
+                if (rank[x][y] == 9 or rank[x][y] == 11) and (x + y == i + j) and x - i > 1:
+                    line = {}
+                    all_count = 0
+                    your_count = 0
+                    for count in range(1, x - i):
+                        line[count-1] = [i+count, j-count]
+                        if rank[i+count][j-count]:
+                            all_count += 1
+                        if rank[i+count][j-count] and rank[i+count][j-count] < 7:
+                            your_count += 1
+                    if your_count == 1 and all_count == 1:
+                        checklines.append(line)
+                if (rank[x][y] == 9 or rank[x][y] == 11) and (x + y == i + j) and i - x > 1:
+                    line = {}
+                    all_count = 0
+                    your_count = 0
+                    for count in range(1, i - x):
+                        line[count-1] = [x+count, y-count]
+                        if rank[x+count][y-count]:
+                            all_count += 1
+                        if rank[x+count][y-count] and rank[x+count][y-count] < 7:
+                            your_count += 1
+                    if your_count == 1 and all_count == 1:
+                        checklines.append(line)
+                if (rank[x][y] == 10 or rank[x][y] == 11) and (x == i) and y - j > 1:
+                    line = {}
+                    all_count = 0
+                    your_count = 0
+                    for count in range(1, y - j):
+                        line[count-1] = [i, j+count]
+                        if rank[i][j+count]:
+                            all_count += 1
+                        if rank[i][j+count] and rank[i][j+count] < 7:
+                            your_count += 1
+                    if your_count == 1 and all_count == 1:
+                        checklines.append(line)
+                if (rank[x][y] == 10 or rank[x][y] == 11) and (x == i) and j - y > 1:
+                    line = {}
+                    all_count = 0
+                    your_count = 0
+                    for count in range(1, j - y):
+                        line[count-1] = [x, y+count]
+                        if rank[x][y+count]:
+                            all_count += 1
+                        if rank[x][y+count] and rank[x][y+count] < 7:
+                            your_count += 1
+                    if your_count == 1 and all_count == 1:
+                        checklines.append(line)
+                if (rank[x][y] == 10 or rank[x][y] == 11) and (y == j) and x - i > 1:
+                    line = {}
+                    all_count = 0
+                    your_count = 0
+                    for count in range(1, x - i):
+                        line[count-1] = [i+count, j]
+                        if rank[i+count][j]:
+                            all_count += 1
+                        if rank[i+count][j] and rank[i+count][j] < 7:
+                            your_count += 1
+                    if your_count == 1 and all_count == 1:
+                        checklines.append(line)
+                if (rank[x][y] == 10 or rank[x][y] == 11) and (y == j) and i - x > 1:
+                    line = {}
+                    all_count = 0
+                    your_count = 0
+                    for count in range(1, i - x):
+                        line[count-1] = [x+count, y]
+                        if rank[x+count][y]:
+                            all_count += 1
+                        if rank[x+count][y] and rank[x+count][y] < 7:
+                            your_count += 1
+                    if your_count == 1 and all_count == 1:
+                        checklines.append(line)
     return checklines
-
-
 
 def check_can_move(game_id, figures):
     rank = get_board(game_id)
@@ -790,6 +859,7 @@ def check_black_knight_can_move(rank, z, x, y):
 
 def check_white_bishop_can_move(rank, z, x, y):
     moveable = {}
+    # if [x, y] in checklines and [x+1] [y+1] not in checklines or [x, y] not in checklines
     if (x < 8 and y < 8 and (rank[x+1][y+1] == 0 or rank[x+1][y+1] > 6)) or \
     (x < 8 and y > 1 and (rank[x+1][y-1] == 0 or rank[x+1][y-1] > 6)) or \
     (x > 1 and y > 1 and (rank[x-1][y-1] == 0 or rank[x-1][y-1] > 6)) or \
