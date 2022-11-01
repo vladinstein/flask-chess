@@ -651,112 +651,161 @@ def create_game(game_id):
         db.session.add(rank[i])
     db.session.commit()
 
-def find_checklines(game_id):
-    king_coord = get_king_coordinates(game_id, opp=False)
+def calculate_checklines(game_id):
+    king_coord = get_king_coordinates(game_id)
     i = king_coord[0]
     j = king_coord[1]
     rank = get_board(game_id)
     checklines = []
     for x in range (1, 9):
         for y in range (1, 9):
-            if session['figures'] == 0:
+            if session['figures'] == 1:
                 if (rank[x][y] == 9 or rank[x][y] == 11) and (x - y == i - j) and x - i > 1:
-                    line = {}
-                    all_count = 0
-                    your_count = 0
-                    for count in range(1, x - i):
-                        line[count-1] = [i+count, j+count]
-                        if rank[i+count][j+count]:
-                            all_count += 1
-                        if rank[i+count][j+count] and rank[i+count][j+count] < 7:
-                            your_count += 1
-                    if your_count == 1 and all_count == 1:
-                        checklines.append(line)
+                    calculate_checklines_diagonal_1(checklines, rank, x, i, j)
                 if (rank[x][y] == 9 or rank[x][y] == 11) and (x - y == i - j) and i - x > 1:
-                    line = {}
-                    all_count = 0
-                    your_count = 0
-                    for count in range(1, i - x):
-                        line[count-1] = [x+count, y+count]
-                        if rank[x+count][y+count]:
-                            all_count += 1
-                        if rank[x+count][y+count] and rank[x+count][y+count] < 7:
-                            your_count += 1
-                    if your_count == 1 and all_count == 1:
-                        checklines.append(line)
+                    calculate_checklines_diagonal_2(checklines, rank, x, y, i)
                 if (rank[x][y] == 9 or rank[x][y] == 11) and (x + y == i + j) and x - i > 1:
-                    line = {}
-                    all_count = 0
-                    your_count = 0
-                    for count in range(1, x - i):
-                        line[count-1] = [i+count, j-count]
-                        if rank[i+count][j-count]:
-                            all_count += 1
-                        if rank[i+count][j-count] and rank[i+count][j-count] < 7:
-                            your_count += 1
-                    if your_count == 1 and all_count == 1:
-                        checklines.append(line)
+                    calculate_checklines_diagonal_3(checklines, rank, x, i, j)
                 if (rank[x][y] == 9 or rank[x][y] == 11) and (x + y == i + j) and i - x > 1:
-                    line = {}
-                    all_count = 0
-                    your_count = 0
-                    for count in range(1, i - x):
-                        line[count-1] = [x+count, y-count]
-                        if rank[x+count][y-count]:
-                            all_count += 1
-                        if rank[x+count][y-count] and rank[x+count][y-count] < 7:
-                            your_count += 1
-                    if your_count == 1 and all_count == 1:
-                        checklines.append(line)
+                    calculate_checklines_diagonal_4(checklines, rank, x, y, i)
                 if (rank[x][y] == 10 or rank[x][y] == 11) and (x == i) and y - j > 1:
-                    line = {}
-                    all_count = 0
-                    your_count = 0
-                    for count in range(1, y - j):
-                        line[count-1] = [i, j+count]
-                        if rank[i][j+count]:
-                            all_count += 1
-                        if rank[i][j+count] and rank[i][j+count] < 7:
-                            your_count += 1
-                    if your_count == 1 and all_count == 1:
-                        checklines.append(line)
+                    calculate_checklines_horizontal_1(checklines, rank, y, i, j)
                 if (rank[x][y] == 10 or rank[x][y] == 11) and (x == i) and j - y > 1:
-                    line = {}
-                    all_count = 0
-                    your_count = 0
-                    for count in range(1, j - y):
-                        line[count-1] = [x, y+count]
-                        if rank[x][y+count]:
-                            all_count += 1
-                        if rank[x][y+count] and rank[x][y+count] < 7:
-                            your_count += 1
-                    if your_count == 1 and all_count == 1:
-                        checklines.append(line)
+                    calculate_checklines_horizontal_2(checklines, rank, x, y, j)
                 if (rank[x][y] == 10 or rank[x][y] == 11) and (y == j) and x - i > 1:
-                    line = {}
-                    all_count = 0
-                    your_count = 0
-                    for count in range(1, x - i):
-                        line[count-1] = [i+count, j]
-                        if rank[i+count][j]:
-                            all_count += 1
-                        if rank[i+count][j] and rank[i+count][j] < 7:
-                            your_count += 1
-                    if your_count == 1 and all_count == 1:
-                        checklines.append(line)
+                    calculate_checklines_vertical_1(checklines, rank, x, i, j)
                 if (rank[x][y] == 10 or rank[x][y] == 11) and (y == j) and i - x > 1:
-                    line = {}
-                    all_count = 0
-                    your_count = 0
-                    for count in range(1, i - x):
-                        line[count-1] = [x+count, y]
-                        if rank[x+count][y]:
-                            all_count += 1
-                        if rank[x+count][y] and rank[x+count][y] < 7:
-                            your_count += 1
-                    if your_count == 1 and all_count == 1:
-                        checklines.append(line)
+                    calculate_checklines_vertical_2(checklines, rank, x, y, i)
+            else:
+                if (rank[x][y] == 3 or rank[x][y] == 5) and (x - y == i - j) and x - i > 1:
+                    calculate_checklines_diagonal_1(checklines, rank, x, i, j)
+                if (rank[x][y] == 3 or rank[x][y] == 5) and (x - y == i - j) and i - x > 1:
+                    calculate_checklines_diagonal_2(checklines, rank, x, y, i)
+                if (rank[x][y] == 3 or rank[x][y] == 5) and (x + y == i + j) and x - i > 1:
+                    calculate_checklines_diagonal_3(checklines, rank, x, i, j)
+                if (rank[x][y] == 3 or rank[x][y] == 5) and (x + y == i + j) and i - x > 1:
+                    calculate_checklines_diagonal_4(checklines, rank, x, y, i)
+                if (rank[x][y] == 4 or rank[x][y] == 5) and (x == i) and y - j > 1:
+                    calculate_checklines_horizontal_1(checklines, rank, y, i, j)
+                if (rank[x][y] == 4 or rank[x][y] == 5) and (x == i) and j - y > 1:
+                    calculate_checklines_horizontal_2(checklines, rank, x, y, j)
+                if (rank[x][y] == 4 or rank[x][y] == 5) and (y == j) and x - i > 1:
+                    calculate_checklines_vertical_1(checklines, rank, x, i, j)
+                if (rank[x][y] == 4 or rank[x][y] == 5) and (y == j) and i - x > 1:
+                    calculate_checklines_vertical_2(checklines, rank, x, y, i)                  
     return checklines
+
+def calculate_checklines_diagonal_1(checklines, rank, x, i, j):
+    line = {}
+    all_count = 0
+    block_count = 0
+    for count in range(1, x - i):
+        line[count-1] = [i+count, j+count]
+        if rank[i+count][j+count]:
+            all_count += 1
+        if (session['figures'] == 1 and rank[i+count][j+count] and rank[i+count][j+count] < 7) or \
+           (session['figures'] == 0 and rank[i+count][j+count] > 6):
+            block_count += 1
+    if block_count == 1 and all_count == 1:
+        checklines.append(line)
+
+def calculate_checklines_diagonal_2(checklines, rank, x, y, i):
+    line = {}
+    all_count = 0
+    block_count = 0
+    for count in range(1, i - x):
+        line[count-1] = [x+count, y+count]
+        if rank[x+count][y+count]:
+            all_count += 1
+        if (session['figures'] == 1 and rank[x+count][y+count] and rank[x+count][y+count] < 7) or \
+           (session['figures'] == 0 and rank[x+count][y+count] > 6):
+            block_count += 1
+    if block_count == 1 and all_count == 1:
+        checklines.append(line)
+
+def calculate_checklines_diagonal_3(checklines, rank, x, i, j):
+    line = {}
+    all_count = 0
+    block_count = 0
+    for count in range(1, x - i):
+        line[count-1] = [i+count, j-count]
+        if rank[i+count][j-count]:
+            all_count += 1
+        if (session['figures'] == 1 and rank[i+count][j-count] and rank[i+count][j-count] < 7) or \
+           (session['figures'] == 0 and rank[i+count][j-count] > 6):
+            block_count += 1
+    if block_count == 1 and all_count == 1:
+        checklines.append(line)
+
+def calculate_checklines_diagonal_4(checklines, rank, x, y, i):
+    line = {}
+    all_count = 0
+    block_count = 0
+    for count in range(1, i - x):
+        line[count-1] = [x+count, y-count]
+        if rank[x+count][y-count]:
+            all_count += 1
+        if (session['figures'] == 1 and rank[x+count][y-count] and rank[x+count][y-count] < 7) or \
+           (session['figures'] == 0 and rank[x+count][y-count] > 6):
+            block_count += 1
+    if block_count == 1 and all_count == 1:
+        checklines.append(line)
+
+def calculate_checklines_horizontal_1(checklines, rank, y, i, j):
+    line = {}
+    all_count = 0
+    block_count = 0
+    for count in range(1, y - j):
+        line[count-1] = [i, j+count]
+        if rank[i][j+count]:
+            all_count += 1
+        if (session['figures'] == 1 and rank[i][j+count] and rank[i][j+count] < 7) or \
+           (session['figures'] == 0 and rank[i][j+count] > 6):
+            block_count += 1
+    if block_count == 1 and all_count == 1:
+        checklines.append(line)
+
+def calculate_checklines_horizontal_2(checklines, rank, x, y, j):
+    line = {}
+    all_count = 0
+    block_count = 0
+    for count in range(1, j - y):
+        line[count-1] = [x, y+count]
+        if rank[x][y+count]:
+            all_count += 1
+        if (session['figures'] == 1 and rank[x][y+count] and rank[x][y+count] < 7) or \
+           (session['figures'] == 0 and rank[x][y+count] > 6):
+            block_count += 1
+    if block_count == 1 and all_count == 1:
+        checklines.append(line)
+
+def calculate_checklines_vertical_1(checklines, rank, x, i, j):
+    line = {}
+    all_count = 0
+    block_count = 0
+    for count in range(1, x - i):
+        line[count-1] = [i+count, j]
+        if rank[i+count][j]:
+            all_count += 1
+        if (session['figures'] == 1 and rank[i+count][j] and rank[i+count][j] < 7) or \
+           (session['figures'] == 0 and rank[i+count][j] > 6):
+            block_count += 1
+    if block_count == 1 and all_count == 1:
+        checklines.append(line)
+
+def calculate_checklines_vertical_2(checklines, rank, x, y, i):
+    line = {}
+    all_count = 0
+    block_count = 0
+    for count in range(1, i - x):
+        line[count-1] = [x+count, y]
+        if rank[x+count][y]:
+            all_count += 1
+        if (session['figures'] == 1 and rank[x+count][y] and rank[x+count][y] < 7) or \
+           (session['figures'] == 0 and rank[x+count][y] > 6):
+            block_count += 1
+    if block_count == 1 and all_count == 1:
+        checklines.append(line)
 
 def check_can_move(game_id, figures):
     rank = get_board(game_id)
