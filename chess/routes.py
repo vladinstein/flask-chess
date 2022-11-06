@@ -143,10 +143,10 @@ def go(data):
         checklines = calculate_checklines(game_id)
         print(checklines)
         if figure < 7:
-            moving = check_can_move(game_id, figures = 1)
+            moving = check_can_move(game_id, checklines, figures = 1)
             socketio.emit('next_move', moving, room=game.black_sid)
         else:
-            moving = check_can_move(game_id, figures = 0)  
+            moving = check_can_move(game_id, checklines, figures = 0)  
             socketio.emit('next_move', moving, room=game.white_sid)
 
 @app.route("/", methods=['GET', 'POST'])
