@@ -3,9 +3,10 @@ from chess.models import Rank, Defences, Attacks
 from chess import db
 from chess.routes import session
 
-def get_moves(game_id, x, y, figure):
+def get_moves(game_id, x, y, figure, checklines):
+    print(checklines)
     if figure == 1:
-        go, attack, _, _ = get_white_pawn_moves(game_id, x, y)
+        go, attack, _, _ = get_white_pawn_moves(game_id, x, y, checklines)
     elif figure == 2:
         go, attack, _, _ = get_white_knight_moves(game_id, x, y)
     elif figure == 3 or figure == 9:
@@ -57,10 +58,9 @@ def get_king_coordinates(game_id, opp=True):
                (((session['figures'] == 1 and rank[x][y] == 12) or (session['figures'] == 0 and rank[x][y] == 6)) and not opp):
                 return [x, y]
 
-def get_white_pawn_moves(game_id, x, y, z=0):
+def get_white_pawn_moves(game_id, x, y, checklines, z=0):
     go = {}
     attack = {}
-    attack_figure = {}
     defence = {}
     rank = get_board(game_id)
     if rank[x+1][y] == 0:
@@ -80,6 +80,31 @@ def get_white_pawn_moves(game_id, x, y, z=0):
         z += 1
     elif y < 8 and ((rank[x+1][y+1] < 7 and rank[x+1][y+1] > 0) or rank[x+1][y+1] == 0):
         defence[z] = [x+1, y+1]
+        z += 1
+    return go, attack, defence, z
+
+def get_black_pawn_moves(game_id, x, y, z=0):
+    go = {}
+    attack = {}
+    defence = {}
+    rank = get_board(game_id)
+    if rank[x-1][y] == 0:
+        go[z] = [x-1, y]
+        z += 1
+    if x == 7 and rank[x-1][y] == 0 and rank[x-2][y] == 0:
+        go[z] = [x-2, y]
+        z += 1
+    if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0:
+        attack[z] = [x-1, y-1]
+        z += 1
+    elif y > 1 and (rank[x-1][y-1] > 6 or rank[x-1][y-1] == 0):
+        defence[z] = [x-1, y-1]
+        z += 1
+    if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0:
+        attack[z] = [x-1, y+1]
+        z += 1
+    elif y < 8 and (rank[x-1][y+1] > 6 or rank[x-1][y+1] == 0):
+        defence[z] = [x-1, y+1]
         z += 1
     return go, attack, defence, z
 
@@ -164,6 +189,63 @@ def get_white_knight_moves(game_id, x, y, z=0):
         attack[z] = [x+2, y-1]
         z += 1
     elif x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0:
+        defence[z] = [x+2, y-1]
+        z += 1
+    return go, attack, defence, z
+
+def get_black_knight_moves(game_id, x, y, z=0):
+    attack = {}
+    defence = {}
+    rank = get_board(game_id)
+    # dictionary of possible moves
+    go, z = get_knight_moves_part1(rank, x, y, z)
+    # dictionary of possible attacks
+    if x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0:
+        attack[z] = [x+2, y+1]
+        z += 1
+    elif x < 7 and y < 8 and rank[x+2][y+1] > 6:
+        defence[z] = [x+2, y+1]
+        z += 1
+    if x < 8 and y < 7 and rank[x+1][y+2] < 7 and rank[x+1][y+2] > 0:
+        attack[z] = [x+1, y+2]
+        z += 1
+    elif x < 8 and y < 7 and rank[x+1][y+2] > 6:
+        defence[z] = [x+1, y+2]
+        z += 1
+    if x > 1 and y < 7 and rank[x-1][y+2] < 7 and rank[x-1][y+2] > 0:
+        attack[z] = [x-1, y+2]
+        z += 1
+    elif x > 1 and y < 7 and rank[x-1][y+2] > 6:
+        defence[z] = [x-1, y+2]
+        z += 1
+    if x > 2 and y < 8 and rank[x-2][y+1] < 7 and rank[x-2][y+1] > 0:
+        attack[z] = [x-2, y+1]
+        z += 1
+    elif x > 2 and y < 8 and rank[x-2][y+1] > 6:
+        defence[z] = [x-2, y+1]
+        z += 1
+    if x > 2 and y > 1 and rank[x-2][y-1] < 7 and rank[x-2][y-1] > 0:
+        attack[z] = [x-2, y-1]
+        z += 1
+    elif x > 2 and y > 1 and rank[x-2][y-1] > 6:
+        defence[z] = [x-2, y-1]
+        z += 1
+    if x > 1 and y > 2 and rank[x-1][y-2] < 7 and rank[x-1][y-2] > 0:
+        attack[z] = [x-1, y-2]
+        z += 1
+    elif x > 1 and y > 2 and rank[x-1][y-2] > 6:
+        defence[z] = [x-1, y-2]
+        z += 1
+    if x < 8 and y > 2 and rank[x+1][y-2] < 7 and rank[x+1][y-2] > 0:
+        attack[z] = [x+1, y-2]
+        z += 1
+    elif x < 8 and y > 2 and rank[x+1][y-2] > 6:
+        defence[z] = [x+1, y-2]
+        z += 1
+    if x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0:
+        attack[z] = [x+2, y-1]
+        z += 1
+    elif x < 7 and y > 1 and rank[x+2][y-1] > 6:
         defence[z] = [x+2, y-1]
         z += 1
     return go, attack, defence, z
@@ -549,88 +631,6 @@ def check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_fi
             return True
     return False
 
-def get_black_pawn_moves(game_id, x, y, z=0):
-    go = {}
-    attack = {}
-    defence = {}
-    rank = get_board(game_id)
-    if rank[x-1][y] == 0:
-        go[z] = [x-1, y]
-        z += 1
-    if x == 7 and rank[x-1][y] == 0 and rank[x-2][y] == 0:
-        go[z] = [x-2, y]
-        z += 1
-    if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0:
-        attack[z] = [x-1, y-1]
-        z += 1
-    elif y > 1 and (rank[x-1][y-1] > 6 or rank[x-1][y-1] == 0):
-        defence[z] = [x-1, y-1]
-        z += 1
-    if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0:
-        attack[z] = [x-1, y+1]
-        z += 1
-    elif y < 8 and (rank[x-1][y+1] > 6 or rank[x-1][y+1] == 0):
-        defence[z] = [x-1, y+1]
-        z += 1
-    return go, attack, defence, z
-
-def get_black_knight_moves(game_id, x, y, z=0):
-    attack = {}
-    defence = {}
-    rank = get_board(game_id)
-    # dictionary of possible moves
-    go, z = get_knight_moves_part1(rank, x, y, z)
-    # dictionary of possible attacks
-    if x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0:
-        attack[z] = [x+2, y+1]
-        z += 1
-    elif x < 7 and y < 8 and rank[x+2][y+1] > 6:
-        defence[z] = [x+2, y+1]
-        z += 1
-    if x < 8 and y < 7 and rank[x+1][y+2] < 7 and rank[x+1][y+2] > 0:
-        attack[z] = [x+1, y+2]
-        z += 1
-    elif x < 8 and y < 7 and rank[x+1][y+2] > 6:
-        defence[z] = [x+1, y+2]
-        z += 1
-    if x > 1 and y < 7 and rank[x-1][y+2] < 7 and rank[x-1][y+2] > 0:
-        attack[z] = [x-1, y+2]
-        z += 1
-    elif x > 1 and y < 7 and rank[x-1][y+2] > 6:
-        defence[z] = [x-1, y+2]
-        z += 1
-    if x > 2 and y < 8 and rank[x-2][y+1] < 7 and rank[x-2][y+1] > 0:
-        attack[z] = [x-2, y+1]
-        z += 1
-    elif x > 2 and y < 8 and rank[x-2][y+1] > 6:
-        defence[z] = [x-2, y+1]
-        z += 1
-    if x > 2 and y > 1 and rank[x-2][y-1] < 7 and rank[x-2][y-1] > 0:
-        attack[z] = [x-2, y-1]
-        z += 1
-    elif x > 2 and y > 1 and rank[x-2][y-1] > 6:
-        defence[z] = [x-2, y-1]
-        z += 1
-    if x > 1 and y > 2 and rank[x-1][y-2] < 7 and rank[x-1][y-2] > 0:
-        attack[z] = [x-1, y-2]
-        z += 1
-    elif x > 1 and y > 2 and rank[x-1][y-2] > 6:
-        defence[z] = [x-1, y-2]
-        z += 1
-    if x < 8 and y > 2 and rank[x+1][y-2] < 7 and rank[x+1][y-2] > 0:
-        attack[z] = [x+1, y-2]
-        z += 1
-    elif x < 8 and y > 2 and rank[x+1][y-2] > 6:
-        defence[z] = [x+1, y-2]
-        z += 1
-    if x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0:
-        attack[z] = [x+2, y-1]
-        z += 1
-    elif x < 7 and y > 1 and rank[x+2][y-1] > 6:
-        defence[z] = [x+2, y-1]
-        z += 1
-    return go, attack, defence, z
-
 def create_game(game_id):
     rank = {}
     for i in range(1, 9):
@@ -651,51 +651,55 @@ def create_game(game_id):
         db.session.add(rank[i])
     db.session.commit()
 
-def calculate_checklines(game_id):
-    king_coord = get_king_coordinates(game_id)
+def calculate_checklines(game_id, opp=False):
+    #Calculate king coordinates of this player
+    king_coord = get_king_coordinates(game_id, opp=not opp)
+    print(opp)
     i = king_coord[0]
     j = king_coord[1]
     rank = get_board(game_id)
     checklines = []
     for x in range (1, 9):
         for y in range (1, 9):
-            if session['figures'] == 1:
+            if (session['figures'] == 1 and not opp) or (session['figures'] == 0 and opp):
+                figures = 1
                 if (rank[x][y] == 9 or rank[x][y] == 11) and (x - y == i - j) and x - i > 1:
-                    calculate_checklines_diagonal_1(checklines, rank, x, i, j)
+                    calculate_checklines_diagonal_1(checklines, rank, x, i, j, figures)
                 if (rank[x][y] == 9 or rank[x][y] == 11) and (x - y == i - j) and i - x > 1:
-                    calculate_checklines_diagonal_2(checklines, rank, x, y, i)
+                    calculate_checklines_diagonal_2(checklines, rank, x, y, i, figures)
                 if (rank[x][y] == 9 or rank[x][y] == 11) and (x + y == i + j) and x - i > 1:
-                    calculate_checklines_diagonal_3(checklines, rank, x, i, j)
+                    calculate_checklines_diagonal_3(checklines, rank, x, i, j, figures)
                 if (rank[x][y] == 9 or rank[x][y] == 11) and (x + y == i + j) and i - x > 1:
-                    calculate_checklines_diagonal_4(checklines, rank, x, y, i)
+                    calculate_checklines_diagonal_4(checklines, rank, x, y, i, figures)
                 if (rank[x][y] == 10 or rank[x][y] == 11) and (x == i) and y - j > 1:
-                    calculate_checklines_horizontal_1(checklines, rank, y, i, j)
+                    calculate_checklines_horizontal_1(checklines, rank, y, i, j, figures)
                 if (rank[x][y] == 10 or rank[x][y] == 11) and (x == i) and j - y > 1:
-                    calculate_checklines_horizontal_2(checklines, rank, x, y, j)
+                    calculate_checklines_horizontal_2(checklines, rank, x, y, j, figures)
                 if (rank[x][y] == 10 or rank[x][y] == 11) and (y == j) and x - i > 1:
-                    calculate_checklines_vertical_1(checklines, rank, x, i, j)
+                    calculate_checklines_vertical_1(checklines, rank, x, i, j, figures)
                 if (rank[x][y] == 10 or rank[x][y] == 11) and (y == j) and i - x > 1:
-                    calculate_checklines_vertical_2(checklines, rank, x, y, i)
-            else:
+                    calculate_checklines_vertical_2(checklines, rank, x, y, i, figures)
+            elif (session['figures'] == 0 and not opp) or (session['figures'] == 1 and opp):
+                figures = 0
                 if (rank[x][y] == 3 or rank[x][y] == 5) and (x - y == i - j) and x - i > 1:
-                    calculate_checklines_diagonal_1(checklines, rank, x, i, j)
+                    calculate_checklines_diagonal_1(checklines, rank, x, i, j, figures)
                 if (rank[x][y] == 3 or rank[x][y] == 5) and (x - y == i - j) and i - x > 1:
-                    calculate_checklines_diagonal_2(checklines, rank, x, y, i)
+                    calculate_checklines_diagonal_2(checklines, rank, x, y, i, figures)
                 if (rank[x][y] == 3 or rank[x][y] == 5) and (x + y == i + j) and x - i > 1:
-                    calculate_checklines_diagonal_3(checklines, rank, x, i, j)
+                    calculate_checklines_diagonal_3(checklines, rank, x, i, j, figures)
                 if (rank[x][y] == 3 or rank[x][y] == 5) and (x + y == i + j) and i - x > 1:
-                    calculate_checklines_diagonal_4(checklines, rank, x, y, i)
+                    calculate_checklines_diagonal_4(checklines, rank, x, y, i, figures)
                 if (rank[x][y] == 4 or rank[x][y] == 5) and (x == i) and y - j > 1:
-                    calculate_checklines_horizontal_1(checklines, rank, y, i, j)
+                    calculate_checklines_horizontal_1(checklines, rank, y, i, j, figures)
                 if (rank[x][y] == 4 or rank[x][y] == 5) and (x == i) and j - y > 1:
-                    calculate_checklines_horizontal_2(checklines, rank, x, y, j)
+                    calculate_checklines_horizontal_2(checklines, rank, x, y, j, figures)
                 if (rank[x][y] == 4 or rank[x][y] == 5) and (y == j) and x - i > 1:
-                    calculate_checklines_vertical_1(checklines, rank, x, i, j)
+                    calculate_checklines_vertical_1(checklines, rank, x, i, j, figures)
                 if (rank[x][y] == 4 or rank[x][y] == 5) and (y == j) and i - x > 1:
-                    calculate_checklines_vertical_2(checklines, rank, x, y, i)                  
+                    calculate_checklines_vertical_2(checklines, rank, x, y, i, figures)                  
     return checklines
 
-def calculate_checklines_diagonal_1(checklines, rank, x, i, j):
+def calculate_checklines_diagonal_1(checklines, rank, x, i, j, figures):
     line = {}
     all_count = 0
     block_count = 0
@@ -705,13 +709,13 @@ def calculate_checklines_diagonal_1(checklines, rank, x, i, j):
         line[count-1] = [i+count, j+count]
         if rank[i+count][j+count]:
             all_count += 1
-        if (session['figures'] == 1 and rank[i+count][j+count] and rank[i+count][j+count] < 7) or \
-           (session['figures'] == 0 and rank[i+count][j+count] > 6):
+        if (figures == 1 and rank[i+count][j+count] and rank[i+count][j+count] < 7) or \
+           (figures == 0 and rank[i+count][j+count] > 6):
             block_count += 1
     if block_count == 1 and all_count == 2:
         checklines.append(line)
 
-def calculate_checklines_diagonal_2(checklines, rank, x, y, i):
+def calculate_checklines_diagonal_2(checklines, rank, x, y, i, figures):
     line = {}
     all_count = 0
     block_count = 0
@@ -720,13 +724,13 @@ def calculate_checklines_diagonal_2(checklines, rank, x, y, i):
         line[count] = [x+count, y+count]
         if rank[x+count][y+count]:
             all_count += 1
-        if (session['figures'] == 1 and rank[x+count][y+count] and rank[x+count][y+count] < 7) or \
-           (session['figures'] == 0 and rank[x+count][y+count] > 6):
+        if (figures == 1 and rank[x+count][y+count] and rank[x+count][y+count] < 7) or \
+           (figures == 0 and rank[x+count][y+count] > 6):
             block_count += 1
     if block_count == 1 and all_count == 2:
         checklines.append(line)
 
-def calculate_checklines_diagonal_3(checklines, rank, x, i, j):
+def calculate_checklines_diagonal_3(checklines, rank, x, i, j, figures):
     line = {}
     all_count = 0
     block_count = 0
@@ -734,13 +738,13 @@ def calculate_checklines_diagonal_3(checklines, rank, x, i, j):
         line[count-1] = [i+count, j-count]
         if rank[i+count][j-count]:
             all_count += 1
-        if (session['figures'] == 1 and rank[i+count][j-count] and rank[i+count][j-count] < 7) or \
-           (session['figures'] == 0 and rank[i+count][j-count] > 6):
+        if (figures == 1 and rank[i+count][j-count] and rank[i+count][j-count] < 7) or \
+           (figures == 0 and rank[i+count][j-count] > 6):
             block_count += 1
     if block_count == 1 and all_count == 2:
         checklines.append(line)
 
-def calculate_checklines_diagonal_4(checklines, rank, x, y, i):
+def calculate_checklines_diagonal_4(checklines, rank, x, y, i, figures):
     line = {}
     all_count = 0
     block_count = 0
@@ -748,13 +752,13 @@ def calculate_checklines_diagonal_4(checklines, rank, x, y, i):
         line[count] = [x+count, y-count]
         if rank[x+count][y-count]:
             all_count += 1
-        if (session['figures'] == 1 and rank[x+count][y-count] and rank[x+count][y-count] < 7) or \
-           (session['figures'] == 0 and rank[x+count][y-count] > 6):
+        if (figures == 1 and rank[x+count][y-count] and rank[x+count][y-count] < 7) or \
+           (figures == 0 and rank[x+count][y-count] > 6):
             block_count += 1
     if block_count == 1 and all_count == 2:
         checklines.append(line)
 
-def calculate_checklines_horizontal_1(checklines, rank, y, i, j):
+def calculate_checklines_horizontal_1(checklines, rank, y, i, j, figures):
     line = {}
     all_count = 0
     block_count = 0
@@ -762,13 +766,13 @@ def calculate_checklines_horizontal_1(checklines, rank, y, i, j):
         line[count-1] = [i, j+count]
         if rank[i][j+count]:
             all_count += 1
-        if (session['figures'] == 1 and rank[i][j+count] and rank[i][j+count] < 7) or \
-           (session['figures'] == 0 and rank[i][j+count] > 6):
+        if (figures == 1 and rank[i][j+count] and rank[i][j+count] < 7) or \
+           (figures == 0 and rank[i][j+count] > 6):
             block_count += 1
     if block_count == 1 and all_count == 2:
         checklines.append(line)
 
-def calculate_checklines_horizontal_2(checklines, rank, x, y, j):
+def calculate_checklines_horizontal_2(checklines, rank, x, y, j, figures):
     line = {}
     all_count = 0
     block_count = 0
@@ -776,13 +780,13 @@ def calculate_checklines_horizontal_2(checklines, rank, x, y, j):
         line[count] = [x, y+count]
         if rank[x][y+count]:
             all_count += 1
-        if (session['figures'] == 1 and rank[x][y+count] and rank[x][y+count] < 7) or \
-           (session['figures'] == 0 and rank[x][y+count] > 6):
+        if (figures == 1 and rank[x][y+count] and rank[x][y+count] < 7) or \
+           (figures == 0 and rank[x][y+count] > 6):
             block_count += 1
     if block_count == 1 and all_count == 2:
         checklines.append(line)
 
-def calculate_checklines_vertical_1(checklines, rank, x, i, j):
+def calculate_checklines_vertical_1(checklines, rank, x, i, j, figures):
     line = {}
     all_count = 0
     block_count = 0
@@ -790,13 +794,13 @@ def calculate_checklines_vertical_1(checklines, rank, x, i, j):
         line[count-1] = [i+count, j]
         if rank[i+count][j]:
             all_count += 1
-        if (session['figures'] == 1 and rank[i+count][j] and rank[i+count][j] < 7) or \
-           (session['figures'] == 0 and rank[i+count][j] > 6):
+        if (figures == 1 and rank[i+count][j] and rank[i+count][j] < 7) or \
+           (figures == 0 and rank[i+count][j] > 6):
             block_count += 1
     if block_count == 1 and all_count == 2:
         checklines.append(line)
 
-def calculate_checklines_vertical_2(checklines, rank, x, y, i):
+def calculate_checklines_vertical_2(checklines, rank, x, y, i, figures):
     line = {}
     all_count = 0
     block_count = 0
@@ -804,8 +808,8 @@ def calculate_checklines_vertical_2(checklines, rank, x, y, i):
         line[count] = [x+count, y]
         if rank[x+count][y]:
             all_count += 1
-        if (session['figures'] == 1 and rank[x+count][y] and rank[x+count][y] < 7) or \
-           (session['figures'] == 0 and rank[x+count][y] > 6):
+        if (figures == 1 and rank[x+count][y] and rank[x+count][y] < 7) or \
+           (figures == 0 and rank[x+count][y] > 6):
             block_count += 1
     if block_count == 1 and all_count == 2:
         checklines.append(line)
