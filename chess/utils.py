@@ -8,9 +8,9 @@ def get_moves(game_id, x, y, figure, checklines):
     if figure == 1:
         go, attack, _, _ = get_white_pawn_moves(game_id, x, y, checklines=checklines)
     elif figure == 2:
-        go, attack, _, _ = get_white_knight_moves(game_id, x, y)
+        go, attack, _, _ = get_white_knight_moves(game_id, x, y, checklines=checklines)
     elif figure == 3 or figure == 9:
-        go, attack, _, _ = get_bishop_moves(game_id, x, y)
+        go, attack, _, _ = get_bishop_moves(game_id, x, y, checklines=checklines)
     elif figure == 4 or figure == 10:
         go, attack, _, _ = get_rook_moves(game_id, x, y)
     elif figure == 5 or figure == 11:
@@ -22,7 +22,7 @@ def get_moves(game_id, x, y, figure, checklines):
     elif figure == 7:
         go, attack, _, _ = get_black_pawn_moves(game_id, x, y, checklines=checklines)
     elif figure == 8:
-        go, attack, _, _ = get_black_knight_moves(game_id, x, y)
+        go, attack, _, _ = get_black_knight_moves(game_id, x, y, checklines=checklines)
     return go, attack
 
 def get_board(game_id):
@@ -292,15 +292,27 @@ def get_black_knight_moves(game_id, x, y, checklines=[], z=0):
         z += 1
     return go, attack, defence, z
 
-def get_bishop_moves(game_id, x, y, step=1, z=0):
+def get_bishop_moves(game_id, x, y, checklines=[], step=1, z=0):
     go = {}
     attack = {}
     defence = {}
     rank = get_board(game_id)
+    side_a = side_b = side_c = side_d = 1
+    for line in checklines:
+        if [x, y] in line.values():
+            side_a = side_b = side_c = side_d = 0
+            if x < 8 and y < 8 and [x+1, y+1] in line.values():
+                side_a = 1
+            if x < 8 and y > 1 and [x+1, y-1] in line.values():
+                side_b = 1
+            if x > 1 and y > 1 and [x-1, y-1] in line.values():
+                side_c = 1
+            if x > 1 and y < 8 and [x-1, y+1] in line.values():
+                side_d = 1         
     # we don't need a separate counter for attacks cause we don't really use keys anywhere
     #here we are going to add that extra if
     # if ([x, y] in checklines and x+1 y+1 in checklines) or [x, y] not in checklines:
-    if x < 8 and y < 8:
+    if x < 8 and y < 8 and side_a:
         if x > y:
             squares_num = 9 - x
         else:
@@ -317,7 +329,7 @@ def get_bishop_moves(game_id, x, y, step=1, z=0):
                 defence[z] = [x+i, y+i]
                 z += 1
                 break
-    if x < 8 and y > 1:
+    if x < 8 and y > 1 and side_b:
         if x > (9 - y) :
             squares_num = 9 - x
         else:
@@ -334,7 +346,7 @@ def get_bishop_moves(game_id, x, y, step=1, z=0):
                 defence[z] = [x+i, y-i]
                 z += 1
                 break
-    if x > 1 and y > 1:
+    if x > 1 and y > 1 and side_c:
         if x < y:
             squares_num = x
         else:
@@ -351,7 +363,7 @@ def get_bishop_moves(game_id, x, y, step=1, z=0):
                 defence[z] = [x-i, y-i]
                 z += 1
                 break
-    if x > 1 and y < 8:
+    if x > 1 and y < 8 and side_d:
         if (9 - x) > y:
             squares_num = x
         else:
@@ -434,8 +446,8 @@ def get_rook_moves(game_id, x, y, step=1, z=0):
                 break
     return go, attack, defence, z
 
-def get_queen_moves(game_id, x, y, z=0):
-    go, attack, defence, z = get_bishop_moves(game_id, x, y, step=1, z=z)
+def get_queen_moves(game_id, x, y, checklines=[], z=0):
+    go, attack, defence, z = get_bishop_moves(game_id, x, y, checklines=checklines, step=1, z=z)
     go_2, attack_2, defence_2, z = get_rook_moves(game_id, x, y, step=1, z=z)
     go.update(go_2)
     attack.update(attack_2)
