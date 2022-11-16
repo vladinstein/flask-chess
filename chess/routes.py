@@ -6,8 +6,9 @@ from flask import make_response
 from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
-from chess.utils import get_moves, create_game, check_can_move, calculate_attacks, calculate_possible_checks, add_defences_to_db, \
-                        check_if_check, get_king_coordinates, check_checkmate, remove_checks, calculate_checklines
+from chess.utils import get_moves, create_game, check_can_move, calculate_attacks, calculate_possible_checks, \
+                        add_defences_to_db, check_if_check, get_king_coordinates, check_checkmate, \
+                        remove_checks, calculate_blocklines, calculate_checklines
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -71,8 +72,8 @@ def take(data):
     x = int(data['x'])
     go = {}
     attack = {}
-    checklines = calculate_checklines(game_id, opp=True)
-    go, attack = get_moves(game_id, x, y, figure, checklines)
+    blocklines = calculate_blocklines(game_id, opp=True)
+    go, attack = get_moves(game_id, x, y, figure, blocklines)
     socketio.emit('moves', data=(go, attack), room=session['sid'])
 
 @socketio.on('go')
@@ -119,10 +120,11 @@ def go(data):
         add_defences_to_db(game_id, into_check)
         check = int(check_if_check(game_id, all_attacks))
         if check:
+            checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
+            print(checklines)
             all_attacks, _, _ = calculate_attacks(game_id, opp=True)
             all_attacks = remove_checks(game_id, all_attacks)
             checkmate = int(check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures, all_attacks))
-            print(checkmate, king_coordinates, attack_king_coord, attack_king_figures)
         if session['figures'] == 0:
             socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
             socketio.emit('remove_check', room=game.white_sid)
@@ -141,13 +143,12 @@ def go(data):
         else:
             game.p1_move = 1
         db.session.commit()
-        checklines = calculate_checklines(game_id)
-        print(checklines)
+        blocklines = calculate_blocklines(game_id)
         if figure < 7:
-            moving = check_can_move(game_id, checklines, figures = 1)
+            moving = check_can_move(game_id, blocklines, figures = 1)
             socketio.emit('next_move', moving, room=game.black_sid)
         else:
-            moving = check_can_move(game_id, checklines, figures = 0)  
+            moving = check_can_move(game_id, blocklines, figures = 0)  
             socketio.emit('next_move', moving, room=game.white_sid)
 
 @app.route("/", methods=['GET', 'POST'])
