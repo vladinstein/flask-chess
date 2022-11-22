@@ -84,6 +84,7 @@ def go(data):
     x = int(data['x'])
     i = int(data['i'])
     j = int(data['j'])
+    checklines = []
     files = string.ascii_lowercase[0:8]
     rank = Rank.query.filter_by(game_id=game_id, number=x).first()
     move_to = getattr(rank, files[y-1])
@@ -122,6 +123,9 @@ def go(data):
         if check:
             checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
             print(checklines)
+            # Maybe create empty checklines dict somewhere higher, than here fill it with the result of
+            # calculate_checklines and then you can pass it (empty or not) to check_can_move
+            # if the figure is on  blockline and there is a checkline, that figure cannot move
             all_attacks, _, _ = calculate_attacks(game_id, opp=True)
             all_attacks = remove_checks(game_id, all_attacks)
             checkmate = int(check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures, all_attacks))
@@ -145,10 +149,10 @@ def go(data):
         db.session.commit()
         blocklines = calculate_blocklines(game_id)
         if figure < 7:
-            moving = check_can_move(game_id, blocklines, figures = 1)
+            moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 1)
             socketio.emit('next_move', moving, room=game.black_sid)
         else:
-            moving = check_can_move(game_id, blocklines, figures = 0)  
+            moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 0)  
             socketio.emit('next_move', moving, room=game.white_sid)
 
 @app.route("/", methods=['GET', 'POST'])
@@ -209,7 +213,7 @@ def game(game_id):
     files = string.ascii_lowercase[0:8]
     moving = {}
     game = Game.query.filter_by(id=game_id).first()
-    # game.white_sid can be removed 
+    # game.white_sid can be removed
     if game.black_sid and game.white_sid:
         if session ['figures'] == 0 and game.p1_move == 1:
             moving = check_can_move(game_id, figures = 0)

@@ -721,10 +721,8 @@ def calculate_checklines(game_id, attack_king_coord, attack_king_figures):
     king_coord = get_king_coordinates(game_id)
     i = king_coord[0]
     j = king_coord[1]
-    print(king_coord, attack_king_coord, attack_king_figures)
     rank = get_board(game_id)
     checklines = []
-    print(len(attack_king_coord), len(attack_king_figures))
     for count in range (len(attack_king_coord)):
         x = attack_king_coord[count][0]
         y = attack_king_coord[count][1]
@@ -774,8 +772,6 @@ def calculate_checklines(game_id, attack_king_coord, attack_king_figures):
                 knight_attack[count] = [x, y]
                 checklines.append(knight_attack)
     return checklines
-    #Calculate same way as you calculate blocklines.
-    #Add different case for the knights
 
 def calculate_blocklines(game_id, opp=False):
     #Calculate king coordinates of this player
@@ -955,7 +951,7 @@ def calculate_block_check_lines_vertical_2(lines, rank, x, y, i, figures, check=
     elif block_count == 0 and all_count == 1 and check:
         lines.append(line)
 
-def check_can_move(game_id, blocklines=[], figures=None):
+def check_can_move(game_id, blocklines=[], checklines = [], figures=None):
     rank = get_board(game_id)
     moveable = {}
     z = 0
@@ -963,48 +959,52 @@ def check_can_move(game_id, blocklines=[], figures=None):
         for y in range (1, 9):
             if figures == 0:
                 if rank[x][y] == 1:
-                    add_moveable, z = check_white_pawn_can_move(rank, z, x, y, blocklines)
+                    add_moveable, z = check_white_pawn_can_move(rank, z, x, y, blocklines, checklines)
                     moveable.update(add_moveable)
                 if rank[x][y] == 2:
-                    add_moveable, z = check_white_knight_can_move(rank, z, x, y, blocklines)
+                    add_moveable, z = check_white_knight_can_move(rank, z, x, y, blocklines, checklines)
                     moveable.update(add_moveable)
                 if rank[x][y] == 3:
-                    add_moveable, z = check_white_bishop_can_move(rank, z, x, y, blocklines)
+                    add_moveable, z = check_white_bishop_can_move(rank, z, x, y, blocklines, checklines)
                     moveable.update(add_moveable)
                 if rank[x][y] == 4:
-                    add_moveable, z = check_white_rook_can_move(rank, z, x, y, blocklines)
+                    add_moveable, z = check_white_rook_can_move(rank, z, x, y, blocklines, checklines)
                     moveable.update(add_moveable)
                 if rank[x][y] == 5:
-                    add_moveable, z = check_white_queen_can_move(rank, z, x, y, blocklines)
+                    add_moveable, z = check_white_queen_can_move(rank, z, x, y, blocklines, checklines)
                     moveable.update(add_moveable)
                 if rank[x][y] == 6:
                     add_moveable, z = check_white_king_can_move(game_id, rank, z, x, y)
                     moveable.update(add_moveable)
             else:
                 if rank[x][y] == 7:
-                    add_moveable, z = check_black_pawn_can_move(rank, z, x, y, blocklines)
+                    add_moveable, z = check_black_pawn_can_move(rank, z, x, y, blocklines, checklines)
                     moveable.update(add_moveable)
                 if rank[x][y] == 8:
-                    add_moveable, z = check_black_knight_can_move(rank, z, x, y, blocklines)
+                    add_moveable, z = check_black_knight_can_move(rank, z, x, y, blocklines, checklines)
                     moveable.update(add_moveable)
                 if rank[x][y] == 9:
-                    add_moveable, z = check_black_bishop_can_move(rank, z, x, y, blocklines)
+                    add_moveable, z = check_black_bishop_can_move(rank, z, x, y, blocklines, checklines)
                     moveable.update(add_moveable)
                 if rank[x][y] == 10:
-                    add_moveable, z = check_black_rook_can_move(rank, z, x, y, blocklines)
+                    add_moveable, z = check_black_rook_can_move(rank, z, x, y, blocklines, checklines)
                     moveable.update(add_moveable)
                 if rank[x][y] == 11:
-                    add_moveable, z = check_black_queen_can_move(rank, z, x, y, blocklines)
+                    add_moveable, z = check_black_queen_can_move(rank, z, x, y, blocklines, checklines)
                     moveable.update(add_moveable)
                 if rank[x][y] == 12:
                     add_moveable, z = check_black_king_can_move(game_id, rank, z, x, y)
                     moveable.update(add_moveable)
     return moveable
                 
-def check_white_pawn_can_move(rank, z, x, y, blocklines):
+def check_white_pawn_can_move(rank, z, x, y, blocklines, checklines):
     moveable = {}
     #This check is for when that figure is on the blockline
     for line in blocklines:
+        # This is when there's both a checkline and a blockline
+        if [x, y] in line.values() and checklines:
+             return moveable, z
+        # Next two cases for when there's only a blockline
         if x < 8 and [x, y] in line.values() and ((rank[x+1][y] == 0 and [x+1, y] in line.values()) or
                                                  (y < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in line.values() 
                                                  and len(line.values()) == 2) or 
@@ -1017,18 +1017,29 @@ def check_white_pawn_can_move(rank, z, x, y, blocklines):
                                                  ([x+1, y+1] not in line.values() or len(line.values()) > 2) and 
                                                  ([x+1, y-1] not in line.values() or len(line.values()) > 2)):
             return moveable, z
-    #This check is for when the figure is not on the blockline
-    if x < 8:
-        if rank[x+1][y] == 0 or (y < 8 and rank[x+1][y+1] > 6) \
-        or (y > 1 and rank[x+1][y-1] > 6):
+    # This is when there's only a checkline
+    for checkline in checklines:
+        if x < 8 and (rank[x+1][y] == 0 and [x+1, y] in checkline.values() or 
+        (y < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in checkline.values())
+        or (y > 1 and rank[x+1][y-1] > 6 and [x+1, y-1] in checkline.values())):
             moveable[z]=[x, y]
             z += 1
+            return moveable, z
+        else:
+            return moveable, z
+    #This check is for when the figure is not on the blockline
+    if x < 8 and (rank[x+1][y] == 0 or (y < 8 and rank[x+1][y+1] > 6)
+        or (y > 1 and rank[x+1][y-1] > 6)):
+        moveable[z]=[x, y]
+        z += 1
     return moveable, z
 
-def check_black_pawn_can_move(rank, z, x, y, blocklines):
+def check_black_pawn_can_move(rank, z, x, y, blocklines, checklines):
     moveable = {}
     #This check is for when that figure is on the blockline
     for line in blocklines:
+        if [x, y] in line.values() and checklines:
+             return moveable, z
         if x > 1 and [x, y] in line.values() and ((rank[x-1][y] == 0 and [x-1, y] in line.values()) or
                                                  (y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and 
                                                  [x-1, y+1] in line.values() and len(line.values()) == 2) or
@@ -1041,15 +1052,37 @@ def check_black_pawn_can_move(rank, z, x, y, blocklines):
                                                  ([x-1, y+1] not in line.values() or len(line.values()) > 2) and 
                                                  ([x-1, y-1] not in line.values() or len(line.values()) > 2)):
             return moveable, z
-    #This check is for when the figure is not on the blockline
-    if x > 1:
-        if rank[x-1][y] == 0 or (y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0) \
-        or (y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0):
+    for checkline in checklines:
+        if x > 1 and ((rank[x-1][y] == 0 and [x-1, y] in checkline.values()) or 
+        (y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and [x-1, y+1] in checkline.values()) or
+        (y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0) and [x-1, y-1] in checkline.values()):
             moveable[z]=[x, y]
             z += 1
+            return moveable, z
+        else:
+            return moveable, z
+    #This check is for when the figure is not on the blockline and not on the checkline
+    if x > 1 and (rank[x-1][y] == 0 or (y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0) 
+    or (y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0)):
+        moveable[z]=[x, y]
+        z += 1
     return moveable, z
 
-def check_knight_can_move_part1(rank, x, y):
+def check_knight_can_move_part1(rank, x, y, checklines):
+    # If there's a checkline, return true or false depending on if any moves lead into checkline
+    for checkline in checklines:
+        if ((x < 7 and y < 8 and rank[x+2][y+1] == 0 and [x+2, y+1] in checkline.values()) or 
+        (x < 8 and y < 7 and rank[x+1][y+2] == 0 and [x+1, y+2] in checkline.values()) or 
+        (x > 1 and y < 7 and rank[x-1][y+2] == 0 and [x-1, y+2] in checkline.values()) or 
+        (x > 2 and y < 8 and rank[x-2][y+1] == 0 and [x-2, y+1] in checkline.values()) or
+        (x > 2 and y > 1 and rank[x-2][y-1] == 0 and [x-2, y-1] in checkline.values()) or 
+        (x > 1 and y > 2 and rank[x-1][y-2] == 0 and [x-1, y-2] in checkline.values()) or 
+        (x < 8 and y > 2 and rank[x+1][y-2] == 0 and [x+1, y-2] in checkline.values()) or 
+        (x < 7 and y > 1 and rank[x+2][y-1] == 0 and [x+2, y-1] in checkline.values())):
+            return True
+        else:
+            return False
+    # If there's no checkline, do regular check
     if (x < 7 and y < 8 and rank[x+2][y+1] == 0) or (x < 8 and y < 7 and rank[x+1][y+2] == 0) or \
     (x > 1 and y < 7 and rank[x-1][y+2] == 0) or (x > 2 and y < 8 and rank[x-2][y+1] == 0) or \
     (x > 2 and y > 1 and rank[x-2][y-1] == 0) or (x > 1 and y > 2 and rank[x-1][y-2] == 0) or \
@@ -1058,12 +1091,27 @@ def check_knight_can_move_part1(rank, x, y):
     else:
         return False
 
-def check_white_knight_can_move(rank, z, x, y, blocklines):
+def check_white_knight_can_move(rank, z, x, y, blocklines, checklines):
     moveable = {}
     for line in blocklines:
         if [x, y] in line.values():
             return moveable, z
-    if check_knight_can_move_part1(rank, x, y) or (x < 7 and y < 8 and rank[x+2][y+1] > 6) or \
+    part_1 = check_knight_can_move_part1(rank, x, y, checklines)
+    for checkline in checklines:
+            if (part_1 or (x < 7 and y < 8 and rank[x+2][y+1] > 6 and [x+2, y+1] in checkline.values()) or
+            (x < 8 and y < 7 and rank[x+1][y+2] > 6 and [x+1, y+2] in checkline.values()) or
+            (x > 1 and y < 7 and rank[x-1][y+2] > 6 and [x-1, y+2] in checkline.values()) or
+            (x > 2 and y < 8 and rank[x-2][y+1] > 6 and [x-2, y+1] in checkline.values()) or
+            (x > 2 and y > 1 and rank[x-2][y-1] > 6 and [x-2, y-1] in checkline.values()) or
+            (x > 1 and y > 2 and rank[x-1][y-2] > 6 and [x-1, y-2] in checkline.values()) or
+            (x < 8 and y > 2 and rank[x+1][y-2] > 6 and [x+1, y-2] in checkline.values()) or
+            (x < 7 and y > 1 and rank[x+2][y-1] > 6 and [x+2, y-1] in checkline.values())):
+                moveable[z]=[x, y]
+                z += 1
+                return moveable, z
+            else:
+                return moveable, z
+    if part_1 or (x < 7 and y < 8 and rank[x+2][y+1] > 6) or \
     (x < 8 and y < 7 and rank[x+1][y+2] > 6) or (x > 1 and y < 7 and rank[x-1][y+2] > 6) or \
     (x > 2 and y < 8 and rank[x-2][y+1] > 6) or (x > 2 and y > 1 and rank[x-2][y-1] > 6) or \
     (x > 1 and y > 2 and rank[x-1][y-2] > 6) or (x < 8 and y > 2 and rank[x+1][y-2] > 6) or \
@@ -1072,13 +1120,29 @@ def check_white_knight_can_move(rank, z, x, y, blocklines):
         z += 1
     return moveable, z
 
-def check_black_knight_can_move(rank, z, x, y, blocklines):
+def check_black_knight_can_move(rank, z, x, y, blocklines, checklines):
     moveable = {}
     for line in blocklines:
         if [x, y] in line.values():
             return moveable, z
-    if check_knight_can_move_part1(rank, x, y) or \
-    (x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0) or \
+    part_1 = check_knight_can_move_part1(rank, x, y, checklines)
+    for checkline in checklines:
+        # Need to finish this
+        if (part_1 or 
+        (x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0 and [x+2, y+1] in checkline.values()) or
+        (x < 8 and y < 7 and rank[x+1][y+2] < 7 and rank[x+1][y+2] > 0 and [x+1, y+2] in checkline.values()) or
+        (x > 1 and y < 7 and rank[x-1][y+2] < 7 and rank[x-1][y+2] > 0 and [x-1, y+2] in checkline.values()) or
+        (x > 2 and y < 8 and rank[x-2][y+1] < 7 and rank[x-2][y+1] > 0 and [x-2, y+1] in checkline.values()) or
+        (x > 2 and y > 1 and rank[x-2][y-1] < 7 and rank[x-2][y-1] > 0 and [x-2, y-1] in checkline.values()) or
+        (x > 1 and y > 2 and rank[x-1][y-2] < 7 and rank[x-1][y-2] > 0 and [x-1, y-2] in checkline.values()) or
+        (x < 8 and y > 2 and rank[x+1][y-2] < 7 and rank[x+1][y-2] > 0 and [x+1, y-2] in checkline.values()) or
+        (x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0 and [x+2, y-1] in checkline.values())):
+            moveable[z]=[x, y]
+            z += 1
+            return moveable, z
+        else:
+            return moveable, z
+    if part_1 or (x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0) or \
     (x < 8 and y < 7 and rank[x+1][y+2] < 7 and rank[x+1][y+2] > 0) or \
     (x > 1 and y < 7 and rank[x-1][y+2] < 7 and rank[x-1][y+2] > 0) or \
     (x > 2 and y < 8 and rank[x-2][y+1] < 7 and rank[x-2][y+1] > 0) or \
@@ -1090,9 +1154,11 @@ def check_black_knight_can_move(rank, z, x, y, blocklines):
         z += 1
     return moveable, z
 
-def check_white_bishop_can_move(rank, z, x, y, blocklines):
+def check_white_bishop_can_move(rank, z, x, y, blocklines, checklines):
     moveable = {}
     for line in blocklines:
+        if [x, y] in line.values() and checklines:
+             return moveable, z
         if ([x, y] in line.values() and (x < 8 and y < 8 and [x+1, y+1] in line.values() and
         (rank[x+1][y+1] == 0 or rank[x+1][y+1] > 6)) or (x < 8 and y > 1 and [x+1, y-1] in line.values() and 
         (rank[x+1][y-1] == 0 or rank[x+1][y-1] > 6)) or (x > 1 and y > 1 and [x-1, y-1] in line.values() and 
@@ -1104,6 +1170,16 @@ def check_white_bishop_can_move(rank, z, x, y, blocklines):
         if ([x, y] in line.values() and ([x+1, y+1] not in line.values() and [x+1, y-1] not in line.values()
         and [x-1, y-1] not in line.values() and [x-1, y+1] not in line.values())):
             return moveable, z
+    for checkline in checklines:
+        if ((x < 8 and y < 8 and ((rank[x+1][y+1] == 0 or rank[x+1][y+1] > 6) and [x+1, y+1] in checkline.values())) or
+        (x < 8 and y > 1 and ((rank[x+1][y-1] == 0 or rank[x+1][y-1] > 6) and [x+1, y-1] in checkline.values())) or
+        (x > 1 and y > 1 and ((rank[x-1][y-1] == 0 or rank[x-1][y-1] > 6) and [x-1, y-1] in checkline.values())) or
+        (x > 1 and y < 8 and ((rank[x-1][y+1] == 0 or rank[x-1][y+1] > 6) and [x-1, y+1] in checkline.values()))):
+            moveable[z]=[x, y]
+            z += 1
+            return moveable, z
+        else:
+            return moveable, z
     if (x < 8 and y < 8 and (rank[x+1][y+1] == 0 or rank[x+1][y+1] > 6)) or \
     (x < 8 and y > 1 and (rank[x+1][y-1] == 0 or rank[x+1][y-1] > 6)) or \
     (x > 1 and y > 1 and (rank[x-1][y-1] == 0 or rank[x-1][y-1] > 6)) or \
@@ -1112,9 +1188,11 @@ def check_white_bishop_can_move(rank, z, x, y, blocklines):
         z += 1
     return moveable, z
 
-def check_black_bishop_can_move(rank, z, x, y, blocklines):
+def check_black_bishop_can_move(rank, z, x, y, blocklines, checklines):
     moveable = {}
     for line in blocklines:
+        if [x, y] in line.values() and checklines:
+             return moveable, z
         if ([x, y] in line.values() and (x < 8 and y < 8 and [x+1, y+1] in line.values() and
         rank[x+1][y+1] < 7) or (x < 8 and y > 1 and [x+1, y-1] in line.values() and
         rank[x+1][y-1] < 7) or (x > 1 and y > 1 and [x-1, y-1] in line.values() and 
@@ -1126,15 +1204,27 @@ def check_black_bishop_can_move(rank, z, x, y, blocklines):
         if ([x, y] in line.values() and ([x+1, y+1] not in line.values() and [x+1, y-1] not in line.values()
         and [x-1, y-1] not in line.values() and [x-1, y+1] not in line.values())):
             return moveable, z
+    for checkline in checklines:
+        if ((x < 8 and y < 8 and rank[x+1][y+1] < 7 and [x+1, y+1] in checkline.values()) or 
+        (x < 8 and y > 1 and rank[x+1][y-1] < 7 and [x+1, y-1] in checkline.values()) or
+        (x > 1 and y > 1 and rank[x-1][y-1] < 7 and [x-1, y-1] in checkline.values()) or 
+        (x > 1 and y < 8 and rank[x-1][y+1] < 7 and [x-1, y+1] in checkline.values())):
+            moveable[z]=[x, y]
+            z += 1
+            return moveable, z
+        else:
+            return moveable, z
     if (x < 8 and y < 8 and rank[x+1][y+1] < 7) or (x < 8 and y > 1 and rank[x+1][y-1] < 7) or \
     (x > 1 and y > 1 and rank[x-1][y-1] < 7) or (x > 1 and y < 8 and rank[x-1][y+1] < 7):
         moveable[z]=[x, y]
         z += 1
     return moveable, z
 
-def check_white_rook_can_move(rank, z, x, y, blocklines):
+def check_white_rook_can_move(rank, z, x, y, blocklines, checklines):
     moveable = {}
     for line in blocklines:
+        if [x, y] in line.values() and checklines:
+             return moveable, z
         if ([x, y] in line.values() and (y < 8 and [x, y+1] in line.values() and
         (rank[x][y+1] == 0 or rank[x][y+1] > 6)) or (x < 8 and [x+1, y] in line.values() and 
         (rank[x+1][y] == 0 or rank[x+1][y] > 6)) or (y > 1 and [x, y-1] in line.values() and 
@@ -1146,6 +1236,16 @@ def check_white_rook_can_move(rank, z, x, y, blocklines):
         if ([x, y] in line.values() and ([x, y+1] not in line.values() and [x+1, y] not in line.values()
         and [x, y-1] not in line.values() and [x-1, y] not in line.values())):
             return moveable, z
+    for checkline in checklines:
+        if ((y < 8 and ((rank[x][y+1] == 0 or rank[x][y+1] > 6) and [x, y+1] in checkline.values())) or
+        (x < 8 and ((rank[x+1][y] == 0 or rank[x+1][y] > 6) and [x+1, y] in checkline.values())) or
+        (y > 1 and ((rank[x][y-1] == 0 or rank[x][y-1] > 6) and [x, y-1] in checkline.values())) or
+        (x > 1 and ((rank[x-1][y] == 0 or rank[x-1][y] > 6) and [x-1, y] in checkline.values()))):
+            moveable[z]=[x, y]
+            z += 1
+            return moveable, z
+        else:
+            return moveable, z
     if (y < 8 and (rank[x][y+1] == 0 or rank[x][y+1] > 6)) or \
     (x < 8 and (rank[x+1][y] == 0 or rank[x+1][y] > 6)) or \
     (y > 1 and (rank[x][y-1] == 0 or rank[x][y-1] > 6)) or \
@@ -1154,9 +1254,11 @@ def check_white_rook_can_move(rank, z, x, y, blocklines):
         z += 1
     return moveable, z
 
-def check_black_rook_can_move(rank, z, x, y, blocklines):
+def check_black_rook_can_move(rank, z, x, y, blocklines, checklines):
     moveable = {}
     for line in blocklines:
+        if [x, y] in line.values() and checklines:
+             return moveable, z
         if ([x, y] in line.values() and (y < 8 and [x, y+1] in line.values() and rank[x][y+1] < 7) or 
         (x < 8 and [x+1, y] in line.values() and rank[x+1][y] < 7) or 
         (y > 1 and [x, y-1] in line.values() and rank[x][y-1] < 7) or 
@@ -1167,15 +1269,25 @@ def check_black_rook_can_move(rank, z, x, y, blocklines):
         if ([x, y] in line.values() and ([x, y+1] not in line.values() and [x+1, y] not in line.values()
         and [x, y-1] not in line.values() and [x-1, y] not in line.values())):
             return moveable, z
+    for checkline in checklines:
+        if ((y < 8 and rank[x][y+1] < 7 and [x, y+1] in checkline.values()) or 
+        (x < 8 and rank[x+1][y] < 7 and [x+1, y] in checkline.values()) or
+        (y > 1 and rank[x][y-1] < 7 and [x, y-1] in checkline.values()) or
+        (x > 1 and rank[x-1][y] < 7 and [x-1, y] in checkline.values())):
+            moveable[z]=[x, y]
+            z += 1
+            return moveable, z
+        else:
+            return moveable, z
     if (y < 8 and rank[x][y+1] < 7) or (x < 8 and rank[x+1][y] < 7) or \
     (y > 1 and rank[x][y-1] < 7) or (x > 1 and rank[x-1][y] < 7):
         moveable[z]=[x, y]
         z += 1
     return moveable, z
 
-def check_white_queen_can_move(rank, z, x, y, blocklines):
-    moveable, z = check_white_bishop_can_move(rank, z, x, y, blocklines)
-    moveable_2, z = check_white_rook_can_move(rank, z, x, y, blocklines)
+def check_white_queen_can_move(rank, z, x, y, blocklines, checklines):
+    moveable, z = check_white_bishop_can_move(rank, z, x, y, blocklines, checklines)
+    moveable_2, z = check_white_rook_can_move(rank, z, x, y, blocklines, checklines)
     moveable.update(moveable_2)
     return moveable, z
 
@@ -1194,9 +1306,9 @@ def check_white_king_can_move(game_id, rank, z, x, y):
         z += 1
     return moveable, z
 
-def check_black_queen_can_move(rank, z, x, y, blocklines):
-    moveable, z = check_black_bishop_can_move(rank, z, x, y, blocklines)
-    moveable_2, z = check_black_rook_can_move(rank, z, x, y, blocklines)
+def check_black_queen_can_move(rank, z, x, y, blocklines, checklines):
+    moveable, z = check_black_bishop_can_move(rank, z, x, y, blocklines, checklines)
+    moveable_2, z = check_black_rook_can_move(rank, z, x, y, blocklines, checklines)
     moveable.update(moveable_2)
     return moveable, z
 
