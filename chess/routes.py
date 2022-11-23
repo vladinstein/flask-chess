@@ -214,11 +214,17 @@ def game(game_id):
     moving = {}
     game = Game.query.filter_by(id=game_id).first()
     # game.white_sid can be removed
+    king_coordinates = get_king_coordinates(game_id, opp=False)
+    _, attack_king_coord, attack_king_figures = calculate_attacks(game_id, opp=True, king_coordinates=king_coordinates)
+    checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures, opp=True)
+    print(checklines)
+    print(king_coordinates, attack_king_coord, attack_king_figures)
+    blocklines = calculate_blocklines(game_id, opp=True)
     if game.black_sid and game.white_sid:
         if session ['figures'] == 0 and game.p1_move == 1:
-            moving = check_can_move(game_id, figures = 0)
+            moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 0)
         elif session ['figures'] == 1 and game.p1_move == 0:
-            moving = check_can_move(game_id, figures = 1)
+            moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 1)
     response = make_response(render_template('game.html', files=files, rank=rank, moving=moving, 
                                              game_id=game_id, both_connected = game.both_connected,
                                              p1_move = game.p1_move, p1_check = game.p1_check,

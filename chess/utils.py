@@ -717,8 +717,9 @@ def create_game(game_id):
         db.session.add(rank[i])
     db.session.commit()
 
-def calculate_checklines(game_id, attack_king_coord, attack_king_figures):
-    king_coord = get_king_coordinates(game_id)
+def calculate_checklines(game_id, attack_king_coord, attack_king_figures, opp=False):
+    #Calculate king coordinates of the other player
+    king_coord = get_king_coordinates(game_id, opp=not opp)
     i = king_coord[0]
     j = king_coord[1]
     rank = get_board(game_id)
@@ -727,7 +728,7 @@ def calculate_checklines(game_id, attack_king_coord, attack_king_figures):
         x = attack_king_coord[count][0]
         y = attack_king_coord[count][1]
         figure = attack_king_figures[count]
-        if session['figures'] == 1:
+        if (session['figures'] == 1 and not opp) or (session['figures'] == 0 and opp):
             figures = 1
             if (x - y == i - j) and x - i > 0:
                 calculate_block_check_lines_diagonal_1(checklines, rank, x, i, j, figures, check=True)
@@ -749,7 +750,7 @@ def calculate_checklines(game_id, attack_king_coord, attack_king_figures):
                 knight_attack = {}
                 knight_attack[count] = [x, y]
                 checklines.append(knight_attack)
-        else:
+        elif (session['figures'] == 0 and not opp) or (session['figures'] == 1 and opp):
             figures = 0
             if (x - y == i - j) and x - i > 0:
                 calculate_block_check_lines_diagonal_1(checklines, rank, x, i, j, figures, check=True)
@@ -774,7 +775,7 @@ def calculate_checklines(game_id, attack_king_coord, attack_king_figures):
     return checklines
 
 def calculate_blocklines(game_id, opp=False):
-    #Calculate king coordinates of this player
+    #Calculate king coordinates of the other player
     king_coord = get_king_coordinates(game_id, opp=not opp)
     i = king_coord[0]
     j = king_coord[1]
