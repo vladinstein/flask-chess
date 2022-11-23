@@ -1171,16 +1171,9 @@ def check_white_bishop_can_move(rank, z, x, y, blocklines, checklines):
         if ([x, y] in line.values() and ([x+1, y+1] not in line.values() and [x+1, y-1] not in line.values()
         and [x-1, y-1] not in line.values() and [x-1, y+1] not in line.values())):
             return moveable, z
-    for checkline in checklines:
-        if ((x < 8 and y < 8 and ((rank[x+1][y+1] == 0 or rank[x+1][y+1] > 6) and [x+1, y+1] in checkline.values())) or
-        (x < 8 and y > 1 and ((rank[x+1][y-1] == 0 or rank[x+1][y-1] > 6) and [x+1, y-1] in checkline.values())) or
-        (x > 1 and y > 1 and ((rank[x-1][y-1] == 0 or rank[x-1][y-1] > 6) and [x-1, y-1] in checkline.values())) or
-        (x > 1 and y < 8 and ((rank[x-1][y+1] == 0 or rank[x-1][y+1] > 6) and [x-1, y+1] in checkline.values()))):
-            moveable[z]=[x, y]
-            z += 1
-            return moveable, z
-        else:
-            return moveable, z
+    if checklines:
+        moveable, z = check_bishops_with_checklines(rank, z, x, y, checklines)
+        return moveable, z
     if (x < 8 and y < 8 and (rank[x+1][y+1] == 0 or rank[x+1][y+1] > 6)) or \
     (x < 8 and y > 1 and (rank[x+1][y-1] == 0 or rank[x+1][y-1] > 6)) or \
     (x > 1 and y > 1 and (rank[x-1][y-1] == 0 or rank[x-1][y-1] > 6)) or \
@@ -1205,21 +1198,54 @@ def check_black_bishop_can_move(rank, z, x, y, blocklines, checklines):
         if ([x, y] in line.values() and ([x+1, y+1] not in line.values() and [x+1, y-1] not in line.values()
         and [x-1, y-1] not in line.values() and [x-1, y+1] not in line.values())):
             return moveable, z
-    for checkline in checklines:
-        if ((x < 8 and y < 8 and rank[x+1][y+1] < 7 and [x+1, y+1] in checkline.values()) or 
-        (x < 8 and y > 1 and rank[x+1][y-1] < 7 and [x+1, y-1] in checkline.values()) or
-        (x > 1 and y > 1 and rank[x-1][y-1] < 7 and [x-1, y-1] in checkline.values()) or 
-        (x > 1 and y < 8 and rank[x-1][y+1] < 7 and [x-1, y+1] in checkline.values())):
-            moveable[z]=[x, y]
-            z += 1
-            return moveable, z
-        else:
-            return moveable, z
+    if checklines:
+        moveable, z = check_bishops_with_checklines(rank, z, x, y, checklines)
+        return moveable, z
     if (x < 8 and y < 8 and rank[x+1][y+1] < 7) or (x < 8 and y > 1 and rank[x+1][y-1] < 7) or \
     (x > 1 and y > 1 and rank[x-1][y-1] < 7) or (x > 1 and y < 8 and rank[x-1][y+1] < 7):
         moveable[z]=[x, y]
         z += 1
     return moveable, z
+
+def check_bishops_with_checklines(rank, z, x, y, checklines):
+    moveable = {}
+    for checkline in checklines:
+        checksquare = list(checkline.values())
+        side_a = side_b = side_c = side_d = False
+        for count in range (len(checkline.values())):
+            square_num = abs(x - checksquare[count][0])
+            if checksquare[count][0] - x == checksquare[count][1] - y:
+                if x < checksquare[count][0]:
+                    side_a = True
+                    for i in range(1, square_num):
+                        if x < 8 and y < 8 and rank[x+i][y+i] != 0:
+                            side_a = False
+                else:
+                    side_c = True
+                    for i in range(1, square_num):
+                        if x > 1 and y > 1 and rank[x-i][y-i] != 0:
+                            side_c = False
+            elif checksquare[count][0] + checksquare[count][1] == x + y:
+                if x < checksquare[count][0]:
+                    side_b = True
+                    for i in range(1, square_num):
+                        if x < 8 and y < 8 and rank[x+i][y-i] != 0:
+                            side_b = False
+                else:
+                    side_d = True
+                    for i in range(1, square_num):
+                        if x > 1 and y > 1 and rank[x-i][y+i] != 0:
+                            side_d = False
+        if side_a or side_b or side_c or side_d:
+        # if ((x < 8 and y < 8 and rank[x+1][y+1] == 0 and side_a) or
+        # (x < 8 and y > 1 and rank[x+1][y-1] == 0 and side_b) or
+        # (x > 1 and y > 1 and rank[x-1][y-1] == 0 and side_c) or
+        # (x > 1 and y < 8 and rank[x-1][y+1] == 0 and side_d)):
+            moveable[z]=[x, y]
+            z += 1
+            return moveable, z
+        else:
+            return moveable, z
 
 def check_white_rook_can_move(rank, z, x, y, blocklines, checklines):
     moveable = {}

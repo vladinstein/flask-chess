@@ -122,7 +122,6 @@ def go(data):
         check = int(check_if_check(game_id, all_attacks))
         if check:
             checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
-            print(checklines)
             # Maybe create empty checklines dict somewhere higher, than here fill it with the result of
             # calculate_checklines and then you can pass it (empty or not) to check_can_move
             # if the figure is on  blockline and there is a checkline, that figure cannot move
@@ -217,8 +216,6 @@ def game(game_id):
     king_coordinates = get_king_coordinates(game_id, opp=False)
     _, attack_king_coord, attack_king_figures = calculate_attacks(game_id, opp=True, king_coordinates=king_coordinates)
     checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures, opp=True)
-    print(checklines)
-    print(king_coordinates, attack_king_coord, attack_king_figures)
     blocklines = calculate_blocklines(game_id, opp=True)
     if game.black_sid and game.white_sid:
         if session ['figures'] == 0 and game.p1_move == 1:
