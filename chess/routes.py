@@ -126,6 +126,7 @@ def go(data):
             # calculate_checklines and then you can pass it (empty or not) to check_can_move
             # if the figure is on  blockline and there is a checkline, that figure cannot move
             all_attacks, _, _ = calculate_attacks(game_id, opp=True)
+            # This can be used for king only
             all_attacks = remove_checks(game_id, all_attacks)
             checkmate = int(check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures, all_attacks))
         if session['figures'] == 0:

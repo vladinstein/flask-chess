@@ -321,7 +321,11 @@ def get_bishop_moves(game_id, x, y, blocklines=[], step=1, z=0):
             if rank[x+i][y+i] == 0:
                 go[z] = [x+i, y+i]
                 z += 1
-            elif (rank[x][y] < 7 and rank[x+i][y+i] > 6) or (rank[x][y] > 6  and rank[x+i][y+i] < 7):
+            elif (rank[x][y] < 7 and rank[x+i][y+i] == 12) or (rank[x][y] > 6 and rank[x+i][y+i] == 6):
+                attack[z] = [x+i, y+i]
+                z += 1
+            elif (rank[x][y] < 7 and rank[x+i][y+i] > 6 and rank[x+i][y+i] < 12) or \
+            (rank[x][y] > 6  and rank[x+i][y+i] < 6):
                 attack[z] = [x+i, y+i]
                 z += 1
                 break
@@ -338,7 +342,11 @@ def get_bishop_moves(game_id, x, y, blocklines=[], step=1, z=0):
             if rank[x+i][y-i] == 0:
                 go[z] = [x+i, y-i]
                 z += 1
-            elif (rank[x][y] < 7 and rank[x+i][y-i] > 6) or (rank[x][y] > 6 and rank[x+i][y-i] < 7):
+            elif (rank[x][y] < 7 and rank[x+i][y-i] == 12) or (rank[x][y] > 6 and rank[x+i][y-i] == 6):
+                attack[z] = [x+i, y-i]
+                z += 1
+            elif (rank[x][y] < 7 and rank[x+i][y-i] > 6 and rank[x+i][y-i] < 12) or \
+            (rank[x][y] > 6 and rank[x+i][y-i] < 6):
                 attack[z] = [x+i, y-i]
                 z += 1
                 break
@@ -355,7 +363,11 @@ def get_bishop_moves(game_id, x, y, blocklines=[], step=1, z=0):
             if rank[x-i][y-i] == 0:
                 go[z] = [x-i, y-i]
                 z += 1
-            elif (rank[x][y] < 7 and rank[x-i][y-i] > 6) or (rank[x][y] > 6 and rank[x-i][y-i] < 7):
+            elif (rank[x][y] < 7 and rank[x-i][y-i] == 12) or (rank[x][y] > 6 and rank[x-i][y-i] == 6):
+                attack[z] = [x-i, y-i]
+                z += 1
+            elif (rank[x][y] < 7 and rank[x-i][y-i] > 6 and rank[x-i][y-i] < 12) or \
+                (rank[x][y] > 6 and rank[x-i][y-i] < 6):
                 attack[z] = [x-i, y-i]
                 z += 1
                 break
@@ -372,7 +384,11 @@ def get_bishop_moves(game_id, x, y, blocklines=[], step=1, z=0):
             if rank[x-i][y+i] == 0:
                 go[z] = [x-i, y+i]
                 z += 1
-            elif (rank[x][y] < 7 and rank[x-i][y+i] > 6) or (rank[x][y] > 6 and rank[x-i][y+i] < 7):
+            elif (rank[x][y] < 7 and rank[x-i][y+i] == 12) or (rank[x][y] > 6 and rank[x-i][y+i] == 6):
+                attack[z] = [x-i, y+i]
+                z += 1
+            elif (rank[x][y] < 7 and rank[x-i][y+i] > 6 and rank[x-i][y+i] < 12) or \
+                (rank[x][y] > 6 and rank[x-i][y+i] < 6):
                 attack[z] = [x-i, y+i]
                 z += 1
                 break
@@ -406,7 +422,11 @@ def get_rook_moves(game_id, x, y, blocklines=[], step=1, z=0):
             if rank[x][y+i] == 0:
                 go[z] = [x, y+i]
                 z += 1
-            elif (rank[x][y] < 7 and rank[x][y+i] > 6) or (rank[x][y] > 6 and rank[x][y+i] < 7):
+            elif (rank[x][y] < 7 and rank[x][y+i] == 12) or (rank[x][y] > 6 and rank[x][y+i] == 6):
+                attack[z] = [x, y+i]
+                z += 1
+            elif (rank[x][y] < 7 and rank[x][y+i] > 6 and rank[x][y+i] < 12) or \
+            (rank[x][y] > 6 and rank[x][y+i] < 6):
                 attack[z] = [x, y+i]
                 z += 1
                 break
@@ -420,7 +440,11 @@ def get_rook_moves(game_id, x, y, blocklines=[], step=1, z=0):
             if rank[x+i][y] == 0:
                 go[z] = [x+i, y]
                 z += 1
-            elif (rank[x][y] < 7 and rank[x+i][y] > 6) or (rank[x][y] > 6 and rank[x+i][y] < 7):
+            elif (rank[x][y] < 7 and rank[x+i][y] == 12) or (rank[x][y] > 6 and rank[x+i][y] == 6):
+                attack[z] = [x+i, y]
+                z += 1
+            elif (rank[x][y] < 7 and rank[x+i][y] > 6 and rank[x+i][y] < 12) or \
+                (rank[x][y] > 6 and rank[x+i][y] < 6):
                 attack[z] = [x+i, y]
                 z += 1
                 break
@@ -434,7 +458,11 @@ def get_rook_moves(game_id, x, y, blocklines=[], step=1, z=0):
             if rank[x][y-i] == 0:
                 go[z] = [x, y-i]
                 z += 1
-            elif (rank[x][y] < 7 and rank[x][y-i] > 6) or (rank[x][y] > 6 and rank[x][y-i] < 7):
+            elif (rank[x][y] < 7 and rank[x][y-i] == 12) or (rank[x][y] > 6 and rank[x][y-i] == 6):
+                attack[z] = [x, y-i]
+                z += 1
+            elif (rank[x][y] < 7 and rank[x][y-i] > 6 and rank[x][y-i] < 12) or \
+                (rank[x][y] > 6 and rank[x][y-i] < 6):
                 attack[z] = [x, y-i]
                 z += 1
                 break
@@ -448,7 +476,11 @@ def get_rook_moves(game_id, x, y, blocklines=[], step=1, z=0):
             if rank[x-i][y] == 0:
                 go[z] = [x-i, y]
                 z += 1
-            elif (rank[x][y] < 7 and rank[x-i][y] > 6) or (rank[x][y] > 6 and rank[x-i][y] < 7):
+            elif (rank[x][y] < 7 and rank[x-i][y] == 12) or (rank[x][y] > 6 and rank[x-i][y] == 6):
+                attack[z] = [x-i, y]
+                z += 1
+            elif (rank[x][y] < 7 and rank[x-i][y] > 6 and rank[x-i][y] < 12) or \
+                (rank[x][y] > 6 and rank[x-i][y] < 6):
                 attack[z] = [x-i, y]
                 z += 1
                 break
@@ -640,7 +672,7 @@ def add_attacks_to_db(game_id, all_attacks):
         db.session.commit()
 
 def add_defences_to_db(game_id, into_check):
-    files = string.ascii_lowercase[0:8] 
+    files = string.ascii_lowercase[0:8]
     for i in range(1, 9):
         defences = Defences.query.filter_by(game_id=game_id, number=i).first()
         for j in range(1, 9):
