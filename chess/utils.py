@@ -7,13 +7,13 @@ def get_moves(game_id, x, y, figure, blocklines, checklines):
     if figure == 1:
         go, attack, _, _ = get_white_pawn_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 2:
-        go, attack, _, _ = get_white_knight_moves(game_id, x, y, blocklines=blocklines)
+        go, attack, _, _ = get_white_knight_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 3 or figure == 9:
-        go, attack, _, _ = get_bishop_moves(game_id, x, y, blocklines=blocklines)
+        go, attack, _, _ = get_bishop_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 4 or figure == 10:
-        go, attack, _, _ = get_rook_moves(game_id, x, y, blocklines=blocklines)
+        go, attack, _, _ = get_rook_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 5 or figure == 11:
-        go, attack, _, _ = get_queen_moves(game_id, x, y, blocklines=blocklines)
+        go, attack, _, _ = get_queen_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 6 or figure == 12:
         go, attack, _, _ = get_king_moves(game_id, x, y)
         go = remove_checks(game_id, go)
@@ -21,7 +21,7 @@ def get_moves(game_id, x, y, figure, blocklines, checklines):
     elif figure == 7:
         go, attack, _, _ = get_black_pawn_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 8:
-        go, attack, _, _ = get_black_knight_moves(game_id, x, y, blocklines=blocklines)
+        go, attack, _, _ = get_black_knight_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     return go, attack
 
 def get_board(game_id):
@@ -57,13 +57,12 @@ def get_king_coordinates(game_id, opp=True):
                (((session['figures'] == 1 and rank[x][y] == 12) or (session['figures'] == 0 and rank[x][y] == 6)) and not opp):
                 return [x, y]
 
-def get_white_pawn_moves(game_id, x, y, blocklines=[], checklines = [], z=0):
+def get_white_pawn_moves(game_id, x, y, blocklines=[], checklines=[], z=0):
     go = {}
     attack = {}
     defence = {}
     rank = get_board(game_id)
     block = False
-    check = False
     for line in blocklines:
         if [x, y] in line.values():
             block = True
@@ -81,20 +80,19 @@ def get_white_pawn_moves(game_id, x, y, blocklines=[], checklines = [], z=0):
                 z += 1
     if not block:
         for checkline in checklines:
-            check = True
             if x < 8 and rank[x+1][y] == 0 and [x+1, y] in checkline.values():
                 go[z] = [x+1, y]
                 z += 1
             if x == 2 and rank[x+1][y] == 0 and rank[x+2][y] == 0 and [x+2, y] in checkline.values():
                 go[z] = [x+2, y]
                 z += 1
-            if y > 1 and rank[x+1][y-1] > 6 and [x+1, y-1] in checkline.values() and len(checkline.values()) == 2:
+            if y > 1 and rank[x+1][y-1] > 6 and [x+1, y-1] in checkline.values():
                 attack[z] = [x+1, y-1]
                 z += 1
-            if y < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in checkline.values() and len(checkline.values()) == 2:
+            if y < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in checkline.values():
                 attack[z] = [x+1, y+1]
                 z += 1
-        if not check:
+        if not checklines:
             if x < 8 and rank[x+1][y] == 0:
                 go[z] = [x+1, y]
                 z += 1
@@ -121,7 +119,6 @@ def get_black_pawn_moves(game_id, x, y, blocklines=[], checklines = [], z=0):
     defence = {}
     rank = get_board(game_id)
     block = False
-    check = False
     for line in blocklines:
         if [x, y] in line.values():
             block = True
@@ -139,20 +136,19 @@ def get_black_pawn_moves(game_id, x, y, blocklines=[], checklines = [], z=0):
                 z += 1
     if not block:
         for checkline in checklines:
-            check = True
             if x > 1 and rank[x-1][y] == 0 and [x-1, y] in checkline.values():
                 go[z] = [x-1, y]
                 z += 1
             if x == 7 and rank[x-1][y] == 0 and rank[x-2][y] == 0 and [x-2, y] in checkline.values():
                 go[z] = [x-2, y]
                 z += 1
-            if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0 and [x-1, y-1] in checkline.values() and len(checkline.values()) == 2:
+            if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0 and [x-1, y-1] in checkline.values():
                 attack[z] = [x-1, y-1]
                 z += 1
-            if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and [x-1, y+1] in checkline.values() and len(checkline.values()) == 2:
+            if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and [x-1, y+1] in checkline.values():
                 attack[z] = [x-1, y+1]
                 z += 1
-        if not check:
+        if not checklines:
             if x > 1 and rank[x-1][y] == 0:
                 go[z] = [x-1, y]
                 z += 1
@@ -173,35 +169,62 @@ def get_black_pawn_moves(game_id, x, y, blocklines=[], checklines = [], z=0):
         z += 1
     return go, attack, defence, z
 
-def get_knight_moves_part1(rank, x, y, z=0):
+def get_knight_moves_part1(rank, x, y, z=0, checklines=[]):
     go = {}
-    if x < 7 and y < 8 and rank[x+2][y+1] == 0:
-        go[z] = [x+2, y+1]
-        z += 1
-    if x < 8 and y < 7 and rank[x+1][y+2] == 0:
-        go[z] = [x+1, y+2]
-        z += 1
-    if x > 1 and y < 7 and rank[x-1][y+2] == 0:
-        go[z] = [x-1, y+2]
-        z += 1
-    if x > 2 and y < 8 and rank[x-2][y+1] == 0:
-        go[z] = [x-2, y+1]
-        z += 1
-    if x > 2 and y > 1 and rank[x-2][y-1] == 0:
-        go[z] = [x-2, y-1]
-        z += 1
-    if x > 1 and y > 2 and rank[x-1][y-2] == 0:
-        go[z] = [x-1, y-2]
-        z += 1
-    if x < 8 and y > 2 and rank[x+1][y-2] == 0:
-        go[z] = [x+1, y-2]
-        z += 1
-    if x < 7 and y > 1 and rank[x+2][y-1] == 0:
-        go[z] = [x+2, y-1]
-        z += 1 
+    # change all that to "if not checklines"
+    for checkline in checklines:
+        if x < 7 and y < 8 and rank[x+2][y+1] == 0 and [x+2, y+1] in checkline.values():
+            go[z] = [x+2, y+1]
+            z += 1
+        if x < 8 and y < 7 and rank[x+1][y+2] == 0 and [x+1, y+2] in checkline.values():
+            go[z] = [x+1, y+2]
+            z += 1
+        if x > 1 and y < 7 and rank[x-1][y+2] == 0 and [x-1, y+2] in checkline.values():
+            go[z] = [x-1, y+2]
+            z += 1
+        if x > 2 and y < 8 and rank[x-2][y+1] == 0 and [x-2, y+1] in checkline.values():
+            go[z] = [x-2, y+1]
+            z += 1
+        if x > 2 and y > 1 and rank[x-2][y-1] == 0 and [x-2, y-1] in checkline.values():
+            go[z] = [x-2, y-1]
+            z += 1
+        if x > 1 and y > 2 and rank[x-1][y-2] == 0 and [x-1, y-2] in checkline.values():
+            go[z] = [x-1, y-2]
+            z += 1
+        if x < 8 and y > 2 and rank[x+1][y-2] == 0 and [x+1, y-2] in checkline.values():
+            go[z] = [x+1, y-2]
+            z += 1
+        if x < 7 and y > 1 and rank[x+2][y-1] == 0 and [x+2, y-1] in checkline.values():
+            go[z] = [x+2, y-1]
+            z += 1
+    if not checklines:      
+        if x < 7 and y < 8 and rank[x+2][y+1] == 0:
+            go[z] = [x+2, y+1]
+            z += 1
+        if x < 8 and y < 7 and rank[x+1][y+2] == 0:
+            go[z] = [x+1, y+2]
+            z += 1
+        if x > 1 and y < 7 and rank[x-1][y+2] == 0:
+            go[z] = [x-1, y+2]
+            z += 1
+        if x > 2 and y < 8 and rank[x-2][y+1] == 0:
+            go[z] = [x-2, y+1]
+            z += 1
+        if x > 2 and y > 1 and rank[x-2][y-1] == 0:
+            go[z] = [x-2, y-1]
+            z += 1
+        if x > 1 and y > 2 and rank[x-1][y-2] == 0:
+            go[z] = [x-1, y-2]
+            z += 1
+        if x < 8 and y > 2 and rank[x+1][y-2] == 0:
+            go[z] = [x+1, y-2]
+            z += 1
+        if x < 7 and y > 1 and rank[x+2][y-1] == 0:
+            go[z] = [x+2, y-1]
+            z += 1 
     return go, z
 
-def get_white_knight_moves(game_id, x, y, blocklines=[], z=0):
+def get_white_knight_moves(game_id, x, y, blocklines=[], checklines=[], z=0):
     attack = {}
     defence = {}
     rank = get_board(game_id)
@@ -210,120 +233,172 @@ def get_white_knight_moves(game_id, x, y, blocklines=[], z=0):
             go = {}
             return go, attack, defence, z
     # dictionary of possible moves
-    go, z = get_knight_moves_part1(rank, x, y, z)
-    # dictionary of possible attacks
-    if x < 7 and y < 8 and rank[x+2][y+1] > 6:
-        attack[z] = [x+2, y+1]
-        z += 1
-    elif x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0:
-        defence[z] = [x+2, y+1]
-        z += 1
-    if x < 8 and y < 7 and rank[x+1][y+2] > 6:
-        attack[z] = [x+1, y+2]
-        z += 1
-    elif x < 8 and y < 7 and rank[x+1][y+2] < 7 and rank[x+1][y+2] > 0:
-        defence[z] = [x+1, y+2]
-        z += 1
-    if x > 1 and y < 7 and rank[x-1][y+2] > 6:
-        attack[z] = [x-1, y+2]
-        z += 1
-    elif x > 1 and y < 7 and rank[x-1][y+2] < 7 and rank[x-1][y+2] > 0:
-        defence[z] = [x-1, y+2]
-        z += 1
-    if x > 2 and y < 8 and rank[x-2][y+1] > 6:
-        attack[z] = [x-2, y+1]
-        z += 1
-    elif x > 2 and y < 8 and rank[x-2][y+1] < 7 and rank[x-2][y+1] > 0:
-        defence[z] = [x-2, y+1]
-        z += 1
-    if x > 2 and y > 1 and rank[x-2][y-1] > 6:
-        attack[z] = [x-2, y-1]
-        z += 1
-    elif x > 2 and y > 1 and rank[x-2][y-1] < 7 and rank[x-2][y-1] > 0:
-        defence[z] = [x-2, y-1]
-        z += 1
-    if x > 1 and y > 2 and rank[x-1][y-2] > 6:
-        attack[z] = [x-1, y-2]
-        z += 1
-    elif x > 1 and y > 2 and rank[x-1][y-2] and rank[x-1][y-2] > 0:
-        defence[z] = [x-1, y-2]
-        z += 1
-    if x < 8 and y > 2 and rank[x+1][y-2] > 6:
-        attack[z] = [x+1, y-2]
-        z += 1
-    elif x < 8 and y > 2 and rank[x+1][y-2] < 7 and rank[x+1][y-2] > 0:
-        defence[z] = [x+1, y-2]
-        z += 1
-    if x < 7 and y > 1 and rank[x+2][y-1] > 6:
-        attack[z] = [x+2, y-1]
-        z += 1
-    elif x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0:
-        defence[z] = [x+2, y-1]
-        z += 1
-    return go, attack, defence, z
-
-def get_black_knight_moves(game_id, x, y, blocklines=[], z=0):
-    attack = {}
-    defence = {}
-    rank = get_board(game_id)
-    for line in blocklines:
-        if [x, y] in line.values():
-            go = {}
-            return go, attack, defence, z
-    # dictionary of possible moves
-    go, z = get_knight_moves_part1(rank, x, y, z)
-    # dictionary of possible attacks
+    go, z = get_knight_moves_part1(rank, x, y, z, checklines=checklines)
+    for checkline in checklines:
+        if x < 7 and y < 8 and rank[x+2][y+1] > 6 and [x+2, y+1] in checkline.values():
+            attack[z] = [x+2, y+1]
+            z += 1
+        if x < 8 and y < 7 and rank[x+1][y+2] > 6 and [x+1, y+2] in checkline.values():
+            attack[z] = [x+1, y+2]
+            z += 1
+        if x > 1 and y < 7 and rank[x-1][y+2] > 6 and [x-1, y+2] in checkline.values():
+            attack[z] = [x-1, y+2]
+            z += 1
+        if x > 2 and y < 8 and rank[x-2][y+1] > 6 and [x-2, y+1] in checkline.values():
+            attack[z] = [x-2, y+1]
+            z += 1
+        if x > 2 and y > 1 and rank[x-2][y-1] > 6 and [x-2, y-1] in checkline.values():
+            attack[z] = [x-2, y-1]
+            z += 1
+        if x > 1 and y > 2 and rank[x-1][y-2] > 6 and [x-1, y-2] in checkline.values():
+            attack[z] = [x-1, y-2]
+            z += 1
+        if x < 8 and y > 2 and rank[x+1][y-2] > 6 and [x+1, y-2] in checkline.values():
+            attack[z] = [x+1, y-2]
+            z += 1
+        if x < 7 and y > 1 and rank[x+2][y-1] > 6 and [x+2, y-1] in checkline.values():
+            attack[z] = [x+2, y-1]
+            z += 1
+    if not checklines:
+        # dictionary of possible attacks
+        if x < 7 and y < 8 and rank[x+2][y+1] > 6:
+            attack[z] = [x+2, y+1]
+            z += 1
+        if x < 8 and y < 7 and rank[x+1][y+2] > 6:
+            attack[z] = [x+1, y+2]
+            z += 1
+        if x > 1 and y < 7 and rank[x-1][y+2] > 6:
+            attack[z] = [x-1, y+2]
+            z += 1
+        if x > 2 and y < 8 and rank[x-2][y+1] > 6:
+            attack[z] = [x-2, y+1]
+            z += 1
+        if x > 2 and y > 1 and rank[x-2][y-1] > 6:
+            attack[z] = [x-2, y-1]
+            z += 1
+        if x > 1 and y > 2 and rank[x-1][y-2] > 6:
+            attack[z] = [x-1, y-2]
+            z += 1
+        if x < 8 and y > 2 and rank[x+1][y-2] > 6:
+            attack[z] = [x+1, y-2]
+            z += 1
+        if x < 7 and y > 1 and rank[x+2][y-1] > 6:
+            attack[z] = [x+2, y-1]
+            z += 1
     if x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0:
-        attack[z] = [x+2, y+1]
-        z += 1
-    elif x < 7 and y < 8 and rank[x+2][y+1] > 6:
         defence[z] = [x+2, y+1]
         z += 1
     if x < 8 and y < 7 and rank[x+1][y+2] < 7 and rank[x+1][y+2] > 0:
-        attack[z] = [x+1, y+2]
-        z += 1
-    elif x < 8 and y < 7 and rank[x+1][y+2] > 6:
         defence[z] = [x+1, y+2]
         z += 1
     if x > 1 and y < 7 and rank[x-1][y+2] < 7 and rank[x-1][y+2] > 0:
-        attack[z] = [x-1, y+2]
-        z += 1
-    elif x > 1 and y < 7 and rank[x-1][y+2] > 6:
         defence[z] = [x-1, y+2]
         z += 1
     if x > 2 and y < 8 and rank[x-2][y+1] < 7 and rank[x-2][y+1] > 0:
-        attack[z] = [x-2, y+1]
-        z += 1
-    elif x > 2 and y < 8 and rank[x-2][y+1] > 6:
         defence[z] = [x-2, y+1]
         z += 1
     if x > 2 and y > 1 and rank[x-2][y-1] < 7 and rank[x-2][y-1] > 0:
-        attack[z] = [x-2, y-1]
-        z += 1
-    elif x > 2 and y > 1 and rank[x-2][y-1] > 6:
         defence[z] = [x-2, y-1]
         z += 1
-    if x > 1 and y > 2 and rank[x-1][y-2] < 7 and rank[x-1][y-2] > 0:
-        attack[z] = [x-1, y-2]
-        z += 1
-    elif x > 1 and y > 2 and rank[x-1][y-2] > 6:
+    if x > 1 and y > 2 and rank[x-1][y-2] and rank[x-1][y-2] > 0:
         defence[z] = [x-1, y-2]
         z += 1
     if x < 8 and y > 2 and rank[x+1][y-2] < 7 and rank[x+1][y-2] > 0:
-        attack[z] = [x+1, y-2]
-        z += 1
-    elif x < 8 and y > 2 and rank[x+1][y-2] > 6:
         defence[z] = [x+1, y-2]
         z += 1
     if x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0:
-        attack[z] = [x+2, y-1]
-        z += 1
-    elif x < 7 and y > 1 and rank[x+2][y-1] > 6:
         defence[z] = [x+2, y-1]
         z += 1
     return go, attack, defence, z
 
-def get_bishop_moves(game_id, x, y, blocklines=[], step=1, z=0):
+def get_black_knight_moves(game_id, x, y, blocklines=[], checklines=[], z=0):
+    attack = {}
+    defence = {}
+    rank = get_board(game_id)
+    for line in blocklines:
+        if [x, y] in line.values():
+            go = {}
+            return go, attack, defence, z
+    # dictionary of possible moves
+    go, z = get_knight_moves_part1(rank, x, y, z, checklines=checklines)
+    for checkline in checklines:
+        if x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0 and [x+2, y+1] in checkline.values():
+            attack[z] = [x+2, y+1]
+            z += 1
+        if x < 8 and y < 7 and rank[x+1][y+2] < 7 and rank[x+1][y+2] > 0 and [x+1, y+2] in checkline.values():
+            attack[z] = [x+1, y+2]
+            z += 1
+        if x > 1 and y < 7 and rank[x-1][y+2] < 7 and rank[x-1][y+2] > 0 and [x-1, y+2] in checkline.values():
+            attack[z] = [x-1, y+2]
+            z += 1
+        if x > 2 and y < 8 and rank[x-2][y+1] < 7 and rank[x-2][y+1] > 0 and [x-2, y+1] in checkline.values():
+            attack[z] = [x-2, y+1]
+            z += 1
+        if x > 2 and y > 1 and rank[x-2][y-1] < 7 and rank[x-2][y-1] > 0 and [x-2, y-1] in checkline.values():
+            attack[z] = [x-2, y-1]
+            z += 1
+        if x > 1 and y > 2 and rank[x-1][y-2] < 7 and rank[x-1][y-2] > 0 and [x-1, y-2] in checkline.values():
+            attack[z] = [x-1, y-2]
+            z += 1
+        if x < 8 and y > 2 and rank[x+1][y-2] < 7 and rank[x+1][y-2] > 0 and [x+1, y-2] in checkline.values():
+            attack[z] = [x+1, y-2]
+            z += 1
+        if x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0 and [x+2, y-1] in checkline.values():
+            attack[z] = [x+2, y-1]
+            z += 1     
+    if not checklines:   
+        # dictionary of possible attacks
+        if x < 7 and y < 8 and rank[x+2][y+1] < 7 and rank[x+2][y+1] > 0:
+            attack[z] = [x+2, y+1]
+            z += 1
+        if x < 8 and y < 7 and rank[x+1][y+2] < 7 and rank[x+1][y+2] > 0:
+            attack[z] = [x+1, y+2]
+            z += 1
+        if x > 1 and y < 7 and rank[x-1][y+2] < 7 and rank[x-1][y+2] > 0:
+            attack[z] = [x-1, y+2]
+            z += 1
+        if x > 2 and y < 8 and rank[x-2][y+1] < 7 and rank[x-2][y+1] > 0:
+            attack[z] = [x-2, y+1]
+            z += 1
+        if x > 2 and y > 1 and rank[x-2][y-1] < 7 and rank[x-2][y-1] > 0:
+            attack[z] = [x-2, y-1]
+            z += 1
+        if x > 1 and y > 2 and rank[x-1][y-2] < 7 and rank[x-1][y-2] > 0:
+            attack[z] = [x-1, y-2]
+            z += 1
+        if x < 8 and y > 2 and rank[x+1][y-2] < 7 and rank[x+1][y-2] > 0:
+            attack[z] = [x+1, y-2]
+            z += 1
+        if x < 7 and y > 1 and rank[x+2][y-1] < 7 and rank[x+2][y-1] > 0:
+            attack[z] = [x+2, y-1]
+            z += 1
+    if x < 7 and y < 8 and rank[x+2][y+1] > 6:
+        defence[z] = [x+2, y+1]
+        z += 1
+    if x < 8 and y < 7 and rank[x+1][y+2] > 6:
+        defence[z] = [x+1, y+2]
+        z += 1
+    if x > 1 and y < 7 and rank[x-1][y+2] > 6:
+        defence[z] = [x-1, y+2]
+        z += 1
+    if x > 2 and y < 8 and rank[x-2][y+1] > 6:
+        defence[z] = [x-2, y+1]
+        z += 1
+    if x > 2 and y > 1 and rank[x-2][y-1] > 6:
+        defence[z] = [x-2, y-1]
+        z += 1
+    if x > 1 and y > 2 and rank[x-1][y-2] > 6:
+        defence[z] = [x-1, y-2]
+        z += 1
+    if x < 8 and y > 2 and rank[x+1][y-2] > 6:
+        defence[z] = [x+1, y-2]
+        z += 1
+    if x < 7 and y > 1 and rank[x+2][y-1] > 6:
+        defence[z] = [x+2, y-1]
+        z += 1
+    return go, attack, defence, z
+
+def get_bishop_moves(game_id, x, y, blocklines=[], checklines=[], step=1, z=0):
     go = {}
     attack = {}
     defence = {}
@@ -430,7 +505,7 @@ def get_bishop_moves(game_id, x, y, blocklines=[], step=1, z=0):
                 break
     return go, attack, defence, z
  
-def get_rook_moves(game_id, x, y, blocklines=[], step=1, z=0):
+def get_rook_moves(game_id, x, y, blocklines=[], checklines=[], step=1, z=0):
     go = {}
     attack = {}
     defence = {}
@@ -522,7 +597,7 @@ def get_rook_moves(game_id, x, y, blocklines=[], step=1, z=0):
                 break
     return go, attack, defence, z
 
-def get_queen_moves(game_id, x, y, blocklines=[], z=0):
+def get_queen_moves(game_id, x, y, blocklines=[], checklines=[], z=0):
     go, attack, defence, z = get_bishop_moves(game_id, x, y, blocklines=blocklines, step=1, z=z)
     go_2, attack_2, defence_2, z = get_rook_moves(game_id, x, y, blocklines=blocklines, step=1, z=z)
     go.update(go_2)
