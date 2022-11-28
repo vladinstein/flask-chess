@@ -73,7 +73,10 @@ def take(data):
     go = {}
     attack = {}
     blocklines = calculate_blocklines(game_id, opp=True)
-    go, attack = get_moves(game_id, x, y, figure, blocklines)
+    king_coordinates = get_king_coordinates(game_id, opp=False)
+    _, attack_king_coord, attack_king_figures = calculate_attacks(game_id, opp=True, king_coordinates=king_coordinates)
+    checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures, opp=True)
+    go, attack = get_moves(game_id, x, y, figure, blocklines, checklines)
     socketio.emit('moves', data=(go, attack), room=session['sid'])
 
 @socketio.on('go')
