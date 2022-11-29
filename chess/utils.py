@@ -404,107 +404,152 @@ def get_bishop_moves(game_id, x, y, blocklines=[], checklines=[], step=1, z=0):
     defence = {}
     rank = get_board(game_id)
     #Checking if the figure is on the blockline. If it is it can only move down the blockline
-    side_a = side_b = side_c = side_d = 1
+    side_a = side_b = side_c = side_d = True
+    block = False
     for line in blocklines:
         if [x, y] in line.values():
-            side_a = side_b = side_c = side_d = 0
+            block = True
+            side_a = side_b = side_c = side_d = False
             if x < 8 and y < 8 and [x+1, y+1] in line.values():
-                side_a = 1
+                side_a = True
             if x < 8 and y > 1 and [x+1, y-1] in line.values():
-                side_b = 1
+                side_b = True
             if x > 1 and y > 1 and [x-1, y-1] in line.values():
-                side_c = 1
+                side_c = True
             if x > 1 and y < 8 and [x-1, y+1] in line.values():
-                side_d = 1         
+                side_d = True         
     # we don't need a separate counter for attacks cause we don't really use keys anywhere
     #here we are going to add that extra if
     # if ([x, y] in blocklines and x+1 y+1 in blocklines) or [x, y] not in blocklines:
-    if x < 8 and y < 8 and side_a:
-        if x > y:
-            squares_num = 9 - x
-        else:
-            squares_num = 9 - y
-        for i in range (1, squares_num, step):
-            if rank[x+i][y+i] == 0:
-                go[z] = [x+i, y+i]
-                z += 1
-            elif (rank[x][y] < 7 and rank[x+i][y+i] == 12) or (rank[x][y] > 6 and rank[x+i][y+i] == 6):
-                attack[z] = [x+i, y+i]
-                z += 1
-            elif (rank[x][y] < 7 and rank[x+i][y+i] > 6 and rank[x+i][y+i] < 12) or \
-            (rank[x][y] > 6  and rank[x+i][y+i] < 6):
-                attack[z] = [x+i, y+i]
-                z += 1
-                break
-            elif (rank[x][y] < 7 and rank[x+i][y+i] < 7) or (rank[x][y] > 6  and rank[x+i][y+i] > 6):
-                defence[z] = [x+i, y+i]
-                z += 1
-                break
-    if x < 8 and y > 1 and side_b:
-        if x > (9 - y) :
-            squares_num = 9 - x
-        else:
-            squares_num = y
-        for i in range (1, squares_num, step):
-            if rank[x+i][y-i] == 0:
-                go[z] = [x+i, y-i]
-                z += 1
-            elif (rank[x][y] < 7 and rank[x+i][y-i] == 12) or (rank[x][y] > 6 and rank[x+i][y-i] == 6):
-                attack[z] = [x+i, y-i]
-                z += 1
-            elif (rank[x][y] < 7 and rank[x+i][y-i] > 6 and rank[x+i][y-i] < 12) or \
-            (rank[x][y] > 6 and rank[x+i][y-i] < 6):
-                attack[z] = [x+i, y-i]
-                z += 1
-                break
-            elif (rank[x][y] < 7 and rank[x+i][y-i] < 7) or (rank[x][y] > 6 and rank[x+i][y-i] > 6):
-                defence[z] = [x+i, y-i]
-                z += 1
-                break
-    if x > 1 and y > 1 and side_c:
-        if x < y:
-            squares_num = x
-        else:
-            squares_num = y
-        for i in range (1, squares_num, step):
-            if rank[x-i][y-i] == 0:
-                go[z] = [x-i, y-i]
-                z += 1
-            elif (rank[x][y] < 7 and rank[x-i][y-i] == 12) or (rank[x][y] > 6 and rank[x-i][y-i] == 6):
-                attack[z] = [x-i, y-i]
-                z += 1
-            elif (rank[x][y] < 7 and rank[x-i][y-i] > 6 and rank[x-i][y-i] < 12) or \
-                (rank[x][y] > 6 and rank[x-i][y-i] < 6):
-                attack[z] = [x-i, y-i]
-                z += 1
-                break
-            elif (rank[x][y] < 7 and rank[x-i][y-i] < 7) or (rank[x][y] > 6 and rank[x-i][y-i] > 6):
-                defence[z] = [x-i, y-i]
-                z += 1
-                break
-    if x > 1 and y < 8 and side_d:
-        if (9 - x) > y:
-            squares_num = x
-        else:
-            squares_num = 9 - y
-        for i in range (1, squares_num, step):
-            if rank[x-i][y+i] == 0:
-                go[z] = [x-i, y+i]
-                z += 1
-            elif (rank[x][y] < 7 and rank[x-i][y+i] == 12) or (rank[x][y] > 6 and rank[x-i][y+i] == 6):
-                attack[z] = [x-i, y+i]
-                z += 1
-            elif (rank[x][y] < 7 and rank[x-i][y+i] > 6 and rank[x-i][y+i] < 12) or \
-                (rank[x][y] > 6 and rank[x-i][y+i] < 6):
-                attack[z] = [x-i, y+i]
-                z += 1
-                break
-            elif (rank[x][y] < 7 and rank[x-i][y+i] < 7) or (rank[x][y] > 6 and rank[x-i][y+i] > 6):
-                defence[z] = [x-i, y+i]
-                z += 1
-                break
+    if not block:
+        go, attack, z = get_bishops_moves_with_checklines(rank, z, x, y, checklines=checklines)
+    if not checklines:
+        if x < 8 and y < 8 and side_a:
+            if x > y:
+                squares_num = 9 - x
+            else:
+                squares_num = 9 - y
+            for i in range (1, squares_num, step):
+                if rank[x+i][y+i] == 0:
+                    go[z] = [x+i, y+i]
+                    z += 1
+                elif (rank[x][y] < 7 and rank[x+i][y+i] == 12) or (rank[x][y] > 6 and rank[x+i][y+i] == 6):
+                    attack[z] = [x+i, y+i]
+                    z += 1
+                elif (rank[x][y] < 7 and rank[x+i][y+i] > 6 and rank[x+i][y+i] < 12) or \
+                (rank[x][y] > 6  and rank[x+i][y+i] < 6):
+                    attack[z] = [x+i, y+i]
+                    z += 1
+                    break
+                elif (rank[x][y] < 7 and rank[x+i][y+i] < 7) or (rank[x][y] > 6  and rank[x+i][y+i] > 6):
+                    defence[z] = [x+i, y+i]
+                    z += 1
+                    break
+        if x < 8 and y > 1 and side_b:
+            if x > (9 - y) :
+                squares_num = 9 - x
+            else:
+                squares_num = y
+            for i in range (1, squares_num, step):
+                if rank[x+i][y-i] == 0:
+                    go[z] = [x+i, y-i]
+                    z += 1
+                elif (rank[x][y] < 7 and rank[x+i][y-i] == 12) or (rank[x][y] > 6 and rank[x+i][y-i] == 6):
+                    attack[z] = [x+i, y-i]
+                    z += 1
+                elif (rank[x][y] < 7 and rank[x+i][y-i] > 6 and rank[x+i][y-i] < 12) or \
+                (rank[x][y] > 6 and rank[x+i][y-i] < 6):
+                    attack[z] = [x+i, y-i]
+                    z += 1
+                    break
+                elif (rank[x][y] < 7 and rank[x+i][y-i] < 7) or (rank[x][y] > 6 and rank[x+i][y-i] > 6):
+                    defence[z] = [x+i, y-i]
+                    z += 1
+                    break
+        if x > 1 and y > 1 and side_c:
+            if x < y:
+                squares_num = x
+            else:
+                squares_num = y
+            for i in range (1, squares_num, step):
+                if rank[x-i][y-i] == 0:
+                    go[z] = [x-i, y-i]
+                    z += 1
+                elif (rank[x][y] < 7 and rank[x-i][y-i] == 12) or (rank[x][y] > 6 and rank[x-i][y-i] == 6):
+                    attack[z] = [x-i, y-i]
+                    z += 1
+                elif (rank[x][y] < 7 and rank[x-i][y-i] > 6 and rank[x-i][y-i] < 12) or \
+                    (rank[x][y] > 6 and rank[x-i][y-i] < 6):
+                    attack[z] = [x-i, y-i]
+                    z += 1
+                    break
+                elif (rank[x][y] < 7 and rank[x-i][y-i] < 7) or (rank[x][y] > 6 and rank[x-i][y-i] > 6):
+                    defence[z] = [x-i, y-i]
+                    z += 1
+                    break
+        if x > 1 and y < 8 and side_d:
+            if (9 - x) > y:
+                squares_num = x
+            else:
+                squares_num = 9 - y
+            for i in range (1, squares_num, step):
+                if rank[x-i][y+i] == 0:
+                    go[z] = [x-i, y+i]
+                    z += 1
+                elif (rank[x][y] < 7 and rank[x-i][y+i] == 12) or (rank[x][y] > 6 and rank[x-i][y+i] == 6):
+                    attack[z] = [x-i, y+i]
+                    z += 1
+                elif (rank[x][y] < 7 and rank[x-i][y+i] > 6 and rank[x-i][y+i] < 12) or \
+                    (rank[x][y] > 6 and rank[x-i][y+i] < 6):
+                    attack[z] = [x-i, y+i]
+                    z += 1
+                    break
+                elif (rank[x][y] < 7 and rank[x-i][y+i] < 7) or (rank[x][y] > 6 and rank[x-i][y+i] > 6):
+                    defence[z] = [x-i, y+i]
+                    z += 1
+                    break
     return go, attack, defence, z
- 
+
+def get_bishops_moves_with_checklines(rank, z, x, y, checklines=[]):
+    go = {}
+    attack = {}
+    for checkline in checklines:
+        checksquare = list(checkline.values())
+        for count in range (len(checkline.values())):
+            # Here check if each one of them is on bishops path, so we set variables inside the loop.
+            side_a = side_b = side_c = side_d = False
+            square_num = abs(x - checksquare[count][0])
+            if checksquare[count][0] - x == checksquare[count][1] - y:
+                if x < checksquare[count][0]:
+                    side_a = True
+                    for i in range(1, square_num):
+                        if x < 8 and y < 8 and rank[x+i][y+i] != 0:
+                            side_a = False
+                else:
+                    side_c = True
+                    for i in range(1, square_num):
+                        if x > 1 and y > 1 and rank[x-i][y-i] != 0:
+                            side_c = False
+            elif checksquare[count][0] + checksquare[count][1] == x + y:
+                if x < checksquare[count][0]:
+                    side_b = True
+                    for i in range(1, square_num):
+                        if x < 8 and y < 8 and rank[x+i][y-i] != 0:
+                            side_b = False
+                else:
+                    side_d = True
+                    for i in range(1, square_num):
+                        if x > 1 and y > 1 and rank[x-i][y+i] != 0:
+                            side_d = False
+            if side_a or side_b or side_c or side_d:
+                if rank[checksquare[count][0]][checksquare[count][1]] == 0:
+                    go[z] = [checksquare[count][0], checksquare[count][1]]
+                    z += 1
+                else:
+                    attack[z] = [checksquare[count][0], checksquare[count][1]]
+                    z += 1
+    return go, attack, z
+
 def get_rook_moves(game_id, x, y, blocklines=[], checklines=[], step=1, z=0):
     go = {}
     attack = {}
@@ -1352,6 +1397,7 @@ def check_bishops_with_checklines(rank, z, x, y, checklines):
     moveable = {}
     for checkline in checklines:
         checksquare = list(checkline.values())
+        # Here we need to check if at least one will become true, so we set variables before the loop.
         side_a = side_b = side_c = side_d = False
         for count in range (len(checkline.values())):
             square_num = abs(x - checksquare[count][0])
@@ -1378,10 +1424,6 @@ def check_bishops_with_checklines(rank, z, x, y, checklines):
                         if x > 1 and y > 1 and rank[x-i][y+i] != 0:
                             side_d = False
         if side_a or side_b or side_c or side_d:
-        # if ((x < 8 and y < 8 and rank[x+1][y+1] == 0 and side_a) or
-        # (x < 8 and y > 1 and rank[x+1][y-1] == 0 and side_b) or
-        # (x > 1 and y > 1 and rank[x-1][y-1] == 0 and side_c) or
-        # (x > 1 and y < 8 and rank[x-1][y+1] == 0 and side_d)):
             moveable[z]=[x, y]
             z += 1
             return moveable, z
