@@ -659,24 +659,24 @@ def get_rooks_moves_with_checklines(rank, z, x, y, checklines=[]):
                 if y < checksquare[count][1]:
                     side_a = True
                     for i in range(1, square_num):
-                        if y < 8 and rank[x][y+1] != 0:
+                        if y < 8 and rank[x][y+i] != 0:
                             side_a = False
                 else:
                     side_c = True
                     for i in range(1, square_num):
-                        if y > 1 and rank[x][y-1] != 0:
+                        if y > 1 and rank[x][y-i] != 0:
                             side_c = False
             elif checksquare[count][1] == y:
                 square_num = abs(x - checksquare[count][0])
                 if x < checksquare[count][0]:
                     side_b = True
                     for i in range(1, square_num):
-                        if x < 8 and rank[x+1][y] != 0:
+                        if x < 8 and rank[x+i][y] != 0:
                             side_b = False
                 else:
                     side_d = True
                     for i in range(1, square_num):
-                        if x > 1 and rank[x-1][y] != 0:
+                        if x > 1 and rank[x-i][y] != 0:
                             side_d = False
             if side_a or side_b or side_c or side_d:
                 if rank[checksquare[count][0]][checksquare[count][1]] == 0:
@@ -1539,24 +1539,24 @@ def check_rooks_with_checklines(rank, z, x, y, checklines):
                 if y < checksquare[count][1]:
                     side_a = True
                     for i in range(1, square_num):
-                        if y < 8 and rank[x][y+1] != 0:
+                        if y < 8 and rank[x][y+i] != 0:
                             side_a = False
                 else:
                     side_c = True
                     for i in range(1, square_num):
-                        if y > 1 and rank[x][y-1] != 0:
+                        if y > 1 and rank[x][y-i] != 0:
                             side_c = False
             elif checksquare[count][1] == y:
                 square_num = abs(x - checksquare[count][0])
                 if x < checksquare[count][0]:
                     side_b = True
                     for i in range(1, square_num):
-                        if x < 8 and rank[x+1][y] != 0:
+                        if x < 8 and rank[x+i][y] != 0:
                             side_b = False
                 else:
                     side_d = True
                     for i in range(1, square_num):
-                        if x > 1 and rank[x-1][y] != 0:
+                        if x > 1 and rank[x-i][y] != 0:
                             side_d = False
         if side_a or side_b or side_c or side_d:
         # if ((x < 8 and y < 8 and rank[x+1][y+1] == 0 and side_a) or
