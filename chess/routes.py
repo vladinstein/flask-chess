@@ -90,72 +90,54 @@ def go(data):
     checklines = []
     files = string.ascii_lowercase[0:8]
     rank = Rank.query.filter_by(game_id=game_id, number=x).first()
-    move_to = getattr(rank, files[y-1])
     setattr(rank, files[y-1], figure)
     db.session.commit()
     rank = Rank.query.filter_by(game_id=game_id, number=i).first()
-    move_from = getattr(rank, files[j-1])
     setattr(rank, files[j-1], 0)
     db.session.commit()
-    #calculate if there is a check to himself after this players move
-    all_attacks, _, _ = calculate_attacks(game_id, opp=True)
-    check = int(check_if_check(game_id, all_attacks, opp=True))
     game = Game.query.filter_by(id=game_id).first()
-    #if there is a check to himself after his move, his move is reversed
+    #calculate this players attacks, defences and see if there is a check for the opponent
+    king_coordinates = get_king_coordinates(game_id)
+    all_attacks, attack_king_coord, attack_king_figures = calculate_attacks(game_id, king_coordinates=king_coordinates)
+    into_check = calculate_possible_checks(game_id)
+    add_defences_to_db(game_id, into_check)
+    check = int(check_if_check(game_id, all_attacks))
     if check:
-            rank = Rank.query.filter_by(game_id=game_id, number=x).first()
-            setattr(rank, files[y-1], move_to)
-            rank = Rank.query.filter_by(game_id=game_id, number=i).first()
-            setattr(rank, files[j-1], move_from)
-            db.session.commit()
-            if figure < 7:
-                moving = check_can_move(game_id, figures = 0)
-                socketio.emit('reverse_move', {'i': i, 'j': j, 'x': x, 'y': y}, room=game.white_sid)
-                socketio.emit('next_move', moving, room=game.white_sid)
-            else:
-                moving = check_can_move(game_id, figures = 1)  
-                socketio.emit('reverse_move', {'i': i, 'j': j, 'x': x, 'y': y}, room=game.black_sid)
-                socketio.emit('next_move', moving, room=game.black_sid)
+        checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
+    if session['figures'] == 0:
+        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
+        socketio.emit('remove_check', room=game.white_sid)
     else:
-        #calculate this players attacks, defences and see if there is a check for the opponent
-        king_coordinates = get_king_coordinates(game_id)
-        all_attacks, attack_king_coord, attack_king_figures = calculate_attacks(game_id, king_coordinates=king_coordinates)
-        into_check = calculate_possible_checks(game_id)
-        add_defences_to_db(game_id, into_check)
-        check = int(check_if_check(game_id, all_attacks))
-        if check:
-            checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
-            # Maybe create empty checklines dict somewhere higher, than here fill it with the result of
-            # calculate_checklines and then you can pass it (empty or not) to check_can_move
-            # if the figure is on  blockline and there is a checkline, that figure cannot move
-            all_attacks, _, _ = calculate_attacks(game_id, opp=True)
-            # This can be used for king only
-            all_attacks = remove_checks(game_id, all_attacks)
-            checkmate = int(check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures, all_attacks))
-        if session['figures'] == 0:
-            socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
-            socketio.emit('remove_check', room=game.white_sid)
-        else:
-            socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.white_sid)
+        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.white_sid)
+        socketio.emit('remove_check', room=game.black_sid)
+    moving = {}
+    if session['figures'] == 0:
+        if game.p2_check != check:
+            game.p2_check = check
+    else:
+        if game.p1_check != check:
+            game.p1_check = check
+    if game.p1_move:
+        game.p1_move = 0
+    else:
+        game.p1_move = 1
+    db.session.commit()
+    blocklines = calculate_blocklines(game_id)
+    if figure < 7:
+        moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 1)
+        if not moving:
             socketio.emit('remove_check', room=game.black_sid)
-        moving = {}
-        if session['figures'] == 0:
-            if game.p2_check != check:
-                game.p2_check = check
+            socketio.emit('checkmate', moving, room=game.black_sid)
+            socketio.emit('victory', moving, room=game.white_sid)
         else:
-            if game.p1_check != check:
-                game.p1_check = check
-        if game.p1_move:
-            game.p1_move = 0
-        else:
-            game.p1_move = 1
-        db.session.commit()
-        blocklines = calculate_blocklines(game_id)
-        if figure < 7:
-            moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 1)
             socketio.emit('next_move', moving, room=game.black_sid)
+    else:
+        moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 0)
+        if not moving:
+            socketio.emit('remove_check', room=game.white_sid)
+            socketio.emit('checkmate', moving, room=game.white_sid)
+            socketio.emit('victory', moving, room=game.black_sid)
         else:
-            moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 0)  
             socketio.emit('next_move', moving, room=game.white_sid)
 
 @app.route("/", methods=['GET', 'POST'])

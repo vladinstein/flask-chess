@@ -114,25 +114,28 @@ $(document).ready(function(){
             $('.under_check').toggleClass('hidden')
         }
     })
-    socket.on('reverse_move', (data) => {
-        var text = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html()
-            figure = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square')
-            text2 = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-oldhtml')
-            figure2 = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-former')
-        $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html(text)
-        $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html(text2)
-        $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', figure2)
-        $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square', figure)
-        if ($('.under_check').hasClass('hidden')) {
-            $('.under_check').toggleClass('hidden')
-        }
-    })
     socket.on('next_move', (moving)=>{
         $('.square[data-m="2"]').attr('data-m', '0')
         for (let obj of Object.values(moving)) {
             $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
             } 
         $('.your_move').removeClass('hidden')
+        $('.opp_move').addClass('hidden')
+    })
+    socket.on('checkmate', (moving)=>{
+        $('.square[data-m="2"]').attr('data-m', '0')
+        for (let obj of Object.values(moving)) {
+            $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
+            } 
+        $('.checkmate').removeClass('hidden')
+        $('.opp_move').addClass('hidden')
+    })
+    socket.on('victory', (moving)=>{
+        $('.square[data-m="2"]').attr('data-m', '0')
+        for (let obj of Object.values(moving)) {
+            $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
+            } 
+        $('.victory').removeClass('hidden')
         $('.opp_move').addClass('hidden')
     })
     socket.on('connected', (moving)=>{
