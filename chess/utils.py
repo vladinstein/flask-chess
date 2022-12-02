@@ -1184,46 +1184,50 @@ def calculate_block_check_lines_vertical_2(lines, rank, x, y, i, figures, check=
         lines.append(line)
 
 def check_can_move(game_id, blocklines=[], checklines = [], figures=None):
+    print(checklines)
+    print(len(checklines))
     rank = get_board(game_id)
     moveable = {}
     z = 0
     for x in range (1, 9):
         for y in range (1, 9):
             if figures == 0:
-                if rank[x][y] == 1:
-                    add_moveable, z = check_white_pawn_can_move(rank, z, x, y, blocklines, checklines)
-                    moveable.update(add_moveable)
-                if rank[x][y] == 2:
-                    add_moveable, z = check_white_knight_can_move(rank, z, x, y, blocklines, checklines)
-                    moveable.update(add_moveable)
-                if rank[x][y] == 3:
-                    add_moveable, z = check_white_bishop_can_move(rank, z, x, y, blocklines, checklines)
-                    moveable.update(add_moveable)
-                if rank[x][y] == 4:
-                    add_moveable, z = check_white_rook_can_move(rank, z, x, y, blocklines, checklines)
-                    moveable.update(add_moveable)
-                if rank[x][y] == 5:
-                    add_moveable, z = check_white_queen_can_move(rank, z, x, y, blocklines, checklines)
-                    moveable.update(add_moveable)
+                if len(checklines) < 2:
+                    if rank[x][y] == 1:
+                        add_moveable, z = check_white_pawn_can_move(rank, z, x, y, blocklines, checklines)
+                        moveable.update(add_moveable)
+                    if rank[x][y] == 2:
+                        add_moveable, z = check_white_knight_can_move(rank, z, x, y, blocklines, checklines)
+                        moveable.update(add_moveable)
+                    if rank[x][y] == 3:
+                        add_moveable, z = check_white_bishop_can_move(rank, z, x, y, blocklines, checklines)
+                        moveable.update(add_moveable)
+                    if rank[x][y] == 4:
+                        add_moveable, z = check_white_rook_can_move(rank, z, x, y, blocklines, checklines)
+                        moveable.update(add_moveable)
+                    if rank[x][y] == 5:
+                        add_moveable, z = check_white_queen_can_move(rank, z, x, y, blocklines, checklines)
+                        moveable.update(add_moveable)
                 if rank[x][y] == 6:
                     add_moveable, z = check_white_king_can_move(game_id, rank, z, x, y)
                     moveable.update(add_moveable)
             else:
-                if rank[x][y] == 7:
-                    add_moveable, z = check_black_pawn_can_move(rank, z, x, y, blocklines, checklines)
-                    moveable.update(add_moveable)
-                if rank[x][y] == 8:
-                    add_moveable, z = check_black_knight_can_move(rank, z, x, y, blocklines, checklines)
-                    moveable.update(add_moveable)
-                if rank[x][y] == 9:
-                    add_moveable, z = check_black_bishop_can_move(rank, z, x, y, blocklines, checklines)
-                    moveable.update(add_moveable)
-                if rank[x][y] == 10:
-                    add_moveable, z = check_black_rook_can_move(rank, z, x, y, blocklines, checklines)
-                    moveable.update(add_moveable)
-                if rank[x][y] == 11:
-                    add_moveable, z = check_black_queen_can_move(rank, z, x, y, blocklines, checklines)
-                    moveable.update(add_moveable)
+                if len(checklines) < 2:
+                    if rank[x][y] == 7:
+                        add_moveable, z = check_black_pawn_can_move(rank, z, x, y, blocklines, checklines)
+                        moveable.update(add_moveable)
+                    if rank[x][y] == 8:
+                        add_moveable, z = check_black_knight_can_move(rank, z, x, y, blocklines, checklines)
+                        moveable.update(add_moveable)
+                    if rank[x][y] == 9:
+                        add_moveable, z = check_black_bishop_can_move(rank, z, x, y, blocklines, checklines)
+                        moveable.update(add_moveable)
+                    if rank[x][y] == 10:
+                        add_moveable, z = check_black_rook_can_move(rank, z, x, y, blocklines, checklines)
+                        moveable.update(add_moveable)
+                    if rank[x][y] == 11:
+                        add_moveable, z = check_black_queen_can_move(rank, z, x, y, blocklines, checklines)
+                        moveable.update(add_moveable)
                 if rank[x][y] == 12:
                     add_moveable, z = check_black_king_can_move(game_id, rank, z, x, y)
                     moveable.update(add_moveable)
