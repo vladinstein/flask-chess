@@ -80,7 +80,7 @@ def take(data):
     socketio.emit('moves', data=(go, attack), room=session['sid'])
 
 @socketio.on('go')
-def go(data):    
+def go(data):
     figure = int(data['figure'])
     game_id = int(data['id'])
     y = int(data['y'])
@@ -111,6 +111,35 @@ def go(data):
         socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.white_sid)
         socketio.emit('remove_check', room=game.black_sid)
     moving = {}
+    blocklines = calculate_blocklines(game_id)
+    if figure < 7:
+        moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 1)
+        if not moving:
+            # If not moving and check, emit checkmate and victory.
+            if check:
+                socketio.emit('remove_check', room=game.black_sid)
+                socketio.emit('checkmate', room=game.black_sid)
+                socketio.emit('victory', room=game.white_sid)
+            # Else emit stalemate.
+            else:
+                socketio.emit('remove_check', room=game.black_sid)
+                socketio.emit('stalemate', moving, room=game.black_sid)
+                socketio.emit('stalemate', moving, room=game.white_sid)
+        else:
+            socketio.emit('next_move', moving, room=game.black_sid)
+    else:
+        moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 0)
+        if not moving:
+            if check:
+                socketio.emit('remove_check', room=game.white_sid)
+                socketio.emit('checkmate', room=game.white_sid)
+                socketio.emit('victory', room=game.black_sid)
+            else:
+                socketio.emit('remove_check', room=game.white_sid)
+                socketio.emit('stalemate', moving, room=game.white_sid)
+                socketio.emit('stalemate', moving, room=game.black_sid)
+        else:
+            socketio.emit('next_move', moving, room=game.white_sid)
     if session['figures'] == 0:
         if game.p2_check != check:
             game.p2_check = check
@@ -122,23 +151,6 @@ def go(data):
     else:
         game.p1_move = 1
     db.session.commit()
-    blocklines = calculate_blocklines(game_id)
-    if figure < 7:
-        moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 1)
-        if not moving:
-            socketio.emit('remove_check', room=game.black_sid)
-            socketio.emit('checkmate', moving, room=game.black_sid)
-            socketio.emit('victory', moving, room=game.white_sid)
-        else:
-            socketio.emit('next_move', moving, room=game.black_sid)
-    else:
-        moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 0)
-        if not moving:
-            socketio.emit('remove_check', room=game.white_sid)
-            socketio.emit('checkmate', moving, room=game.white_sid)
-            socketio.emit('victory', moving, room=game.black_sid)
-        else:
-            socketio.emit('next_move', moving, room=game.white_sid)
 
 @app.route("/", methods=['GET', 'POST'])
 def index():

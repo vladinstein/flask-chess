@@ -122,20 +122,19 @@ $(document).ready(function(){
         $('.your_move').removeClass('hidden')
         $('.opp_move').addClass('hidden')
     })
-    socket.on('checkmate', (moving)=>{
+    socket.on('checkmate', ()=>{
         $('.square[data-m="2"]').attr('data-m', '0')
-        for (let obj of Object.values(moving)) {
-            $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
-            } 
         $('.checkmate').removeClass('hidden')
         $('.opp_move').addClass('hidden')
     })
-    socket.on('victory', (moving)=>{
+    socket.on('victory', ()=>{
         $('.square[data-m="2"]').attr('data-m', '0')
-        for (let obj of Object.values(moving)) {
-            $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
-            } 
         $('.victory').removeClass('hidden')
+        $('.opp_move').addClass('hidden')
+    })
+    socket.on('stalemate', ()=>{
+        $('.square[data-m="2"]').attr('data-m', '0')
+        $('.stalemate').removeClass('hidden')
         $('.opp_move').addClass('hidden')
     })
     socket.on('connected', (moving)=>{
