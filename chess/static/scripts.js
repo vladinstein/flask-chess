@@ -64,8 +64,10 @@ $(document).on('click', '.square[data-a="1"]', function() {
 });
 
 $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', function() {
+    if (!$('.under_check').hasClass('hidden')) {
+        $('.under_check').toggleClass('hidden')
+    }
     $('.your_move').addClass('hidden')
-    $('.opp_move').removeClass('hidden')
     var text = $('.square[data-a="1"]').html()
         figure = $('.square[data-a="1"]').attr('data-square')
         text2 = $(this).html()
@@ -114,6 +116,9 @@ $(document).ready(function(){
             $('.under_check').toggleClass('hidden')
         }
     })
+    socket.on('switch_move', () => {
+        $('.opp_move').removeClass('hidden')
+    })
     socket.on('next_move', (moving)=>{
         $('.square[data-m="2"]').attr('data-m', '0')
         for (let obj of Object.values(moving)) {
@@ -130,7 +135,6 @@ $(document).ready(function(){
     socket.on('victory', ()=>{
         $('.square[data-m="2"]').attr('data-m', '0')
         $('.victory').removeClass('hidden')
-        $('.opp_move').addClass('hidden')
     })
     socket.on('stalemate', ()=>{
         $('.square[data-m="2"]').attr('data-m', '0')

@@ -102,17 +102,14 @@ def go(data):
     into_check = calculate_possible_checks(game_id)
     add_defences_to_db(game_id, into_check)
     check = int(check_if_check(game_id, all_attacks))
-    if check:
-        checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
     if session['figures'] == 0:
         socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
-        socketio.emit('remove_check', room=game.white_sid)
     else:
         socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.white_sid)
-        socketio.emit('remove_check', room=game.black_sid)
-    moving = {}
+    if check:
+        checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
     blocklines = calculate_blocklines(game_id)
-    if figure < 7:
+    if session['figures'] == 0:
         moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 1)
         if not moving:
             # If not moving and check, emit checkmate and victory.
@@ -127,6 +124,9 @@ def go(data):
                 socketio.emit('stalemate', moving, room=game.white_sid)
         else:
             socketio.emit('next_move', moving, room=game.black_sid)
+            socketio.emit('switch_move', room=game.white_sid)
+        if game.p2_check != check:
+            game.p2_check = check
     else:
         moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 0)
         if not moving:
@@ -140,10 +140,7 @@ def go(data):
                 socketio.emit('stalemate', moving, room=game.black_sid)
         else:
             socketio.emit('next_move', moving, room=game.white_sid)
-    if session['figures'] == 0:
-        if game.p2_check != check:
-            game.p2_check = check
-    else:
+            socketio.emit('switch_move', room=game.black_sid)
         if game.p1_check != check:
             game.p1_check = check
     if game.p1_move:
