@@ -7,8 +7,8 @@ from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
 from chess.utils import get_moves, create_game, check_can_move, calculate_attacks, calculate_possible_checks, \
-                        add_defences_to_db, check_if_check, get_king_coordinates, check_checkmate, \
-                        remove_checks, calculate_blocklines, calculate_checklines
+                        add_defences_to_db, check_if_check, get_king_coordinates, calculate_blocklines, \
+                        calculate_checklines
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -117,11 +117,13 @@ def go(data):
                 socketio.emit('remove_check', room=game.black_sid)
                 socketio.emit('checkmate', room=game.black_sid)
                 socketio.emit('victory', room=game.white_sid)
+                game.p2_checkmate = True
             # Else emit stalemate.
             else:
                 socketio.emit('remove_check', room=game.black_sid)
                 socketio.emit('stalemate', moving, room=game.black_sid)
                 socketio.emit('stalemate', moving, room=game.white_sid)
+                game.stalemate = True
         else:
             socketio.emit('next_move', moving, room=game.black_sid)
             socketio.emit('switch_move', room=game.white_sid)
@@ -134,10 +136,12 @@ def go(data):
                 socketio.emit('remove_check', room=game.white_sid)
                 socketio.emit('checkmate', room=game.white_sid)
                 socketio.emit('victory', room=game.black_sid)
+                game.p1_checkmate = True
             else:
                 socketio.emit('remove_check', room=game.white_sid)
                 socketio.emit('stalemate', moving, room=game.white_sid)
                 socketio.emit('stalemate', moving, room=game.black_sid)
+                game.stalemate = True
         else:
             socketio.emit('next_move', moving, room=game.white_sid)
             socketio.emit('switch_move', room=game.black_sid)
@@ -220,7 +224,8 @@ def game(game_id):
     response = make_response(render_template('game.html', files=files, rank=rank, moving=moving, 
                                              game_id=game_id, both_connected = game.both_connected,
                                              p1_move = game.p1_move, p1_check = game.p1_check,
-                                             p2_check = game.p2_check))
+                                             p2_check = game.p2_check, p1_checkmate = game.p1_checkmate,
+                                             p2_checkmate = game.p2_checkmate, stalemate = game.stalemate))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     return response

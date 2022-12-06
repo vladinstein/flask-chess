@@ -904,30 +904,6 @@ def check_if_check(game_id, all_attacks, opp=False):
                     return False
     return False
 
-def check_checkmate(game_id, king_coordinates, attack_king_coord, attack_king_figures, all_attacks):
-    rank = get_board(game_id)
-    x = king_coordinates[0]
-    y = king_coordinates[1]
-    z = 0
-    if session['figures'] == 1:
-        king_moveable, _ = check_white_king_can_move(game_id, rank, z, x, y)
-    if session['figures'] == 0:
-        king_moveable, _ = check_black_king_can_move(game_id, rank, z, x, y)
-    #when doublecheck
-    if len(attack_king_coord) == 2 and not king_moveable:
-        return True
-    #when check is from adjasent square:
-    if len(attack_king_coord) == 1:
-        i = attack_king_coord[0][0]
-        j = attack_king_coord[0][1]
-        if ((i == x - 1 and j == y - 1) or (i == x - 1 and j == y) or (i == x - 1 and j == y + 1) or (i == x and j == y + 1) or
-            (i == x + 1 and j == y + 1) or (i == x + 1 and j == y) or (i == x + 1 and j == y - 1) or
-            (i == x and j == y - 1)) and not king_moveable and not [i, j] in all_attacks.values():
-            return True
-        if attack_king_figures[0] == 2 and not king_moveable and not [i, j] in all_attacks.values():
-            return True
-    return False
-
 def create_game(game_id):
     rank = {}
     for i in range(1, 9):
@@ -1184,8 +1160,6 @@ def calculate_block_check_lines_vertical_2(lines, rank, x, y, i, figures, check=
         lines.append(line)
 
 def check_can_move(game_id, blocklines=[], checklines = [], figures=None):
-    print(checklines)
-    print(len(checklines))
     rank = get_board(game_id)
     moveable = {}
     z = 0

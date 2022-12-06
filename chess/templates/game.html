@@ -6,29 +6,43 @@
 </div>
 {% endif %}
 {% if both_connected %} 
-    {% if (session['figures'] == 0 and p1_check) or (session['figures'] == 1 and p2_check) %}
-        <div class="under_check">
-            <h4>Check!</h4>
+    {% if (session['figures'] == 0 and p2_checkmate) or (session['figures'] == 1 and p1_checkmate) %}
+        <div class="victory">
+            <h4>Victory!</h4>
         </div>
-    {% else  %}
-        <div class="under_check hidden">
-            <h4>Check!</h4>
+    {% elif (session['figures'] == 0 and p1_checkmate) or (session['figures'] == 1 and p2_checkmate) %}
+        <div class="checkmate">
+            <h4>Checkmate!</h4>
         </div>
-    {% endif %}
-    {% if (session['figures'] == 0 and p1_move) or (session['figures'] == 1 and not p1_move)  %}
-        <div class="your_move">
+    {% elif stalemate %}
+        <div class="stalemate hidden">
+            <h4>Stalemate.</h4>
+        </div>
+    {% else %}    
+        {% if (session['figures'] == 0 and p1_check) or (session['figures'] == 1 and p2_check) %}
+            <div class="under_check">
+                <h4>Check!</h4>
+            </div>
+        {% else %}
+            <div class="under_check hidden">
+                <h4>Check!</h4>
+            </div>
+        {% endif %}
+        {% if (session['figures'] == 0 and p1_move) or (session['figures'] == 1 and not p1_move)  %}
+            <div class="your_move">
+                <h4>Your move!</h4>
+            </div>
+            <div class="opp_move hidden">
+                <h4>Your opponent's move!</h4>
+            </div>
+        {% elif (session['figures'] == 1 and p1_move) or (session['figures'] == 0 and not p1_move) %}
+        <div class="your_move hidden">
             <h4>Your move!</h4>
         </div>
-        <div class="opp_move hidden">
+        <div class="opp_move">
             <h4>Your opponent's move!</h4>
         </div>
-    {% elif (session['figures'] == 1 and p1_move) or (session['figures'] == 0 and not p1_move) %}
-    <div class="your_move hidden">
-        <h4>Your move!</h4>
-    </div>
-    <div class="opp_move">
-        <h4>Your opponent's move!</h4>
-    </div>
+        {% endif %}
     {% endif %}
 {% else %}
     <div class="checkmate hidden">
