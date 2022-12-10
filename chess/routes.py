@@ -8,7 +8,7 @@ from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
 from chess.utils import get_moves, create_game, check_can_move, calculate_attacks, calculate_possible_checks, \
                         add_defences_to_db, check_if_check, get_king_coordinates, calculate_blocklines, \
-                        calculate_checklines
+                        calculate_checklines, disable_castling
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -31,9 +31,6 @@ def add_header(response):
 @socketio.on('connect')
 def connect():
     session['sid'] = request.sid
-
-@socketio.on('info')
-def info(data):
     game_id = session['game_id']
     game = Game.query.filter_by(id=game_id).first()
     if session['creator']:
@@ -64,7 +61,7 @@ def info(data):
                 game.black_sid = session['sid']
             db.session.commit()
 
-@socketio.on('take')
+@socketio.on('touch')
 def take(data):
     game_id = session['game_id']
     figure = int(data['figure'])
@@ -151,6 +148,7 @@ def go(data):
         game.p1_move = 0
     else:
         game.p1_move = 1
+    disable_castling(i, j, game)
     db.session.commit()
 
 @app.route("/", methods=['GET', 'POST'])

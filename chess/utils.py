@@ -1586,3 +1586,19 @@ def check_black_king_can_move(game_id, rank, z, x, y):
         moveable[z]=[x, y]
         z += 1
     return moveable, z
+
+def disable_castling(i, j, game):
+    if (i == 1 and j == 1 and game.white_queen_castling):
+        game.white_queen_castling = False
+    elif (i == 1 and j == 5 and (game.white_queen_castling or game.white_king_castling)):
+        game.white_queen_castling = False
+        game.white_king_castling = False
+    elif (i == 1 and j == 8 and game.white_king_castling):
+        game.white_king_castling = False
+    elif (i == 8 and j == 1 and game.black_queen_castling):
+        game.black_queen_castling = False
+    elif (i == 8 and j == 5 and (game.black_queen_castling or game.black_king_castling)):
+        game.black_queen_castling = False
+        game.black_king_castling = False
+    elif (i == 8 and j == 8 and game.black_king_castling):
+        game.black_king_castling = False

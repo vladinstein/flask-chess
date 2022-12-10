@@ -1,16 +1,10 @@
 const socket = io();
 'use strict';
 
-socket.on("connect", () => {
-    var id = $('h4.game-id').attr('data-i')
-        creator = $('h4.game-id').attr('data-creator')
-    socket.emit('info', {'id': id}) 
-});
-
 window.addEventListener('DOMContentLoaded', function addfigures() {
     var squares = document.querySelectorAll(".square");
     squares.forEach(function (square)
-    {                
+    {
         figure = square.getAttribute('data-square');
         moving = square.getAttribute('data-m');
         if (figure == 1) {
@@ -53,7 +47,7 @@ $(document).on('click', '.square[data-m="1"]', function() {
     var y = $(this).attr('data-y')
     var figure = $(this).attr('data-square')
     var id = $('h4.game-id').attr('data-i')
-    socket.emit('take', {'x': x, 'y': y, 'id': id, 'figure': figure})     
+    socket.emit('touch', {'x': x, 'y': y, 'id': id, 'figure': figure})     
 });
 
 $(document).on('click', '.square[data-a="1"]', function() {
