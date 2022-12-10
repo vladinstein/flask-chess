@@ -50,7 +50,7 @@ $(document).on('click', '.square[data-m="1"]', function() {
     $('.square[data-m="1"]').attr('data-m', '2') 
     $(this).attr('data-a', '1');
     var x = $(this).attr('data-x')
-    var y = $(this).attr('data-y') 
+    var y = $(this).attr('data-y')
     var figure = $(this).attr('data-square')
     var id = $('h4.game-id').attr('data-i')
     socket.emit('take', {'x': x, 'y': y, 'id': id, 'figure': figure})     

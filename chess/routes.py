@@ -34,7 +34,7 @@ def connect():
 
 @socketio.on('info')
 def info(data):
-    game_id = int(data['id'])
+    game_id = session['game_id']
     game = Game.query.filter_by(id=game_id).first()
     if session['creator']:
         if session['figures'] == 0:
@@ -66,8 +66,8 @@ def info(data):
 
 @socketio.on('take')
 def take(data):
+    game_id = session['game_id']
     figure = int(data['figure'])
-    game_id = int(data['id'])
     y = int(data['y'])
     x = int(data['x'])
     go = {}
@@ -81,8 +81,8 @@ def take(data):
 
 @socketio.on('go')
 def go(data):
+    game_id = session['game_id']
     figure = int(data['figure'])
-    game_id = int(data['id'])
     y = int(data['y'])
     x = int(data['x'])
     i = int(data['i'])
@@ -121,8 +121,8 @@ def go(data):
             # Else emit stalemate.
             else:
                 socketio.emit('remove_check', room=game.black_sid)
-                socketio.emit('stalemate', moving, room=game.black_sid)
-                socketio.emit('stalemate', moving, room=game.white_sid)
+                socketio.emit('stalemate', room=game.black_sid)
+                socketio.emit('stalemate', room=game.white_sid)
                 game.stalemate = True
         else:
             socketio.emit('next_move', moving, room=game.black_sid)
@@ -139,8 +139,8 @@ def go(data):
                 game.p1_checkmate = True
             else:
                 socketio.emit('remove_check', room=game.white_sid)
-                socketio.emit('stalemate', moving, room=game.white_sid)
-                socketio.emit('stalemate', moving, room=game.black_sid)
+                socketio.emit('stalemate', room=game.white_sid)
+                socketio.emit('stalemate', room=game.black_sid)
                 game.stalemate = True
         else:
             socketio.emit('next_move', moving, room=game.white_sid)
@@ -175,7 +175,7 @@ def index():
         game = Game(password=hashed_password, player_1=player_1)
         db.session.add(game)
         db.session.commit()
-        session['game'] = game.id
+        session['game_id'] = game.id
         create_game(game.id)
         flash('You have created a game. Send the ID of your game to your opponent and wait for him\
               to connect.', 'success')
@@ -188,7 +188,7 @@ def index():
                 session['figures'] = 0
             else:
                 session['figures'] = 1
-            session['game'] = game.id
+            session['game_id'] = game.id
             flash('You have connected to the game.', 'success')
             return redirect(url_for('game', game_id=game.id))
         else:
@@ -197,12 +197,12 @@ def index():
 
 @app.route("/game/<int:game_id>")
 def game(game_id):
-    # is this solution ok?
+    # is this solution ok? 
     try: 
-        session['game']
+        session['game_id']
     except KeyError:
         return redirect(url_for('index'))
-    if session['game'] != game_id:
+    if session['game_id'] != game_id:
         return redirect(url_for('index'))
     rank={}
     for i in range (1, 9):

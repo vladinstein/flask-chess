@@ -13,6 +13,10 @@ class Game(db.Model):
     p1_checkmate = db.Column(db.Boolean, default = False, nullable=False)
     p2_checkmate = db.Column(db.Boolean, default = False, nullable=False)
     stalemate = db.Column(db.Boolean, default = False, nullable=False)
+    white_king_castling = db.Column(db.Boolean, default = True, nullable=False)
+    white_queen_castling = db.Column(db.Boolean, default = True, nullable=False)
+    black_king_castling = db.Column(db.Boolean, default = True, nullable=False)
+    black_queen_castling = db.Column(db.Boolean, default = True, nullable=False)
     both_connected = db.Column(db.Boolean, default = False, nullable=False)
     ranks = db.relationship('Rank', backref='game', lazy=True)
 
