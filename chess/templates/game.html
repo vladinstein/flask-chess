@@ -88,9 +88,9 @@
                     <div class="rank">
                         {% for j in range(1, 9)|reverse %}
                             {% if [i, j] in moving.values() %}
-                                <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="1" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}" data-former="0" data-oldhtml=""></div>
+                                <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="1" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}"></div>
                             {% else %}
-                                <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="0" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}" data-former="0" data-oldhtml=""></div>
+                                <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="0" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}"></div>
                             {% endif %}   
                         {% endfor %}
                     </div>
@@ -112,9 +112,9 @@
                 <div class="rank">
                     {% for j in range(1, 9) %}
                         {% if [i, j] in moving.values() %}
-                            <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="1" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}" data-former="0" data-oldhtml=""></div>
+                            <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="1" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}"></div>
                         {% else %}
-                            <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="0" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}" data-former="0" data-oldhtml=""></div>
+                            <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="0" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}"></div>
                         {% endif %}
                     {% endfor %}
                 </div>

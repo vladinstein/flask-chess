@@ -66,21 +66,34 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
         figure = $('.square[data-a="1"]').attr('data-square')
         text2 = $(this).html()
         figure2 = $(this).attr('data-square')
-    $(this).attr('data-former', figure2)
-    $(this).attr('data-oldhtml', text2)
+    if (figure == 6 && figure2 == 4 && $(this).attr('data-y') == 8) {
+        $('.square[data-x="1"][data-y="6"]').html(text2)
+        $('.square[data-x="1"][data-y="6"]').attr('data-square', figure2)
+        $('.square[data-x="1"][data-y="7"]').html(text)
+        $('.square[data-x="1"][data-y="7"]').attr('data-square', figure)
+        $(this).html('')
+        $(this).attr('data-square', '0')
+    } else if (figure == 6 && figure2 == 4 && $(this).attr('data-y') == 1) {
+        $('.square[data-x="1"][data-y="4"]').html(text2)
+        $('.square[data-x="1"][data-y="4"]').attr('data-square', figure2)
+        $('.square[data-x="1"][data-y="3"]').html(text)
+        $('.square[data-x="1"][data-y="3"]').attr('data-square', figure)
+        $(this).html('')
+        $(this).attr('data-square', '0')
+    } else {
+        $(this).html(text)
+        $(this).attr('data-square', figure)
+    }
     $('.square[data-a="1"]').html('')
-    $(this).html(text)
-    $(this).attr('data-square', figure)
+    $('.square[data-a="1"]').attr('data-square', '0')
     var i = $('.square[data-a="1"]').attr('data-x')
         j = $('.square[data-a="1"]').attr('data-y')
-    $('.square[data-a="1"]').attr('data-square', '0')
     $('.square[data-a="1"]').attr('data-a', '0')  
     $('.square[data-go="1"]').attr('data-go', '0')  
     $('.square[data-attack="1"]').attr('data-attack', '0')
     var x = $(this).attr('data-x')
-        y = $(this).attr('data-y')
-        id = $('h4.game-id').attr('data-i')    
-    socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'id': id, 'figure': figure})
+        y = $(this).attr('data-y')  
+    socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'figure': figure, 'figure2': figure2})
 });
 
 // https://stackoverflow.com/questions/34913675/how-to-iterate-keys-values-in-javascript

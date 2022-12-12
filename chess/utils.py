@@ -14,14 +14,22 @@ def get_moves(game_id, x, y, figure, blocklines, checklines):
         go, attack, _, _ = get_rook_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 5 or figure == 11:
         go, attack, _, _ = get_queen_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
-    elif figure == 6 or figure == 12:
-        go, attack, _, _ = get_king_moves(game_id, x, y)
+    elif figure == 6:
+        go, attack, _, z = get_king_moves(game_id, x, y)
         go = remove_checks(game_id, go)
         attack = remove_checks(game_id, attack)
+        if session['white_king_castling']:
+            go, z = add_white_king_castling(game_id, go, z)
+        if session['white_queen_castling']:
+            go, z = add_white_queen_castling(game_id, go, z)
     elif figure == 7:
         go, attack, _, _ = get_black_pawn_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 8:
         go, attack, _, _ = get_black_knight_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
+    elif figure == 12:
+        go, attack, _, _ = get_king_moves(game_id, x, y)
+        go = remove_checks(game_id, go)
+        attack = remove_checks(game_id, attack)
     return go, attack
 
 def get_board(game_id):
@@ -1588,17 +1596,50 @@ def check_black_king_can_move(game_id, rank, z, x, y):
     return moveable, z
 
 def disable_castling(i, j, game):
+    # Add values to the DB and refresh session values.
     if (i == 1 and j == 1 and game.white_queen_castling):
-        game.white_queen_castling = False
+        session['white_queen_castling'] = game.white_queen_castling = False
     elif (i == 1 and j == 5 and (game.white_queen_castling or game.white_king_castling)):
-        game.white_queen_castling = False
-        game.white_king_castling = False
+        session['white_queen_castling'] = game.white_queen_castling = False
+        session['white_king_castling'] = game.white_king_castling = False
     elif (i == 1 and j == 8 and game.white_king_castling):
-        game.white_king_castling = False
+        session['white_king_castling'] = game.white_king_castling = False
     elif (i == 8 and j == 1 and game.black_queen_castling):
-        game.black_queen_castling = False
+        session['black_queen_castling'] = game.black_queen_castling = False
     elif (i == 8 and j == 5 and (game.black_queen_castling or game.black_king_castling)):
-        game.black_queen_castling = False
-        game.black_king_castling = False
+        session['black_queen_castling'] = game.black_queen_castling = False
+        session['black_king_castling'] = game.black_king_castling = False
     elif (i == 8 and j == 8 and game.black_king_castling):
-        game.black_king_castling = False
+        session['black_king_castling'] = game.black_king_castling = False
+
+def add_white_king_castling(game_id, moves, z):
+    defences = get_defences(game_id)
+    rank = get_board(game_id)
+    attacks = get_attacks(game_id)
+    white_king_castling = 1
+    if attacks[1][5] == 1:
+        white_king_castling = 0
+    elif rank[1][6] != 0 or rank[1][7] != 0:
+        white_king_castling = 0
+    elif defences[1][6] == 1 or defences[1][7] == 1:
+        white_king_castling = 0
+    if white_king_castling:
+        moves[z] = [1, 8]
+        z += 1
+    return moves, z
+
+def add_white_queen_castling(game_id, moves, z):
+    defences = get_defences(game_id)
+    rank = get_board(game_id)
+    attacks = get_attacks(game_id)
+    white_queen_castling = 1
+    if attacks[1][5] == 1:
+        white_queen_castling = 0
+    elif rank[1][2] != 0 or rank[1][3] != 0 or rank[1][4] != 0:
+        white_queen_castling = 0
+    elif defences[1][3] == 1 or defences[1][4] == 1:
+        white_queen_castling = 0
+    if white_queen_castling:
+        moves[z] = [1, 1]
+        z += 1
+    return moves, z

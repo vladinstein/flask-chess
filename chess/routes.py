@@ -33,6 +33,11 @@ def connect():
     session['sid'] = request.sid
     game_id = session['game_id']
     game = Game.query.filter_by(id=game_id).first()
+    # On each reaload get those from the DB.
+    session['white_king_castling'] = game.white_king_castling
+    session['white_queen_castling'] = game.white_queen_castling
+    session['black_king_castling'] = game.black_king_castling
+    session['black_queen_castling'] = game.black_queen_castling
     if session['creator']:
         if session['figures'] == 0:
             game.white_sid = session['sid']
@@ -62,7 +67,7 @@ def connect():
             db.session.commit()
 
 @socketio.on('touch')
-def take(data):
+def touch(data):
     game_id = session['game_id']
     figure = int(data['figure'])
     y = int(data['y'])
@@ -80,6 +85,7 @@ def take(data):
 def go(data):
     game_id = session['game_id']
     figure = int(data['figure'])
+    figure2 = int(data['figure2'])
     y = int(data['y'])
     x = int(data['x'])
     i = int(data['i'])
@@ -90,7 +96,12 @@ def go(data):
     setattr(rank, files[y-1], figure)
     db.session.commit()
     rank = Rank.query.filter_by(game_id=game_id, number=i).first()
-    setattr(rank, files[j-1], 0)
+    if figure == 6 and figure2 == 4:
+        setattr(rank, files[j-1], 4)
+    elif figure == 12 and figure2 == 10:
+        setattr(rank, files[j-1], 10)
+    else:
+        setattr(rank, files[j-1], 0)
     db.session.commit()
     game = Game.query.filter_by(id=game_id).first()
     #calculate this players attacks, defences and see if there is a check for the opponent
