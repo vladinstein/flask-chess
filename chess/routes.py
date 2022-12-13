@@ -83,6 +83,11 @@ def touch(data):
 
 @socketio.on('go')
 def go(data):
+    game = Game.query.filter_by(id=session['game_id']).first()
+    # Do this first, so that if the page is reaload, the move has alredy been switched
+    # (better solution?)
+    game.p1_move = not game.p1_move
+    db.session.commit()
     game_id = session['game_id']
     figure = int(data['figure'])
     figure2 = int(data['figure2'])
@@ -92,18 +97,32 @@ def go(data):
     j = int(data['j'])
     checklines = []
     files = string.ascii_lowercase[0:8]
-    rank = Rank.query.filter_by(game_id=game_id, number=x).first()
-    setattr(rank, files[y-1], figure)
-    db.session.commit()
     rank = Rank.query.filter_by(game_id=game_id, number=i).first()
-    if figure == 6 and figure2 == 4:
-        setattr(rank, files[j-1], 4)
-    elif figure == 12 and figure2 == 10:
-        setattr(rank, files[j-1], 10)
+    if figure == 6 and figure2 == 4 and y == 8:
+        rank.e = 0
+        rank.g = 6
+        rank.f = 4
+        rank.h = 0
+    elif figure == 6 and figure2 == 4 and y == 1:
+        rank.a = 0
+        rank.c = 6
+        rank.d = 4
+        rank.e = 0
+    elif figure == 12 and figure2 == 10 and y == 8:
+        rank.e = 0
+        rank.g = 12
+        rank.f = 10
+        rank.h = 0
+    elif figure == 12 and figure2 == 10 and y == 1:
+        rank.a = 0
+        rank.c = 12
+        rank.d = 10
+        rank.e = 0
     else:
         setattr(rank, files[j-1], 0)
+        rank_2 = Rank.query.filter_by(game_id=game_id, number=x).first()
+        setattr(rank_2, files[y-1], figure)
     db.session.commit()
-    game = Game.query.filter_by(id=game_id).first()
     #calculate this players attacks, defences and see if there is a check for the opponent
     king_coordinates = get_king_coordinates(game_id)
     all_attacks, attack_king_coord, attack_king_figures = calculate_attacks(game_id, king_coordinates=king_coordinates)
@@ -154,11 +173,7 @@ def go(data):
             socketio.emit('next_move', moving, room=game.white_sid)
             socketio.emit('switch_move', room=game.black_sid)
         if game.p1_check != check:
-            game.p1_check = check
-    if game.p1_move:
-        game.p1_move = 0
-    else:
-        game.p1_move = 1
+            game.p1_check = check 
     disable_castling(i, j, game)
     db.session.commit()
 
