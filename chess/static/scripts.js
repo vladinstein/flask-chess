@@ -80,6 +80,21 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
         $('.square[data-x="1"][data-y="3"]').attr('data-square', figure)
         $(this).html('')
         $(this).attr('data-square', '0')
+    } else if (figure == 12 && figure2 == 10 && $(this).attr('data-y') == 8) {
+        $('.square[data-x="8"][data-y="6"]').html(text2)
+        $('.square[data-x="8"][data-y="6"]').attr('data-square', figure2)
+        $('.square[data-x="8"][data-y="7"]').html(text)
+        $('.square[data-x="8"][data-y="7"]').attr('data-square', figure)
+        $(this).html('')
+        $(this).attr('data-square', '0')
+    }
+     else if (figure == 12 && figure2 == 10 && $(this).attr('data-y') == 1) {
+        $('.square[data-x="8"][data-y="4"]').html(text2)
+        $('.square[data-x="8"][data-y="4"]').attr('data-square', figure2)
+        $('.square[data-x="8"][data-y="3"]').html(text)
+        $('.square[data-x="8"][data-y="3"]').attr('data-square', figure)
+        $(this).html('')
+        $(this).attr('data-square', '0')
     } else {
         $(this).html(text)
         $(this).attr('data-square', figure)

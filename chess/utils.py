@@ -27,9 +27,13 @@ def get_moves(game_id, x, y, figure, blocklines, checklines):
     elif figure == 8:
         go, attack, _, _ = get_black_knight_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 12:
-        go, attack, _, _ = get_king_moves(game_id, x, y)
+        go, attack, _, z = get_king_moves(game_id, x, y)
         go = remove_checks(game_id, go)
         attack = remove_checks(game_id, attack)
+        if session['black_king_castling']:
+            go, z = add_black_king_castling(game_id, go, z)
+        if session['black_queen_castling']:
+            go, z = add_black_queen_castling(game_id, go, z)
     return go, attack
 
 def get_board(game_id):
@@ -1641,5 +1645,37 @@ def add_white_queen_castling(game_id, moves, z):
         white_queen_castling = 0
     if white_queen_castling:
         moves[z] = [1, 1]
+        z += 1
+    return moves, z
+
+def add_black_king_castling(game_id, moves, z):
+    defences = get_defences(game_id)
+    rank = get_board(game_id)
+    attacks = get_attacks(game_id)
+    black_king_castling = 1
+    if attacks[8][5] == 1:
+        black_king_castling = 0
+    elif rank[8][6] != 0 or rank[8][7] != 0:
+        black_king_castling = 0
+    elif defences[8][6] == 1 or defences[8][7] == 1:
+        black_king_castling = 0
+    if black_king_castling:
+        moves[z] = [8, 8]
+        z += 1
+    return moves, z
+
+def add_black_queen_castling(game_id, moves, z):
+    defences = get_defences(game_id)
+    rank = get_board(game_id)
+    attacks = get_attacks(game_id)
+    black_queen_castling = 1
+    if attacks[8][5] == 1:
+        black_queen_castling = 0
+    elif rank[8][2] != 0 or rank[8][3] != 0 or rank[8][4] != 0:
+        black_queen_castling = 0
+    elif defences[8][3] == 1 or defences[8][4] == 1:
+        black_queen_castling = 0
+    if black_queen_castling:
+        moves[z] = [8, 1]
         z += 1
     return moves, z
