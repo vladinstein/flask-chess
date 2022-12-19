@@ -96,28 +96,40 @@ def go(data):
     i = int(data['i'])
     j = int(data['j'])
     checklines = []
+    castling = False
+    en_passant = False
     files = string.ascii_lowercase[0:8]
     rank = Rank.query.filter_by(game_id=game_id, number=i).first()
     if figure == 6 and figure2 == 4 and y == 8:
+        castling = True
         rank.e = 0
         rank.g = 6
         rank.f = 4
         rank.h = 0
     elif figure == 6 and figure2 == 4 and y == 1:
+        castling = True
         rank.a = 0
         rank.c = 6
         rank.d = 4
         rank.e = 0
     elif figure == 12 and figure2 == 10 and y == 8:
+        castling = True
         rank.e = 0
         rank.g = 12
         rank.f = 10
         rank.h = 0
     elif figure == 12 and figure2 == 10 and y == 1:
+        castling = True
         rank.a = 0
         rank.c = 12
         rank.d = 10
         rank.e = 0
+    elif (figure == 1 or figure == 7) and figure2 == 0 and abs(j - y) == 1:
+        en_passant = True
+        setattr(rank, files[j-1], 0)
+        setattr(rank, files[y-1], 0)
+        rank_2 = Rank.query.filter_by(game_id=game_id, number=x).first()
+        setattr(rank_2, files[y-1], figure)
     else:
         setattr(rank, files[j-1], 0)
         rank_2 = Rank.query.filter_by(game_id=game_id, number=x).first()
@@ -131,9 +143,13 @@ def go(data):
     add_defences_to_db(game_id, into_check)
     check = int(check_if_check(game_id, all_attacks))
     if session['figures'] == 0:
-        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.black_sid)
+        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check, 
+                      'castling': castling, 'en_passant': en_passant, 'figure': figure,
+                      'figure2': figure2}, room=game.black_sid)
     else:
-        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check}, room=game.white_sid)
+        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check,
+                      'castling': castling, 'en_passant': en_passant, 'figure': figure,
+                      'figure2': figure2}, room=game.white_sid)
     if check:
         checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
     blocklines = calculate_blocklines(game_id)

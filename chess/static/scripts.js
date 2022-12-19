@@ -86,14 +86,21 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
         $('.square[data-x="8"][data-y="7"]').attr('data-square', figure)
         $(this).html('')
         $(this).attr('data-square', '0')
-    }
-     else if (figure == 12 && figure2 == 10 && $(this).attr('data-y') == 1) {
+    } else if (figure == 12 && figure2 == 10 && $(this).attr('data-y') == 1) {
         $('.square[data-x="8"][data-y="4"]').html(text2)
         $('.square[data-x="8"][data-y="4"]').attr('data-square', figure2)
         $('.square[data-x="8"][data-y="3"]').html(text)
         $('.square[data-x="8"][data-y="3"]').attr('data-square', figure)
         $(this).html('')
         $(this).attr('data-square', '0')
+    } else if ((figure == 1 || figure == 7) && figure2 == 0 && 
+    Math.abs($(this).attr('data-y') - $('.square[data-a="1"]').attr('data-y')) == 1) {
+        $(this).html(text)
+        $(this).attr('data-square', figure)
+        var x = $('.square[data-a="1"]').attr('data-x')
+            y = $(this).attr('data-y')
+        $('.square[data-x=' + x + '][data-y=' + y +']').attr('data-square', '0')
+        $('.square[data-x=' + x + '][data-y=' + y +']').html('')
     } else {
         $(this).html(text)
         $(this).attr('data-square', figure)
@@ -123,10 +130,22 @@ $(document).ready(function(){
     socket.on('opp_move', (data) => {
         var text = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html()
             figure = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square')
-        $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html(text)
+            figure2 = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square')
+        if (data['castling'] == true) {
+            if (figure == 6 && figure2 == 4 && data['y'] == 8) {
+                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
+                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
+                $('.square[data-x="1"][data-y="7"]').html('&#9812;')
+                $('.square[data-x="1"][data-y="7"]').attr('data-square', '6')
+                $('.square[data-x="1"][data-y="6"]').html('&#9814;')
+                $('.square[data-x="1"][data-y="6"]').attr('data-square', '4')
+            }
+        } else {
+            $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html(text)
+            $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', figure)
+        }
         $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html('')
         $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square', '0')
-        $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', figure)
         if ((data['check'] == 1 && $('.under_check').hasClass('hidden')) || (data['check'] == 0 && 
         !$('.under_check').hasClass('hidden'))) {
             $('.under_check').toggleClass('hidden')
