@@ -8,7 +8,7 @@ from chess.forms import CreateGameForm, JoinGameForm
 from chess.models import Game, Rank
 from chess.utils import get_moves, create_game, check_can_move, calculate_attacks, calculate_possible_checks, \
                         add_defences_to_db, check_if_check, get_king_coordinates, calculate_blocklines, \
-                        calculate_checklines, disable_castling
+                        calculate_checklines, disable_castling_white, disable_castling_black, switch_en_passant
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
@@ -123,6 +123,7 @@ def go(data):
         rank_2 = Rank.query.filter_by(game_id=game_id, number=x).first()
         setattr(rank_2, files[y-1], figure)
     db.session.commit()
+    switch_en_passant(figure, i, x, y, game, game_id)
     #calculate this players attacks, defences and see if there is a check for the opponent
     king_coordinates = get_king_coordinates(game_id)
     all_attacks, attack_king_coord, attack_king_figures = calculate_attacks(game_id, king_coordinates=king_coordinates)
@@ -174,7 +175,10 @@ def go(data):
             socketio.emit('switch_move', room=game.black_sid)
         if game.p1_check != check:
             game.p1_check = check 
-    disable_castling(i, j, game)
+    if session['figures'] == 0:
+        disable_castling_white(i, j, game)
+    else:
+        disable_castling_black(i, j, game)
     db.session.commit()
 
 @app.route("/", methods=['GET', 'POST'])

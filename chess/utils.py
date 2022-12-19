@@ -1,11 +1,15 @@
 import string
-from chess.models import Rank, Defences, Attacks
+from chess.models import Game, Rank, Defences, Attacks
 from chess import db
 from chess.routes import session
 
 def get_moves(game_id, x, y, figure, blocklines, checklines):
+    game = Game.query.filter_by(id=session['game_id']).first()
     if figure == 1:
-        go, attack, _, _ = get_white_pawn_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
+        go, attack, _, z = get_white_pawn_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
+        # Checking en passant conditions
+        if x == 5 and game.white_en_passant and abs(game.white_en_passant_y - y) == 1:
+            go, z = add_white_en_passant(go, z, game)
     elif figure == 2:
         go, attack, _, _ = get_white_knight_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 3 or figure == 9:
@@ -23,7 +27,10 @@ def get_moves(game_id, x, y, figure, blocklines, checklines):
         if session['white_queen_castling']:
             go, z = add_white_queen_castling(game_id, go, z)
     elif figure == 7:
-        go, attack, _, _ = get_black_pawn_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
+        go, attack, _, z = get_black_pawn_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
+        # Checking en passant conditions
+        if x == 4 and game.black_en_passant and abs(game.black_en_passant_y - y) == 1:
+            go, z = add_black_en_passant(go, z, game)
     elif figure == 8:
         go, attack, _, _ = get_black_knight_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 12:
@@ -40,6 +47,13 @@ def get_board(game_id):
     rank = {}
     for i in range (1, 9):
         rank[i] = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, 
+                                           Rank.f, Rank.g, Rank.h).filter_by(game_id=game_id, 
+                                           number=i).first()
+    return rank
+
+def get_rank(game_id, i):
+    rank = {}
+    rank = Rank.query.with_entities(Rank.game_id, Rank.a, Rank.b, Rank.c, Rank.d, Rank.e, 
                                            Rank.f, Rank.g, Rank.h).filter_by(game_id=game_id, 
                                            number=i).first()
     return rank
@@ -1599,7 +1613,7 @@ def check_black_king_can_move(game_id, rank, z, x, y):
         z += 1
     return moveable, z
 
-def disable_castling(i, j, game):
+def disable_castling_white(i, j, game):
     # Add values to the DB and refresh session values.
     if (i == 1 and j == 1 and game.white_queen_castling):
         session['white_queen_castling'] = game.white_queen_castling = False
@@ -1608,7 +1622,9 @@ def disable_castling(i, j, game):
         session['white_king_castling'] = game.white_king_castling = False
     elif (i == 1 and j == 8 and game.white_king_castling):
         session['white_king_castling'] = game.white_king_castling = False
-    elif (i == 8 and j == 1 and game.black_queen_castling):
+
+def disable_castling_black(i, j, game):
+    if (i == 8 and j == 1 and game.black_queen_castling):
         session['black_queen_castling'] = game.black_queen_castling = False
     elif (i == 8 and j == 5 and (game.black_queen_castling or game.black_king_castling)):
         session['black_queen_castling'] = game.black_queen_castling = False
@@ -1678,4 +1694,29 @@ def add_black_queen_castling(game_id, moves, z):
     if black_queen_castling:
         moves[z] = [8, 1]
         z += 1
+    return moves, z
+
+def switch_en_passant(figure, i, x, y, game, game_id):
+    rank = get_rank(game_id, x)
+    if figure == 1 and x - i == 2 and ((y > 1 and rank[y-1] == 7) or (y < 8 and rank[y+1] == 7)):
+        session['black_en_passant'] = game.black_en_passant = True
+        session['black_en_passant_x'] = game.black_en_passant_x = x - 1
+        session['black_en_passant_y'] = game.black_en_passant_y = y
+    else:
+        session['black_en_passant'] = game.black_en_passant = False
+    if figure == 7 and i - x == 2 and ((y > 1 and rank[y-1] == 1) or (y < 8 and rank[y+1] == 1)):
+        session['white_en_passant'] = game.white_en_passant = True
+        session['white_en_passant_x'] = game.white_en_passant_x = x + 1
+        session['white_en_passant_y'] = game.white_en_passant_y = y
+    else:
+        session['white_en_passant'] = game.white_en_passant = False
+    
+def add_white_en_passant(moves, z, game):    
+    moves[z] = [game.white_en_passant_x, game.white_en_passant_y]
+    z += 1
+    return moves, z
+
+def add_black_en_passant(moves, z, game):
+    moves[z] = [game.black_en_passant_x, game.black_en_passant_y]
+    z += 1
     return moves, z
