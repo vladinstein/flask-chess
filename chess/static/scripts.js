@@ -139,14 +139,39 @@ $(document).ready(function(){
                 $('.square[data-x="1"][data-y="7"]').attr('data-square', '6')
                 $('.square[data-x="1"][data-y="6"]').html('&#9814;')
                 $('.square[data-x="1"][data-y="6"]').attr('data-square', '4')
+            } else if (figure == 6 && figure2 == 4 && data['y'] == 1) {
+                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
+                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
+                $('.square[data-x="1"][data-y="3"]').html('&#9812;')
+                $('.square[data-x="1"][data-y="3"]').attr('data-square', '6')
+                $('.square[data-x="1"][data-y="4"]').html('&#9814;')
+                $('.square[data-x="1"][data-y="4"]').attr('data-square', '4')
+            } else if (figure == 12 && figure2 == 10 && data['y'] == 8) {
+                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
+                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
+                $('.square[data-x="8"][data-y="7"]').html('&#9818;')
+                $('.square[data-x="8"][data-y="7"]').attr('data-square', '12')
+                $('.square[data-x="8"][data-y="6"]').html('&#9820;')
+                $('.square[data-x="8"][data-y="6"]').attr('data-square', '10')
+            } else if (figure == 12 && figure2 == 10 && data['y'] == 1) {
+                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
+                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
+                $('.square[data-x="8"][data-y="3"]').html('&#9818;')
+                $('.square[data-x="8"][data-y="3"]').attr('data-square', '12')
+                $('.square[data-x="8"][data-y="4"]').html('&#9820;')
+                $('.square[data-x="8"][data-y="4"]').attr('data-square', '10')
             }
         } else {
             $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html(text)
             $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', figure)
+            if (data['en_passant'] == true) {
+                $('.square[data-x=' + data['i'] + '][data-y=' + data['y'] + ']').html('')
+                $('.square[data-x=' + data['i'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
+            }
         }
         $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html('')
         $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square', '0')
-        if ((data['check'] == 1 && $('.under_check').hasClass('hidden')) || (data['check'] == 0 && 
+        if ((data['check'] == true && $('.under_check').hasClass('hidden')) || (data['check'] == false && 
         !$('.under_check').hasClass('hidden'))) {
             $('.under_check').toggleClass('hidden')
         }

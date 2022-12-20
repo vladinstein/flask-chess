@@ -141,7 +141,7 @@ def go(data):
     all_attacks, attack_king_coord, attack_king_figures = calculate_attacks(game_id, king_coordinates=king_coordinates)
     into_check = calculate_possible_checks(game_id)
     add_defences_to_db(game_id, into_check)
-    check = int(check_if_check(game_id, all_attacks))
+    check = check_if_check(game_id, all_attacks)
     if session['figures'] == 0:
         socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check, 
                       'castling': castling, 'en_passant': en_passant, 'figure': figure,
