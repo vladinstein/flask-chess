@@ -9,7 +9,7 @@ def get_moves(game_id, x, y, figure, blocklines, checklines):
         go, attack, _, z = get_white_pawn_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
         # Checking en passant conditions
         if x == 5 and game.white_en_passant and abs(game.white_en_passant_y - y) == 1:
-            go, z = add_white_en_passant(go, z, game)
+            attack, z = add_white_en_passant(attack, z, game)
     elif figure == 2:
         go, attack, _, _ = get_white_knight_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 3 or figure == 9:
@@ -30,7 +30,7 @@ def get_moves(game_id, x, y, figure, blocklines, checklines):
         go, attack, _, z = get_black_pawn_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
         # Checking en passant conditions
         if x == 4 and game.black_en_passant and abs(game.black_en_passant_y - y) == 1:
-            go, z = add_black_en_passant(go, z, game)
+            attack, z = add_black_en_passant(attack, z, game)
     elif figure == 8:
         go, attack, _, _ = get_black_knight_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
     elif figure == 12:
