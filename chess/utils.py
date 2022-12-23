@@ -98,10 +98,10 @@ def get_white_pawn_moves(game_id, x, y, blocklines=[], checklines=[], z=0):
             if x == 2 and rank[x+1][y] == 0 and rank[x+2][y] == 0 and [x+2, y] in line.values():
                 go[z] = [x+2, y]
                 z += 1
-            if y > 1 and rank[x+1][y-1] > 6 and [x+1, y-1] in line.values() and len(line.values()) == 2:
+            if y > 1 and x < 8 and rank[x+1][y-1] > 6 and [x+1, y-1] in line.values() and len(line.values()) == 2:
                 attack[z] = [x+1, y-1]
                 z += 1
-            if y < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in line.values() and len(line.values()) == 2:
+            if y < 8 and x < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in line.values() and len(line.values()) == 2:
                 attack[z] = [x+1, y+1]
                 z += 1
     if not block:
@@ -112,10 +112,10 @@ def get_white_pawn_moves(game_id, x, y, blocklines=[], checklines=[], z=0):
             if x == 2 and rank[x+1][y] == 0 and rank[x+2][y] == 0 and [x+2, y] in checkline.values():
                 go[z] = [x+2, y]
                 z += 1
-            if y > 1 and rank[x+1][y-1] > 6 and [x+1, y-1] in checkline.values():
+            if y > 1 and x < 8 and rank[x+1][y-1] > 6 and [x+1, y-1] in checkline.values():
                 attack[z] = [x+1, y-1]
                 z += 1
-            if y < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in checkline.values():
+            if y < 8 and x < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in checkline.values():
                 attack[z] = [x+1, y+1]
                 z += 1
         if not checklines:
@@ -125,16 +125,16 @@ def get_white_pawn_moves(game_id, x, y, blocklines=[], checklines=[], z=0):
             if x == 2 and rank[x+1][y] == 0 and rank[x+2][y] == 0:
                 go[z] = [x+2, y]
                 z += 1
-            if y > 1 and rank[x+1][y-1] > 6:
+            if y > 1 and x < 8 and rank[x+1][y-1] > 6:
                 attack[z] = [x+1, y-1]
                 z += 1
-            if y < 8 and rank[x+1][y+1] > 6:
+            if y < 8 and x < 8 and rank[x+1][y+1] > 6:
                 attack[z] = [x+1, y+1]
                 z += 1
-    if y > 1 and rank[x+1][y-1] < 7:
+    if y > 1 and x < 8 and rank[x+1][y-1] < 7:
         defence[z] = [x+1, y-1]
         z += 1
-    if y < 8 and rank[x+1][y+1] < 7:
+    if y < 8 and x < 8 and rank[x+1][y+1] < 7:
         defence[z] = [x+1, y+1]
         z += 1
     return go, attack, defence, z
@@ -154,10 +154,10 @@ def get_black_pawn_moves(game_id, x, y, blocklines=[], checklines = [], z=0):
             if x == 7 and rank[x-1][y] == 0 and rank[x-2][y] == 0 and [x-2, y] in line.values():
                 go[z] = [x-2, y]
                 z += 1
-            if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0 and [x-1, y-1] in line.values() and len(line.values()) == 2:
+            if y > 1 and x > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0 and [x-1, y-1] in line.values() and len(line.values()) == 2:
                 attack[z] = [x-1, y-1]
                 z += 1
-            if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and [x-1, y+1] in line.values() and len(line.values()) == 2:
+            if y < 8 and x > 1 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and [x-1, y+1] in line.values() and len(line.values()) == 2:
                 attack[z] = [x-1, y+1]
                 z += 1
     if not block:
@@ -168,10 +168,10 @@ def get_black_pawn_moves(game_id, x, y, blocklines=[], checklines = [], z=0):
             if x == 7 and rank[x-1][y] == 0 and rank[x-2][y] == 0 and [x-2, y] in checkline.values():
                 go[z] = [x-2, y]
                 z += 1
-            if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0 and [x-1, y-1] in checkline.values():
+            if y > 1 and x > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0 and [x-1, y-1] in checkline.values():
                 attack[z] = [x-1, y-1]
                 z += 1
-            if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and [x-1, y+1] in checkline.values():
+            if y < 8 and x > 1 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and [x-1, y+1] in checkline.values():
                 attack[z] = [x-1, y+1]
                 z += 1
         if not checklines:
@@ -181,16 +181,16 @@ def get_black_pawn_moves(game_id, x, y, blocklines=[], checklines = [], z=0):
             if x == 7 and rank[x-1][y] == 0 and rank[x-2][y] == 0:
                 go[z] = [x-2, y]
                 z += 1
-            if y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0:
+            if y > 1 and x > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0:
                 attack[z] = [x-1, y-1]
                 z += 1
-            if y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0:
+            if y < 8 and x > 1 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0:
                 attack[z] = [x-1, y+1]
                 z += 1
-    if  y > 1 and (rank[x-1][y-1] > 6 or rank[x-1][y-1] == 0):
+    if  y > 1 and x > 1 and (rank[x-1][y-1] > 6 or rank[x-1][y-1] == 0):
         defence[z] = [x-1, y-1]
         z += 1
-    if y < 8 and (rank[x-1][y+1] > 6 or rank[x-1][y+1] == 0):
+    if y < 8 and x > 1 and (rank[x-1][y+1] > 6 or rank[x-1][y+1] == 0):
         defence[z] = [x-1, y+1]
         z += 1
     return go, attack, defence, z

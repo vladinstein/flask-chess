@@ -65,6 +65,10 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
         figure = $('.square[data-a="1"]').attr('data-square')
         text2 = $(this).html()
         figure2 = $(this).attr('data-square')
+        x = $(this).attr('data-x')
+        y = $(this).attr('data-y')
+        i = $('.square[data-a="1"]').attr('data-x')
+        j = $('.square[data-a="1"]').attr('data-y')
     if (figure == 6 && figure2 == 4 && $(this).attr('data-y') == 8) {
         $('.square[data-x="1"][data-y="6"]').html(text2)
         $('.square[data-x="1"][data-y="6"]').attr('data-square', figure2)
@@ -97,23 +101,43 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
     Math.abs($(this).attr('data-y') - $('.square[data-a="1"]').attr('data-y')) == 1) {
         $(this).html(text)
         $(this).attr('data-square', figure)
-        var x = $('.square[data-a="1"]').attr('data-x')
-            y = $(this).attr('data-y')
-        $('.square[data-x=' + x + '][data-y=' + y +']').attr('data-square', '0')
-        $('.square[data-x=' + x + '][data-y=' + y +']').html('')
+        $('.square[data-x=' + i + '][data-y=' + y +']').attr('data-square', '0')
+        $('.square[data-x=' + i + '][data-y=' + y +']').html('')
+    } else if (figure == 1 && x == 8 ) {
+        $(this).html(text)
+        $(this).attr('data-square', figure)
+        console.log(figure, x, y)
+        if (y == 1 || y == 5) {
+            $('.selection').css({'display': 'flex', 'margin-left': '32px'})
+        } else if (y == 2 || y == 6) {
+            $('.selection').css({'display': 'flex', 'margin-left': '97px'})
+        } else if (y == 3 || y == 7) {
+            $('.selection').css({'display': 'flex', 'margin-left': '162px'})
+        } else if (y == 4 || y == 8) {
+            $('.selection').css({'display': 'flex', 'margin-left': '227px'})
+        }
+    } else if (figure == 7 && x == 1) {
+        $(this).html(text)
+        $(this).attr('data-square', figure)
+        console.log(figure, x, y)
+        if (y == 8 || y == 4) {
+            $('.selection').css({'display': 'flex', 'margin-left': '32px'})
+        } else if (y == 7 || y == 3) {
+            $('.selection').css({'display': 'flex', 'margin-left': '97px'})
+        } else if (y == 6 || y == 2) {
+            $('.selection').css({'display': 'flex', 'margin-left': '162px'})
+        } else if (y == 5 || y == 1) {
+            $('.selection').css({'display': 'flex', 'margin-left': '227px'})
+        }
     } else {
         $(this).html(text)
         $(this).attr('data-square', figure)
     }
     $('.square[data-a="1"]').html('')
     $('.square[data-a="1"]').attr('data-square', '0')
-    var i = $('.square[data-a="1"]').attr('data-x')
-        j = $('.square[data-a="1"]').attr('data-y')
     $('.square[data-a="1"]').attr('data-a', '0')  
     $('.square[data-go="1"]').attr('data-go', '0')  
     $('.square[data-attack="1"]').attr('data-attack', '0')
-    var x = $(this).attr('data-x')
-        y = $(this).attr('data-y')  
     socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'figure': figure, 'figure2': figure2})
 });
 
