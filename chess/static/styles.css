@@ -72,10 +72,14 @@ footer {
     position: absolute;
     margin-right: auto;
     margin-top: 32px;
-    display: none;
+    display: flex;
+    opacity: 0;
+    visibility: hidden;
     flex-direction: row;
     box-shadow: 0 12px 9px -9px black;
     background-color: whitesmoke;
+    -webkit-transition: opacity 600ms, visibility 600ms;
+    transition: opacity 600ms, visibility 600ms;
 }
 
 .selection .square:nth-child(even) {

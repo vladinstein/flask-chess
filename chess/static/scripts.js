@@ -108,26 +108,26 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
         $(this).attr('data-square', figure)
         console.log(figure, x, y)
         if (y == 1 || y == 5) {
-            $('.selection').css({'display': 'flex', 'margin-left': '32px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '32px'})
         } else if (y == 2 || y == 6) {
-            $('.selection').css({'display': 'flex', 'margin-left': '97px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '97px'})
         } else if (y == 3 || y == 7) {
-            $('.selection').css({'display': 'flex', 'margin-left': '162px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '162px'})
         } else if (y == 4 || y == 8) {
-            $('.selection').css({'display': 'flex', 'margin-left': '227px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '227px'})
         }
     } else if (figure == 7 && x == 1) {
         $(this).html(text)
         $(this).attr('data-square', figure)
         console.log(figure, x, y)
         if (y == 8 || y == 4) {
-            $('.selection').css({'display': 'flex', 'margin-left': '32px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '32px'})
         } else if (y == 7 || y == 3) {
-            $('.selection').css({'display': 'flex', 'margin-left': '97px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '97px'})
         } else if (y == 6 || y == 2) {
-            $('.selection').css({'display': 'flex', 'margin-left': '162px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '162px'})
         } else if (y == 5 || y == 1) {
-            $('.selection').css({'display': 'flex', 'margin-left': '227px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '227px'})
         }
     } else {
         $(this).html(text)
