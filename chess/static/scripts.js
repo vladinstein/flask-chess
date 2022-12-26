@@ -2,6 +2,26 @@ const socket = io();
 'use strict';
 
 window.addEventListener('DOMContentLoaded', function addfigures() {
+    var y = $('.square[data-x="8"][data-square="1"]').attr("data-y")
+    if (y == 1 || y == 5) {
+        $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '32px'})
+    } else if (y == 2 || y == 6) {
+        $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '97px'})
+    } else if (y == 3 || y == 7) {
+        $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '162px'})
+    } else if (y == 4 || y == 8) {
+        $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '227px'})
+    }
+    var y = $('.square[data-x="1"][data-square="7"]').attr("data-y")
+    if (y == 8 || y == 4) {
+        $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '32px'})
+    } else if (y == 7 || y == 3) {
+        $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '97px'})
+    } else if (y == 6 || y == 2) {
+        $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '162px'})
+    } else if (y == 5 || y == 1) {
+        $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '227px'})
+    }
     var squares = document.querySelectorAll(".square");
     squares.forEach(function (square)
     {
@@ -60,7 +80,6 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
     if (!$('.under_check').hasClass('hidden')) {
         $('.under_check').toggleClass('hidden')
     }
-    $('.your_move').addClass('hidden')
     var text = $('.square[data-a="1"]').html()
         figure = $('.square[data-a="1"]').attr('data-square')
         text2 = $(this).html()
@@ -106,7 +125,8 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
     } else if (figure == 1 && x == 8 ) {
         $(this).html(text)
         $(this).attr('data-square', figure)
-        console.log(figure, x, y)
+        $('.selection > .square').attr('data-i', i)
+        $('.selection > .square').attr('data-j', j)
         if (y == 1 || y == 5) {
             $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '32px'})
         } else if (y == 2 || y == 6) {
@@ -119,7 +139,8 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
     } else if (figure == 7 && x == 1) {
         $(this).html(text)
         $(this).attr('data-square', figure)
-        console.log(figure, x, y)
+        $('.selection > .square').attr('data-i', i)
+        $('.selection > .square').attr('data-j', j)
         if (y == 8 || y == 4) {
             $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '32px'})
         } else if (y == 7 || y == 3) {
@@ -138,6 +159,32 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
     $('.square[data-a="1"]').attr('data-a', '0')  
     $('.square[data-go="1"]').attr('data-go', '0')  
     $('.square[data-attack="1"]').attr('data-attack', '0')
+    if (!(figure == 1 && x == 8 ) && !(figure == 7 && x == 1)) {
+        $('.your_move').addClass('hidden')
+        socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'figure': figure, 'figure2': figure2})
+    }
+});
+
+$(document).on('click', '.selection > .square', function() {
+    $('.selection').css({'visibility': 'hidden', 'opacity': '0'})
+    var text = $(this).html()
+        figure = $(this).attr('data-square')
+        i = $(this).attr('data-i')
+        j = $(this).attr('data-j')
+    if (figure > 6) {
+        var x = $('.square[data-x="1"][data-square="7"]').attr('data-x')
+            y = $('.square[data-x="1"][data-square="7"]').attr('data-y')
+            figure2 = 7
+        $('.square[data-x="1"][data-square="7"]').html(text)
+        $('.square[data-x="1"][data-square="7"]').attr('data-square', figure)
+    } else {
+        var x = $('.square[data-x="8"][data-square="1"]').attr('data-x')
+            y = $('.square[data-x="8"][data-square="1"]').attr('data-y')
+            figure2 = 1
+        $('.square[data-x="8"][data-square="1"]').html(text)
+        $('.square[data-x="8"][data-square="1"]').attr('data-square', figure)
+    }
+    $('.your_move').addClass('hidden')
     socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'figure': figure, 'figure2': figure2})
 });
 
@@ -152,9 +199,31 @@ $(document).ready(function(){
     }     
     })
     socket.on('opp_move', (data) => {
-        var text = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html()
-            figure = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square')
-            figure2 = $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square')
+        figure = data['figure']
+        figure2 = data['figure2']
+        if (data['promotion'] == true) {
+            if (figure == 2) {
+                var text = '&#9817;'
+            } else if (figure == 2) {
+                var text = '&#9816;'    
+            } else if (figure == 3) {
+                var text = '&#9815;'
+            } else if (figure == 4) {
+                var text = '&#9814;'
+            } else if (figure == 5) {
+                var text = '&#9813;'
+            } else if (figure == 8) {
+                var text = '&#9822;'
+            } else if (figure == 9) {
+                var text = '&#9821;'
+            } else if (figure == 10) {
+                var text = '&#9820;'
+            } else if (figure == 11) {
+                var text = '&#9819;'
+            } 
+        } else {
+            var text = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html()
+        }
         if (data['castling'] == true) {
             if (figure == 6 && figure2 == 4 && data['y'] == 8) {
                 $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')

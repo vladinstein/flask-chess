@@ -98,8 +98,11 @@ def go(data):
     checklines = []
     castling = False
     en_passant = False
+    promotion = False
     files = string.ascii_lowercase[0:8]
     rank = Rank.query.filter_by(game_id=game_id, number=i).first()
+    if (figure > 7 and figure2 == 7) or (figure > 1 and figure < 6 and figure2 == 1):
+        promotion = True
     if figure == 6 and figure2 == 4 and y == 8:
         castling = True
         rank.e = 0
@@ -144,11 +147,11 @@ def go(data):
     check = check_if_check(game_id, all_attacks)
     if session['figures'] == 0:
         socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check, 
-                      'castling': castling, 'en_passant': en_passant, 'figure': figure,
+                      'castling': castling, 'en_passant': en_passant, 'promotion': promotion, 'figure': figure,
                       'figure2': figure2}, room=game.black_sid)
     else:
         socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check,
-                      'castling': castling, 'en_passant': en_passant, 'figure': figure,
+                      'castling': castling, 'en_passant': en_passant, 'promotion': promotion, 'figure': figure,
                       'figure2': figure2}, room=game.white_sid)
     if check:
         checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
