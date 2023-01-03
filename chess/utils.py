@@ -1185,7 +1185,7 @@ def calculate_block_check_lines_vertical_2(lines, rank, x, y, i, figures, check=
     elif block_count == 0 and all_count == 1 and check:
         lines.append(line)
 
-def check_can_move(game_id, blocklines=[], checklines = [], figures=None):
+def check_can_move(game_id, game, blocklines=[], checklines = [], figures=None):
     rank = get_board(game_id)
     moveable = {}
     z = 0
@@ -1194,7 +1194,7 @@ def check_can_move(game_id, blocklines=[], checklines = [], figures=None):
             if figures == 0:
                 if len(checklines) < 2:
                     if rank[x][y] == 1:
-                        add_moveable, z = check_white_pawn_can_move(rank, z, x, y, blocklines, checklines)
+                        add_moveable, z = check_white_pawn_can_move(rank, game, z, x, y, blocklines, checklines)
                         moveable.update(add_moveable)
                     if rank[x][y] == 2:
                         add_moveable, z = check_white_knight_can_move(rank, z, x, y, blocklines, checklines)
@@ -1214,7 +1214,7 @@ def check_can_move(game_id, blocklines=[], checklines = [], figures=None):
             else:
                 if len(checklines) < 2:
                     if rank[x][y] == 7:
-                        add_moveable, z = check_black_pawn_can_move(rank, z, x, y, blocklines, checklines)
+                        add_moveable, z = check_black_pawn_can_move(rank, game, z, x, y, blocklines, checklines)
                         moveable.update(add_moveable)
                     if rank[x][y] == 8:
                         add_moveable, z = check_black_knight_can_move(rank, z, x, y, blocklines, checklines)
@@ -1233,7 +1233,7 @@ def check_can_move(game_id, blocklines=[], checklines = [], figures=None):
                     moveable.update(add_moveable)
     return moveable
                 
-def check_white_pawn_can_move(rank, z, x, y, blocklines, checklines):
+def check_white_pawn_can_move(rank, game, z, x, y, blocklines, checklines):
     moveable = {}
     #This check is for when that figure is on the blockline
     for line in blocklines:
@@ -1241,59 +1241,66 @@ def check_white_pawn_can_move(rank, z, x, y, blocklines, checklines):
         if [x, y] in line.values() and checklines:
              return moveable, z
         # Next two cases for when there's only a blockline
-        if x < 8 and [x, y] in line.values() and ((rank[x+1][y] == 0 and [x+1, y] in line.values()) or
-                                                 (y < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in line.values() 
-                                                 and len(line.values()) == 2) or 
-                                                 (y > 1 and rank[x+1][y-1] > 6 and [x+1, y-1] in line.values() 
-                                                 and len(line.values()) == 2)):
-            moveable[z]=[x, y]
-            z += 1
-            return moveable, z
-        if x < 8 and [x, y] in line.values() and ([x+1, y] not in line.values() and
-                                                 ([x+1, y+1] not in line.values() or len(line.values()) > 2) and 
-                                                 ([x+1, y-1] not in line.values() or len(line.values()) > 2)):
-            return moveable, z
+        # len(line.values()) == 2) can be removed
+        if x < 8 and [x, y] in line.values():
+            if ((rank[x+1][y] == 0 and [x+1, y] in line.values()) or
+            (y < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in line.values()) or 
+            (y > 1 and rank[x+1][y-1] > 6 and [x+1, y-1] in line.values()) or
+            (game.white_en_passant and (y < 8 and rank[x+1][y+1] == 0 and [x+1, y+1] in line.values() and game.white_en_passant_y == y + 1 or
+            y > 1 and rank[x+1][y-1] == 0 and [x+1, y-1] in line.values() and game.white_en_passant_y == y - 1))):
+                moveable[z]=[x, y]
+                z += 1
+                return moveable, z
+            else:
+                return moveable, z
     # This is when there's only a checkline
     for checkline in checklines:
+        # Check if any possible moves or attacks (including en passant) can remove the check.
         if x < 8 and (rank[x+1][y] == 0 and [x+1, y] in checkline.values() or 
         (x == 2 and rank[x+1][y] == 0 and rank[x+2][y] == 0 and [x+2, y] in checkline.values()) or
         (y < 8 and rank[x+1][y+1] > 6 and [x+1, y+1] in checkline.values()) or
-        (y > 1 and rank[x+1][y-1] > 6 and [x+1, y-1] in checkline.values())):
+        (y > 1 and rank[x+1][y-1] > 6 and [x+1, y-1] in checkline.values()) or 
+        (game.white_en_passant and  
+        (y > 1 and rank[x][y-1] == 7 and [x, y-1] in checkline.values() and game.white_en_passant_y == y - 1 or 
+        y < 8 and rank[x][y+1] == 7 and [x, y+1] in checkline.values() and game.white_en_passant_y == y + 1))):
             moveable[z]=[x, y]
             z += 1
             return moveable, z
         else:
             return moveable, z
-    #This check is for when the figure is not on the blockline
-    if x < 8 and (rank[x+1][y] == 0 or (y < 8 and rank[x+1][y+1] > 6)
-        or (y > 1 and rank[x+1][y-1] > 6)):
+    # This check is for when the piece is niether on a blockline nor on a checkline.
+    if x < 8 and (rank[x+1][y] == 0 or (y < 8 and rank[x+1][y+1] > 6) or (y > 1 and rank[x+1][y-1] > 6) or 
+    (game.white_en_passant and (y < 8 and rank[x+1][y+1] == 0 and game.white_en_passant_y == y + 1 or 
+    y > 1 and rank[x+1][y-1] == 0 and game.white_en_passant_y == y - 1))):
         moveable[z]=[x, y]
         z += 1
     return moveable, z
 
-def check_black_pawn_can_move(rank, z, x, y, blocklines, checklines):
+def check_black_pawn_can_move(rank, game, z, x, y, blocklines, checklines):
     moveable = {}
     #This check is for when that figure is on the blockline
     for line in blocklines:
         if [x, y] in line.values() and checklines:
              return moveable, z
-        if x > 1 and [x, y] in line.values() and ((rank[x-1][y] == 0 and [x-1, y] in line.values()) or
-                                                 (y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and 
-                                                 [x-1, y+1] in line.values() and len(line.values()) == 2) or
-                                                 (y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0 and 
-                                                 [x-1, y-1] in line.values() and len(line.values()) == 2)):
-            moveable[z]=[x, y]
-            z += 1
-            return moveable, z
-        if x > 1 and [x, y] in line.values() and ([x-1, y] not in line.values() and
-                                                 ([x-1, y+1] not in line.values() or len(line.values()) > 2) and 
-                                                 ([x-1, y-1] not in line.values() or len(line.values()) > 2)):
-            return moveable, z
+        if x > 1 and [x, y] in line.values():
+            if ((rank[x-1][y] == 0 and [x-1, y] in line.values()) or 
+            (y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and [x-1, y+1] in line.values()) or 
+            (y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0 and [x-1, y-1] in line.values()) or
+            (game.black_en_passant and (y < 8 and rank[x-1][y+1] == 0 and [x-1, y+1] in line.values() and game.black_en_passant_y == y + 1 or
+            y > 1 and rank[x-1][y-1] == 0 and [x-1, y-1] in line.values() and game.black_en_passant_y == y - 1))):
+                moveable[z]=[x, y]
+                z += 1
+                return moveable, z
+            else:
+                return moveable, z
     for checkline in checklines:
         if x > 1 and ((rank[x-1][y] == 0 and [x-1, y] in checkline.values()) or 
         (x == 7 and rank[x-1][y] == 0 and rank[x-2][y] == 0 and [x-2, y] in checkline.values()) or
         (y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0 and [x-1, y+1] in checkline.values()) or
-        (y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0) and [x-1, y-1] in checkline.values()):
+        (y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0) and [x-1, y-1] in checkline.values() or
+        (game.black_en_passant and  
+        (y > 1 and rank[x][y-1] == 1 and [x, y-1] in checkline.values() and game.black_en_passant_y == y - 1 or 
+        y < 8 and rank[x][y+1] == 1 and [x, y+1] in checkline.values() and game.black_en_passant_y == y + 1))):
             moveable[z]=[x, y]
             z += 1
             return moveable, z
@@ -1301,7 +1308,9 @@ def check_black_pawn_can_move(rank, z, x, y, blocklines, checklines):
             return moveable, z
     #This check is for when the figure is not on the blockline and not on the checkline
     if x > 1 and (rank[x-1][y] == 0 or (y < 8 and rank[x-1][y+1] < 7 and rank[x-1][y+1] > 0) 
-    or (y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0)):
+    or (y > 1 and rank[x-1][y-1] < 7 and rank[x-1][y-1] > 0) or 
+    (game.black_en_passant and (y < 8 and rank[x-1][y+1] == 0 and game.black_en_passant_y == y + 1 or 
+    y > 1 and rank[x-1][y-1] == 0 and game.black_en_passant_y == y - 1))):
         moveable[z]=[x, y]
         z += 1
     return moveable, z
@@ -1699,17 +1708,17 @@ def add_black_queen_castling(game_id, moves, z):
 def switch_en_passant(figure, i, x, y, game, game_id):
     rank = get_rank(game_id, x)
     if figure == 1 and x - i == 2 and ((y > 1 and rank[y-1] == 7) or (y < 8 and rank[y+1] == 7)):
-        session['black_en_passant'] = game.black_en_passant = True
-        session['black_en_passant_x'] = game.black_en_passant_x = x - 1
-        session['black_en_passant_y'] = game.black_en_passant_y = y
+        game.black_en_passant = True
+        game.black_en_passant_x = x - 1
+        game.black_en_passant_y = y
     else:
-        session['black_en_passant'] = game.black_en_passant = False
+        game.black_en_passant = False
     if figure == 7 and i - x == 2 and ((y > 1 and rank[y-1] == 1) or (y < 8 and rank[y+1] == 1)):
-        session['white_en_passant'] = game.white_en_passant = True
-        session['white_en_passant_x'] = game.white_en_passant_x = x + 1
-        session['white_en_passant_y'] = game.white_en_passant_y = y
+        game.white_en_passant = True
+        game.white_en_passant_x = x + 1
+        game.white_en_passant_y = y
     else:
-        session['white_en_passant'] = game.white_en_passant = False
+        game.white_en_passant = False
     
 def add_white_en_passant(moves, z, game):    
     moves[z] = [game.white_en_passant_x, game.white_en_passant_y]

@@ -48,13 +48,13 @@ def connect():
         if not game.both_connected:
             if session['figures'] == 0:
                 game.white_sid = session['sid'] 
-                moving = check_can_move(game_id, figures = 0)
+                moving = check_can_move(game_id, game, figures = 0)
                 socketio.emit('connected', moving, room=game.white_sid)
                 socketio.emit('wait_move_status', room=game.black_sid)
                 game.both_connected = 1
             else:
                 game.black_sid = session['sid'] 
-                moving = check_can_move(game_id, figures = 0)
+                moving = check_can_move(game_id, game, figures = 0)
                 socketio.emit('connected', moving, room=game.white_sid)
                 socketio.emit('wait_move_status', room=game.black_sid)
                 game.both_connected = 1
@@ -157,7 +157,7 @@ def go(data):
         checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
     blocklines = calculate_blocklines(game_id)
     if session['figures'] == 0:
-        moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 1)
+        moving = check_can_move(game_id, game, blocklines=blocklines, checklines=checklines, figures = 1)
         if not moving:
             # If not moving and check, emit checkmate and victory.
             if check:
@@ -177,7 +177,7 @@ def go(data):
         if game.p2_check != check:
             game.p2_check = check
     else:
-        moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 0)
+        moving = check_can_move(game_id, game, blocklines=blocklines, checklines=checklines, figures = 0)
         if not moving:
             if check:
                 socketio.emit('remove_check', room=game.white_sid)
