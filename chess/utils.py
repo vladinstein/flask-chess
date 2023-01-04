@@ -1709,23 +1709,21 @@ def switch_en_passant(figure, i, x, y, game, game_id):
     rank = get_rank(game_id, x)
     if figure == 1 and x - i == 2 and ((y > 1 and rank[y-1] == 7) or (y < 8 and rank[y+1] == 7)):
         game.black_en_passant = True
-        game.black_en_passant_x = x - 1
         game.black_en_passant_y = y
     else:
         game.black_en_passant = False
     if figure == 7 and i - x == 2 and ((y > 1 and rank[y-1] == 1) or (y < 8 and rank[y+1] == 1)):
         game.white_en_passant = True
-        game.white_en_passant_x = x + 1
         game.white_en_passant_y = y
     else:
         game.white_en_passant = False
     
 def add_white_en_passant(moves, z, game):    
-    moves[z] = [game.white_en_passant_x, game.white_en_passant_y]
+    moves[z] = [6, game.white_en_passant_y]
     z += 1
     return moves, z
 
 def add_black_en_passant(moves, z, game):
-    moves[z] = [game.black_en_passant_x, game.black_en_passant_y]
+    moves[z] = [3, game.black_en_passant_y]
     z += 1
     return moves, z
