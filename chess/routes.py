@@ -33,11 +33,6 @@ def connect():
     session['sid'] = request.sid
     game_id = session['game_id']
     game = Game.query.filter_by(id=game_id).first()
-    # On each reaload get those from the DB.
-    session['white_king_castling'] = game.white_king_castling
-    session['white_queen_castling'] = game.white_queen_castling
-    session['black_king_castling'] = game.black_king_castling
-    session['black_queen_castling'] = game.black_queen_castling
     if session['creator']:
         if session['figures'] == 0:
             game.white_sid = session['sid']

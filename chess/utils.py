@@ -22,9 +22,9 @@ def get_moves(game_id, x, y, figure, blocklines, checklines):
         go, attack, _, z = get_king_moves(game_id, x, y)
         go = remove_checks(game_id, go)
         attack = remove_checks(game_id, attack)
-        if session['white_king_castling']:
+        if game.white_king_castling:
             go, z = add_white_king_castling(game_id, go, z)
-        if session['white_queen_castling']:
+        if game.white_queen_castling:
             go, z = add_white_queen_castling(game_id, go, z)
     elif figure == 7:
         go, attack, _, z = get_black_pawn_moves(game_id, x, y, blocklines=blocklines, checklines=checklines)
@@ -37,9 +37,9 @@ def get_moves(game_id, x, y, figure, blocklines, checklines):
         go, attack, _, z = get_king_moves(game_id, x, y)
         go = remove_checks(game_id, go)
         attack = remove_checks(game_id, attack)
-        if session['black_king_castling']:
+        if game.black_king_castling:
             go, z = add_black_king_castling(game_id, go, z)
-        if session['black_queen_castling']:
+        if game.black_queen_castling:
             go, z = add_black_queen_castling(game_id, go, z)
     return go, attack
 
@@ -1625,21 +1625,21 @@ def check_black_king_can_move(game_id, rank, z, x, y):
 def disable_castling_white(i, j, game):
     # Add values to the DB and refresh session values.
     if (i == 1 and j == 1 and game.white_queen_castling):
-        session['white_queen_castling'] = game.white_queen_castling = False
+        game.white_queen_castling = False
     elif (i == 1 and j == 5 and (game.white_queen_castling or game.white_king_castling)):
-        session['white_queen_castling'] = game.white_queen_castling = False
-        session['white_king_castling'] = game.white_king_castling = False
+        game.white_queen_castling = False
+        game.white_king_castling = False
     elif (i == 1 and j == 8 and game.white_king_castling):
-        session['white_king_castling'] = game.white_king_castling = False
+        game.white_king_castling = False
 
 def disable_castling_black(i, j, game):
     if (i == 8 and j == 1 and game.black_queen_castling):
-        session['black_queen_castling'] = game.black_queen_castling = False
+        game.black_queen_castling = False
     elif (i == 8 and j == 5 and (game.black_queen_castling or game.black_king_castling)):
-        session['black_queen_castling'] = game.black_queen_castling = False
-        session['black_king_castling'] = game.black_king_castling = False
+        game.black_queen_castling = False
+        game.black_king_castling = False
     elif (i == 8 and j == 8 and game.black_king_castling):
-        session['black_king_castling'] = game.black_king_castling = False
+        game.black_king_castling = False
 
 def add_white_king_castling(game_id, moves, z):
     defences = get_defences(game_id)
