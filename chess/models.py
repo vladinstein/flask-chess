@@ -41,8 +41,10 @@ class Rank(db.Model):
     h = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f"Rank('Game {self.game_id}, number {self.number}:\
- {self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f}, {self.g}, {self.h}')"
+        return (
+                f"Rank ('Game {self.game_id}, number {self.number}: "
+                f"{self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f}, {self.g}, {self.h}.')"
+        )
 
 class Defences(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -58,8 +60,10 @@ class Defences(db.Model):
     h = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
-        return f"Defence White('Game {self.game_id}, number {self.number}:\
- {self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f}, {self.g}, {self.h}')"
+        return (
+                f"Defence White ('Game {self.game_id}, number {self.number}: "
+                f"{self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f}, {self.g}, {self.h}.')"
+        )
 
 class Attacks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -75,5 +79,7 @@ class Attacks(db.Model):
     h = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
-        return f"Attacks('Game {self.game_id}, number {self.number}:\
- {self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f}, {self.g}, {self.h}')"
+        return (
+                f"Attacks ('Game {self.game_id}, number {self.number}: "
+                f"{self.a}, {self.b}, {self.c}, {self.d}, {self.e}, {self.f}, {self.g}, {self.h}.')"
+        )

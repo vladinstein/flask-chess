@@ -23,7 +23,7 @@ def add_header(response):
 #def login_required(f):
 #    @wraps(f)
 #    def decorated_function(*args, **kwargs):
-#        if session.get('figures') is None:
+#        if session.get('pieces') is None:
 #           return redirect('/',code=302)
 #        return f(*args, **kwargs)
 #   return decorated_function
@@ -34,28 +34,28 @@ def connect():
     game_id = session['game_id']
     game = Game.query.filter_by(id=game_id).first()
     if session['creator']:
-        if session['figures'] == 0:
+        if session['pieces'] == 0:
             game.white_sid = session['sid']
-        if session['figures'] == 1:
+        if session['pieces'] == 1:
             game.black_sid = session['sid']
         db.session.commit()
     else:
         if not game.both_connected:
-            if session['figures'] == 0:
+            if session['pieces'] == 0:
                 game.white_sid = session['sid'] 
-                moving = check_can_move(game_id, game, figures = 0)
+                moving = check_can_move(game_id, game, pieces = 0)
                 socketio.emit('connected', moving, room=game.white_sid)
                 socketio.emit('wait_move_status', room=game.black_sid)
                 game.both_connected = 1
             else:
                 game.black_sid = session['sid'] 
-                moving = check_can_move(game_id, game, figures = 0)
+                moving = check_can_move(game_id, game, pieces = 0)
                 socketio.emit('connected', moving, room=game.white_sid)
                 socketio.emit('wait_move_status', room=game.black_sid)
                 game.both_connected = 1
             db.session.commit()
         else:
-            if session['figures'] == 0:
+            if session['pieces'] == 0:
                 game.white_sid = session['sid'] 
             else:
                 game.black_sid = session['sid']
@@ -64,16 +64,16 @@ def connect():
 @socketio.on('touch')
 def touch(data):
     game_id = session['game_id']
-    figure = int(data['figure'])
+    piece = int(data['piece'])
     y = int(data['y'])
     x = int(data['x'])
     go = {}
     attack = {}
     blocklines = calculate_blocklines(game_id, opp=True)
     king_coordinates = get_king_coordinates(game_id, opp=False)
-    _, attack_king_coord, attack_king_figures = calculate_attacks(game_id, opp=True, king_coordinates=king_coordinates)
-    checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures, opp=True)
-    go, attack = get_moves(game_id, x, y, figure, blocklines, checklines)
+    _, attack_king_coord, attack_king_pieces = calculate_attacks(game_id, opp=True, king_coordinates=king_coordinates)
+    checklines = calculate_checklines(game_id, attack_king_coord, attack_king_pieces, opp=True)
+    go, attack = get_moves(game_id, x, y, piece, blocklines, checklines)
     socketio.emit('moves', data=(go, attack), room=session['sid'])
 
 @socketio.on('go')
@@ -84,8 +84,8 @@ def go(data):
     game.p1_move = not game.p1_move
     db.session.commit()
     game_id = session['game_id']
-    figure = int(data['figure'])
-    figure2 = int(data['figure2'])
+    piece = int(data['piece'])
+    piece2 = int(data['piece2'])
     y = int(data['y'])
     x = int(data['x'])
     i = int(data['i'])
@@ -96,100 +96,96 @@ def go(data):
     promotion = False
     files = string.ascii_lowercase[0:8]
     rank = Rank.query.filter_by(game_id=game_id, number=i).first()
-    if (figure > 7 and figure2 == 7) or (figure > 1 and figure < 6 and figure2 == 1):
+    if (piece > 7 and piece2 == 7) or (piece > 1 and piece < 6 and piece2 == 1):
         promotion = True
-    if figure == 6 and figure2 == 4 and y == 8:
+    if piece == 6 and piece2 == 4 and y == 8:
         castling = True
         rank.e = 0
         rank.g = 6
         rank.f = 4
         rank.h = 0
-    elif figure == 6 and figure2 == 4 and y == 1:
+    elif piece == 6 and piece2 == 4 and y == 1:
         castling = True
         rank.a = 0
         rank.c = 6
         rank.d = 4
         rank.e = 0
-    elif figure == 12 and figure2 == 10 and y == 8:
+    elif piece == 12 and piece2 == 10 and y == 8:
         castling = True
         rank.e = 0
         rank.g = 12
         rank.f = 10
         rank.h = 0
-    elif figure == 12 and figure2 == 10 and y == 1:
+    elif piece == 12 and piece2 == 10 and y == 1:
         castling = True
         rank.a = 0
         rank.c = 12
         rank.d = 10
         rank.e = 0
-    elif (figure == 1 or figure == 7) and figure2 == 0 and abs(j - y) == 1:
+    elif (piece == 1 or piece == 7) and piece2 == 0 and abs(j - y) == 1:
         en_passant = True
         setattr(rank, files[j-1], 0)
         setattr(rank, files[y-1], 0)
         rank_2 = Rank.query.filter_by(game_id=game_id, number=x).first()
-        setattr(rank_2, files[y-1], figure)
+        setattr(rank_2, files[y-1], piece)
     else:
         setattr(rank, files[j-1], 0)
         rank_2 = Rank.query.filter_by(game_id=game_id, number=x).first()
-        setattr(rank_2, files[y-1], figure)
+        setattr(rank_2, files[y-1], piece)
     db.session.commit()
-    switch_en_passant(figure, i, x, y, game, game_id)
+    switch_en_passant(piece, i, x, y, game, game_id)
     #calculate this players attacks, defences and see if there is a check for the opponent
     king_coordinates = get_king_coordinates(game_id)
-    all_attacks, attack_king_coord, attack_king_figures = calculate_attacks(game_id, king_coordinates=king_coordinates)
+    all_attacks, attack_king_coord, attack_king_pieces = calculate_attacks(game_id, king_coordinates=king_coordinates)
     into_check = calculate_possible_checks(game_id)
     add_defences_to_db(game_id, into_check)
     check = check_if_check(game_id, all_attacks)
-    if session['figures'] == 0:
-        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check, 
-                      'castling': castling, 'en_passant': en_passant, 'promotion': promotion, 'figure': figure,
-                      'figure2': figure2}, room=game.black_sid)
+    if session['pieces'] == 0:
+        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 
+                      'castling': castling, 'en_passant': en_passant, 'promotion': promotion, 'piece': piece,
+                      'piece2': piece2}, room=game.black_sid)
     else:
-        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y, 'check': check,
-                      'castling': castling, 'en_passant': en_passant, 'promotion': promotion, 'figure': figure,
-                      'figure2': figure2}, room=game.white_sid)
+        socketio.emit('opp_move', {'i': i, 'j': j, 'x': x, 'y': y,
+                      'castling': castling, 'en_passant': en_passant, 'promotion': promotion, 'piece': piece,
+                      'piece2': piece2}, room=game.white_sid)
     if check:
-        checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures)
+        checklines = calculate_checklines(game_id, attack_king_coord, attack_king_pieces)
     blocklines = calculate_blocklines(game_id)
-    if session['figures'] == 0:
-        moving = check_can_move(game_id, game, blocklines=blocklines, checklines=checklines, figures = 1)
+    if session['pieces'] == 0:
+        moving = check_can_move(game_id, game, blocklines=blocklines, checklines=checklines, pieces = 1)
         if not moving:
             # If not moving and check, emit checkmate and victory.
             if check:
-                socketio.emit('remove_check', room=game.black_sid)
                 socketio.emit('checkmate', room=game.black_sid)
                 socketio.emit('victory', room=game.white_sid)
                 game.p2_checkmate = True
             # Else emit stalemate.
             else:
-                socketio.emit('remove_check', room=game.black_sid)
                 socketio.emit('stalemate', room=game.black_sid)
                 socketio.emit('stalemate', room=game.white_sid)
                 game.stalemate = True
         else:
-            socketio.emit('next_move', moving, room=game.black_sid)
+            socketio.emit('next_move', {'moving': moving, 'check': check}, room=game.black_sid)
             socketio.emit('switch_move', room=game.white_sid)
         if game.p2_check != check:
             game.p2_check = check
     else:
-        moving = check_can_move(game_id, game, blocklines=blocklines, checklines=checklines, figures = 0)
+        moving = check_can_move(game_id, game, blocklines=blocklines, checklines=checklines, pieces = 0)
         if not moving:
             if check:
-                socketio.emit('remove_check', room=game.white_sid)
                 socketio.emit('checkmate', room=game.white_sid)
                 socketio.emit('victory', room=game.black_sid)
                 game.p1_checkmate = True
             else:
-                socketio.emit('remove_check', room=game.white_sid)
                 socketio.emit('stalemate', room=game.white_sid)
                 socketio.emit('stalemate', room=game.black_sid)
                 game.stalemate = True
         else:
-            socketio.emit('next_move', moving, room=game.white_sid)
+            socketio.emit('next_move', {'moving': moving, 'check': check}, room=game.white_sid)
             socketio.emit('switch_move', room=game.black_sid)
         if game.p1_check != check:
             game.p1_check = check 
-    if session['figures'] == 0:
+    if session['pieces'] == 0:
         disable_castling_white(i, j, game)
     else:
         disable_castling_black(i, j, game)
@@ -202,18 +198,18 @@ def index():
     if cr_form.cr_submit.data and cr_form.validate():
         session['creator'] = 1
         hashed_password = bcrypt.generate_password_hash(cr_form.password.data).decode('utf-8')
-        if cr_form.figures.data == 'black':
+        if cr_form.pieces.data == 'black':
             player_1 = True
-            session['figures'] = 1
-        elif cr_form.figures.data == 'random':
+            session['pieces'] = 1
+        elif cr_form.pieces.data == 'random':
             player_1 = bool(getrandbits(1))
             if player_1:
-                session['figures'] = 1
+                session['pieces'] = 1
             else:
-                session['figures'] = 0
+                session['pieces'] = 0
         else:
             player_1 = False
-            session['figures'] = 0
+            session['pieces'] = 0
         game = Game(password=hashed_password, player_1=player_1)
         db.session.add(game)
         db.session.commit()
@@ -227,9 +223,9 @@ def index():
         game = Game.query.get(jn_form.game_id.data)
         if game and bcrypt.check_password_hash(game.password, jn_form.password.data):
             if game.player_1:
-                session['figures'] = 0
+                session['pieces'] = 0
             else:
-                session['figures'] = 1
+                session['pieces'] = 1
             session['game_id'] = game.id
             flash('You have connected to the game.', 'success')
             return redirect(url_for('game', game_id=game.id))
@@ -255,14 +251,14 @@ def game(game_id):
     game = Game.query.filter_by(id=game_id).first()
     # game.white_sid can be removed
     king_coordinates = get_king_coordinates(game_id, opp=False)
-    _, attack_king_coord, attack_king_figures = calculate_attacks(game_id, opp=True, king_coordinates=king_coordinates)
-    checklines = calculate_checklines(game_id, attack_king_coord, attack_king_figures, opp=True)
+    _, attack_king_coord, attack_king_pieces = calculate_attacks(game_id, opp=True, king_coordinates=king_coordinates)
+    checklines = calculate_checklines(game_id, attack_king_coord, attack_king_pieces, opp=True)
     blocklines = calculate_blocklines(game_id, opp=True)
     if game.black_sid and game.white_sid:
-        if session ['figures'] == 0 and game.p1_move == 1:
-            moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 0)
-        elif session ['figures'] == 1 and game.p1_move == 0:
-            moving = check_can_move(game_id, blocklines=blocklines, checklines=checklines, figures = 1)
+        if session ['pieces'] == 0 and game.p1_move == 1:
+            moving = check_can_move(game_id, game, blocklines=blocklines, checklines=checklines, pieces = 0)
+        elif session ['pieces'] == 1 and game.p1_move == 0:
+            moving = check_can_move(game_id, game, blocklines=blocklines, checklines=checklines, pieces = 1)
     response = make_response(render_template('game.html', files=files, rank=rank, moving=moving, 
                                              game_id=game_id, both_connected = game.both_connected,
                                              p1_move = game.p1_move, p1_check = game.p1_check,

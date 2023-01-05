@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, EqualTo
 class CreateGameForm(FlaskForm): 
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    figures = SelectField('Figures', choices=[('white', 'White'), ('black', 'Black'), ('random', 'Random')])
+    pieces = SelectField('pieces', choices=[('white', 'White'), ('black', 'Black'), ('random', 'Random')])
     cr_submit = SubmitField('Create a game')
 
 class JoinGameForm(FlaskForm):

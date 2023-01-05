@@ -1,7 +1,7 @@
 const socket = io();
 'use strict';
 
-window.addEventListener('DOMContentLoaded', function addfigures() {
+window.addEventListener('DOMContentLoaded', function addpieces() {
     var y = $('.square[data-x="8"][data-square="1"]').attr("data-y")
     if (y == 1 || y == 5) {
         $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '32px'})
@@ -25,33 +25,33 @@ window.addEventListener('DOMContentLoaded', function addfigures() {
     var squares = document.querySelectorAll(".square");
     squares.forEach(function (square)
     {
-        figure = square.getAttribute('data-square');
+        piece = square.getAttribute('data-square');
         moving = square.getAttribute('data-m');
-        if (figure == 1) {
+        if (piece == 1) {
         square.innerHTML = '&#9817;'
-        } else if (figure == 2) {
+        } else if (piece == 2) {
         square.innerHTML = '&#9816;'    
-        } else if (figure == 3) {
+        } else if (piece == 3) {
         square.innerHTML = '&#9815;'
-        } else if (figure == 4) {
+        } else if (piece == 4) {
         square.innerHTML = '&#9814;'
-        } else if (figure == 5) {
+        } else if (piece == 5) {
         square.innerHTML = '&#9813;'
-        } else if (figure == 6) {
+        } else if (piece == 6) {
         square.innerHTML = '&#9812;'
-        } else if (figure == 7) {
+        } else if (piece == 7) {
         square.innerHTML = '&#9823;'
-        } else if (figure == 8) {
+        } else if (piece == 8) {
         square.innerHTML = '&#9822;'
-        } else if (figure == 9) {
+        } else if (piece == 9) {
         square.innerHTML = '&#9821;'
-        } else if (figure == 10) {
+        } else if (piece == 10) {
         square.innerHTML = '&#9820;'
-        } else if (figure == 11) {
+        } else if (piece == 11) {
         square.innerHTML = '&#9819;'
-        } else if (figure == 12) {
+        } else if (piece == 12) {
         square.innerHTML = '&#9818;'
-        } else if (figure == 0) {
+        } else if (piece == 0) {
         square.innerHTML = ''
         }  
     });
@@ -65,8 +65,8 @@ $(document).on('click', '.square[data-m="1"]', function() {
     $(this).attr('data-a', '1');
     var x = $(this).attr('data-x')
     var y = $(this).attr('data-y')
-    var figure = $(this).attr('data-square')
-    socket.emit('touch', {'x': x, 'y': y, 'figure': figure})     
+    var piece = $(this).attr('data-square')
+    socket.emit('touch', {'x': x, 'y': y, 'piece': piece})     
 });
 
 $(document).on('click', '.square[data-a="1"]', function() {
@@ -81,50 +81,50 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
         $('.under_check').toggleClass('hidden')
     }
     var text = $('.square[data-a="1"]').html()
-        figure = $('.square[data-a="1"]').attr('data-square')
+        piece = $('.square[data-a="1"]').attr('data-square')
         text2 = $(this).html()
-        figure2 = $(this).attr('data-square')
+        piece2 = $(this).attr('data-square')
         x = $(this).attr('data-x')
         y = $(this).attr('data-y')
         i = $('.square[data-a="1"]').attr('data-x')
         j = $('.square[data-a="1"]').attr('data-y')
-    if (figure == 6 && figure2 == 4 && $(this).attr('data-y') == 8) {
+    if (piece == 6 && piece2 == 4 && $(this).attr('data-y') == 8) {
         $('.square[data-x="1"][data-y="6"]').html(text2)
-        $('.square[data-x="1"][data-y="6"]').attr('data-square', figure2)
+        $('.square[data-x="1"][data-y="6"]').attr('data-square', piece2)
         $('.square[data-x="1"][data-y="7"]').html(text)
-        $('.square[data-x="1"][data-y="7"]').attr('data-square', figure)
+        $('.square[data-x="1"][data-y="7"]').attr('data-square', piece)
         $(this).html('')
         $(this).attr('data-square', '0')
-    } else if (figure == 6 && figure2 == 4 && $(this).attr('data-y') == 1) {
+    } else if (piece == 6 && piece2 == 4 && $(this).attr('data-y') == 1) {
         $('.square[data-x="1"][data-y="4"]').html(text2)
-        $('.square[data-x="1"][data-y="4"]').attr('data-square', figure2)
+        $('.square[data-x="1"][data-y="4"]').attr('data-square', piece2)
         $('.square[data-x="1"][data-y="3"]').html(text)
-        $('.square[data-x="1"][data-y="3"]').attr('data-square', figure)
+        $('.square[data-x="1"][data-y="3"]').attr('data-square', piece)
         $(this).html('')
         $(this).attr('data-square', '0')
-    } else if (figure == 12 && figure2 == 10 && $(this).attr('data-y') == 8) {
+    } else if (piece == 12 && piece2 == 10 && $(this).attr('data-y') == 8) {
         $('.square[data-x="8"][data-y="6"]').html(text2)
-        $('.square[data-x="8"][data-y="6"]').attr('data-square', figure2)
+        $('.square[data-x="8"][data-y="6"]').attr('data-square', piece2)
         $('.square[data-x="8"][data-y="7"]').html(text)
-        $('.square[data-x="8"][data-y="7"]').attr('data-square', figure)
+        $('.square[data-x="8"][data-y="7"]').attr('data-square', piece)
         $(this).html('')
         $(this).attr('data-square', '0')
-    } else if (figure == 12 && figure2 == 10 && $(this).attr('data-y') == 1) {
+    } else if (piece == 12 && piece2 == 10 && $(this).attr('data-y') == 1) {
         $('.square[data-x="8"][data-y="4"]').html(text2)
-        $('.square[data-x="8"][data-y="4"]').attr('data-square', figure2)
+        $('.square[data-x="8"][data-y="4"]').attr('data-square', piece2)
         $('.square[data-x="8"][data-y="3"]').html(text)
-        $('.square[data-x="8"][data-y="3"]').attr('data-square', figure)
+        $('.square[data-x="8"][data-y="3"]').attr('data-square', piece)
         $(this).html('')
         $(this).attr('data-square', '0')
-    } else if ((figure == 1 || figure == 7) && figure2 == 0 && 
+    } else if ((piece == 1 || piece == 7) && piece2 == 0 && 
     Math.abs($(this).attr('data-y') - $('.square[data-a="1"]').attr('data-y')) == 1) {
         $(this).html(text)
-        $(this).attr('data-square', figure)
+        $(this).attr('data-square', piece)
         $('.square[data-x=' + i + '][data-y=' + y +']').attr('data-square', '0')
         $('.square[data-x=' + i + '][data-y=' + y +']').html('')
-    } else if (figure == 1 && x == 8 ) {
+    } else if (piece == 1 && x == 8 ) {
         $(this).html(text)
-        $(this).attr('data-square', figure)
+        $(this).attr('data-square', piece)
         $('.selection > .square').attr('data-i', i)
         $('.selection > .square').attr('data-j', j)
         if (y == 1 || y == 5) {
@@ -136,9 +136,9 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
         } else if (y == 4 || y == 8) {
             $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '227px'})
         }
-    } else if (figure == 7 && x == 1) {
+    } else if (piece == 7 && x == 1) {
         $(this).html(text)
-        $(this).attr('data-square', figure)
+        $(this).attr('data-square', piece)
         $('.selection > .square').attr('data-i', i)
         $('.selection > .square').attr('data-j', j)
         if (y == 8 || y == 4) {
@@ -152,40 +152,40 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
         }
     } else {
         $(this).html(text)
-        $(this).attr('data-square', figure)
+        $(this).attr('data-square', piece)
     }
     $('.square[data-a="1"]').html('')
     $('.square[data-a="1"]').attr('data-square', '0')
     $('.square[data-a="1"]').attr('data-a', '0')  
     $('.square[data-go="1"]').attr('data-go', '0')  
     $('.square[data-attack="1"]').attr('data-attack', '0')
-    if (!(figure == 1 && x == 8 ) && !(figure == 7 && x == 1)) {
+    if (!(piece == 1 && x == 8 ) && !(piece == 7 && x == 1)) {
         $('.your_move').addClass('hidden')
-        socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'figure': figure, 'figure2': figure2})
+        socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'piece': piece, 'piece2': piece2})
     }
 });
 
 $(document).on('click', '.selection > .square', function() {
     $('.selection').css({'visibility': 'hidden', 'opacity': '0'})
     var text = $(this).html()
-        figure = $(this).attr('data-square')
+        piece = $(this).attr('data-square')
         i = $(this).attr('data-i')
         j = $(this).attr('data-j')
-    if (figure > 6) {
+    if (piece > 6) {
         var x = $('.square[data-x="1"][data-square="7"]').attr('data-x')
             y = $('.square[data-x="1"][data-square="7"]').attr('data-y')
-            figure2 = 7
+            piece2 = 7
         $('.square[data-x="1"][data-square="7"]').html(text)
-        $('.square[data-x="1"][data-square="7"]').attr('data-square', figure)
+        $('.square[data-x="1"][data-square="7"]').attr('data-square', piece)
     } else {
         var x = $('.square[data-x="8"][data-square="1"]').attr('data-x')
             y = $('.square[data-x="8"][data-square="1"]').attr('data-y')
-            figure2 = 1
+            piece2 = 1
         $('.square[data-x="8"][data-square="1"]').html(text)
-        $('.square[data-x="8"][data-square="1"]').attr('data-square', figure)
+        $('.square[data-x="8"][data-square="1"]').attr('data-square', piece)
     }
     $('.your_move').addClass('hidden')
-    socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'figure': figure, 'figure2': figure2})
+    socket.emit('go', {'i': i, 'j': j, 'x': x, 'y': y, 'piece': piece, 'piece2': piece2})
 });
 
 // https://stackoverflow.com/questions/34913675/how-to-iterate-keys-values-in-javascript
@@ -199,54 +199,54 @@ $(document).ready(function(){
     }     
     })
     socket.on('opp_move', (data) => {
-        figure = data['figure']
-        figure2 = data['figure2']
+        piece = data['piece']
+        piece2 = data['piece2']
         if (data['promotion'] == true) {
-            if (figure == 2) {
+            if (piece == 2) {
                 var text = '&#9817;'
-            } else if (figure == 2) {
+            } else if (piece == 2) {
                 var text = '&#9816;'    
-            } else if (figure == 3) {
+            } else if (piece == 3) {
                 var text = '&#9815;'
-            } else if (figure == 4) {
+            } else if (piece == 4) {
                 var text = '&#9814;'
-            } else if (figure == 5) {
+            } else if (piece == 5) {
                 var text = '&#9813;'
-            } else if (figure == 8) {
+            } else if (piece == 8) {
                 var text = '&#9822;'
-            } else if (figure == 9) {
+            } else if (piece == 9) {
                 var text = '&#9821;'
-            } else if (figure == 10) {
+            } else if (piece == 10) {
                 var text = '&#9820;'
-            } else if (figure == 11) {
+            } else if (piece == 11) {
                 var text = '&#9819;'
             } 
         } else {
             var text = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html()
         }
         if (data['castling'] == true) {
-            if (figure == 6 && figure2 == 4 && data['y'] == 8) {
+            if (piece == 6 && piece2 == 4 && data['y'] == 8) {
                 $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
                 $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
                 $('.square[data-x="1"][data-y="7"]').html('&#9812;')
                 $('.square[data-x="1"][data-y="7"]').attr('data-square', '6')
                 $('.square[data-x="1"][data-y="6"]').html('&#9814;')
                 $('.square[data-x="1"][data-y="6"]').attr('data-square', '4')
-            } else if (figure == 6 && figure2 == 4 && data['y'] == 1) {
+            } else if (piece == 6 && piece2 == 4 && data['y'] == 1) {
                 $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
                 $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
                 $('.square[data-x="1"][data-y="3"]').html('&#9812;')
                 $('.square[data-x="1"][data-y="3"]').attr('data-square', '6')
                 $('.square[data-x="1"][data-y="4"]').html('&#9814;')
                 $('.square[data-x="1"][data-y="4"]').attr('data-square', '4')
-            } else if (figure == 12 && figure2 == 10 && data['y'] == 8) {
+            } else if (piece == 12 && piece2 == 10 && data['y'] == 8) {
                 $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
                 $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
                 $('.square[data-x="8"][data-y="7"]').html('&#9818;')
                 $('.square[data-x="8"][data-y="7"]').attr('data-square', '12')
                 $('.square[data-x="8"][data-y="6"]').html('&#9820;')
                 $('.square[data-x="8"][data-y="6"]').attr('data-square', '10')
-            } else if (figure == 12 && figure2 == 10 && data['y'] == 1) {
+            } else if (piece == 12 && piece2 == 10 && data['y'] == 1) {
                 $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
                 $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
                 $('.square[data-x="8"][data-y="3"]').html('&#9818;')
@@ -256,7 +256,7 @@ $(document).ready(function(){
             }
         } else {
             $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html(text)
-            $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', figure)
+            $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', piece)
             if (data['en_passant'] == true) {
                 $('.square[data-x=' + data['i'] + '][data-y=' + data['y'] + ']').html('')
                 $('.square[data-x=' + data['i'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
@@ -264,10 +264,6 @@ $(document).ready(function(){
         }
         $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html('')
         $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').attr('data-square', '0')
-        if ((data['check'] == true && $('.under_check').hasClass('hidden')) || (data['check'] == false && 
-        !$('.under_check').hasClass('hidden'))) {
-            $('.under_check').toggleClass('hidden')
-        }
     })
     socket.on('remove_check', () => {
         if (!$('.under_check').hasClass('hidden')) {
@@ -277,11 +273,15 @@ $(document).ready(function(){
     socket.on('switch_move', () => {
         $('.opp_move').removeClass('hidden')
     })
-    socket.on('next_move', (moving)=>{
+    socket.on('next_move', (data)=>{
         $('.square[data-m="2"]').attr('data-m', '0')
-        for (let obj of Object.values(moving)) {
+        for (let obj of Object.values(data['moving'])) {
             $('.square[data-x=' + obj[0] + '][data-y=' + obj[1] + ']').attr('data-m', '1')
-            } 
+            }
+        if ((data['check'] == true && $('.under_check').hasClass('hidden')) || (data['check'] == false && 
+        !$('.under_check').hasClass('hidden'))) {
+            $('.under_check').toggleClass('hidden')
+        }
         $('.your_move').removeClass('hidden')
         $('.opp_move').addClass('hidden')
     })
