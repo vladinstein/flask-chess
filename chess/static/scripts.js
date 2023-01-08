@@ -310,6 +310,16 @@ $(document).ready(function(){
         $('.waiting').addClass('hidden') 
         $('.opp_move').removeClass('hidden')
     })
-
+    socket.on('change_flash_creator', ()=>{
+        $(".alert-success").html('Your opponent has connected.')
+        setTimeout(function() {
+            $(".alert-success").hide()
+        }, 5000);
+    })
+    socket.on('change_flash_2nd_user', ()=>{
+        setTimeout(function() {
+            $(".alert-success").hide()
+        }, 5000);
+    })
 });
 

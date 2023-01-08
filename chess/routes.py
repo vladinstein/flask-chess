@@ -42,17 +42,19 @@ def connect():
     else:
         if not game.both_connected:
             if session['pieces'] == 0:
-                game.white_sid = session['sid'] 
-                moving = check_can_move(game_id, game, pieces = 0)
-                socketio.emit('connected', moving, room=game.white_sid)
-                socketio.emit('wait_move_status', room=game.black_sid)
-                game.both_connected = 1
+                game.white_sid = session['sid']
+                # Send messages to change/remove flask flash messages.
+                socketio.emit('change_flash_creator', room=game.black_sid)
+                socketio.emit('change_flash_2nd_user', room=game.white_sid)
             else:
-                game.black_sid = session['sid'] 
-                moving = check_can_move(game_id, game, pieces = 0)
-                socketio.emit('connected', moving, room=game.white_sid)
-                socketio.emit('wait_move_status', room=game.black_sid)
-                game.both_connected = 1
+                game.black_sid = session['sid']
+                # Send messages to change/remove flask flash messages.
+                socketio.emit('change_flash_creator', room=game.white_sid)
+                socketio.emit('change_flash_2nd_user', room=game.black_sid)
+            moving = check_can_move(game_id, game, pieces = 0)
+            socketio.emit('connected', moving, room=game.white_sid)
+            socketio.emit('wait_move_status', room=game.black_sid)
+            game.both_connected = 1
             db.session.commit()
         else:
             if session['pieces'] == 0:
