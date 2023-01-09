@@ -24,7 +24,8 @@
     <header>
         <h1 class="main_title">Chess</h1>
     </header>
-    {% with messages = get_flashed_messages(with_categories=true) %}
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
                 <div class="alert-{{ category }}">
@@ -32,8 +33,7 @@
                 </div>
             {% endfor %}
         {% endif %}
-    {% endwith %}
-    <main>
+        {% endwith %}
         {% block content %}
         {% endblock content %}
         {% block scripts %}
