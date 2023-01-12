@@ -21,27 +21,28 @@
     {% else %}    
         {% if (session['pieces'] == 0 and p1_check) or (session['pieces'] == 1 and p2_check) %}
             <div class="message under_check">
-                <h4>Check!</h4>
+                <h4>Check! Your Move!</h4>
             </div>
-        {% else %}
-            <div class="message under_check hidden">
-                <h4>Check!</h4>
-            </div>
-        {% endif %}
-        {% if (session['pieces'] == 0 and p1_move) or (session['pieces'] == 1 and not p1_move)  %}
+        {% elif (session['pieces'] == 0 and p1_move) or (session['pieces'] == 1 and not p1_move) %}
             <div class="message your_move">
                 <h4>Your move!</h4>
             </div>
             <div class="message opp_move hidden">
                 <h4>Your opponent's move!</h4>
             </div>
+            <div class="message under_check hidden">
+                <h4>Check! Your Move!</h4>
+            </div>
         {% elif (session['pieces'] == 1 and p1_move) or (session['pieces'] == 0 and not p1_move) %}
-        <div class="message your_move hidden">
-            <h4>Your move!</h4>
-        </div>
-        <div class="message opp_move">
-            <h4>Your opponent's move!</h4>
-        </div>
+            <div class="message your_move hidden">
+                <h4>Your move!</h4>
+            </div>
+            <div class="message opp_move">
+                <h4>Your opponent's move!</h4>
+            </div>
+            <div class="message under_check hidden">
+                <h4>Check! Your Move!</h4>
+            </div>
         {% endif %}
     {% endif %}
 {% else %}
@@ -55,7 +56,7 @@
         <h4>Stalemate.</h4>
     </div>
     <div class="message under_check hidden">
-        <h4>Check!</h4>
+        <h4>Check! Your Move!</h4>
     </div>
     <div class="message your_move hidden">
         <h4>Your move!</h4>
@@ -64,95 +65,97 @@
         <h4>Your opponent's move!</h4>
     </div>
 {% endif %}
-<div class="board">
-    <div class="index_column">
-        {% if session['pieces'] %}
-            {% for i in range(1, 9) %}
-                <div class="index_square">{{i}}</div>
-            {% endfor %}
-        {% else %}
-            {% for i in range(1, 9)|reverse %}
-                <div class="index_square">{{i}}</div>
-            {% endfor %}
-        {% endif %}
-    </div>
-    <div class="board_letters">
-        {% if session['pieces'] %}
-            <div class="index_row">
-                {% for j in range(8)|reverse %}
-                    <div class="index_square">{{files[j]}}</div>
-                {% endfor %}
-            </div>
-            <div class="board_main">
-                <div class="selection">
-                    <div class="square" data-square="11" data-i="0" data-j="0">&#9819;</div>
-                    <div class="square" data-square="10" data-i="0" data-j="0">&#9820;</div>
-                    <div class="square" data-square="9" data-i="0" data-j="0">&#9821;</div>
-                    <div class="square" data-square="8" data-i="0" data-j="0">&#9822;</div>
-                </div>
+<div class="main_flex">
+    <div class="board">
+        <div class="index_column">
+            {% if session['pieces'] %}
                 {% for i in range(1, 9) %}
+                    <div class="index_square">{{i}}</div>
+                {% endfor %}
+            {% else %}
+                {% for i in range(1, 9)|reverse %}
+                    <div class="index_square">{{i}}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="board_letters">
+            {% if session['pieces'] %}
+                <div class="index_row">
+                    {% for j in range(8)|reverse %}
+                        <div class="index_square">{{files[j]}}</div>
+                    {% endfor %}
+                </div>
+                <div class="board_main">
+                    <div class="selection">
+                        <div class="square" data-square="11" data-i="0" data-j="0">&#9819;</div>
+                        <div class="square" data-square="10" data-i="0" data-j="0">&#9820;</div>
+                        <div class="square" data-square="9" data-i="0" data-j="0">&#9821;</div>
+                        <div class="square" data-square="8" data-i="0" data-j="0">&#9822;</div>
+                    </div>
+                    {% for i in range(1, 9) %}
+                        <div class="rank">
+                            {% for j in range(1, 9)|reverse %}
+                                {% if [i, j] in moving.values() %}
+                                    <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="1" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}"></div>
+                                {% else %}
+                                    <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="0" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}"></div>
+                                {% endif %}   
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="index_row">
+                    {% for j in range(8)|reverse %}
+                        <div class="index_square">{{files[j]}}</div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="index_row">
+                    {% for j in range(8) %}
+                        <div class="index_square">{{files[j]}}</div>
+                    {% endfor %}
+                </div>
+                <div class="board_main">
+                    <div class="selection">
+                        <div class="square" data-square="5" data-i="0" data-j="0">&#9819;</div>
+                        <div class="square" data-square="4" data-i="0" data-j="0">&#9820;</div>
+                        <div class="square" data-square="3" data-i="0" data-j="0">&#9821;</div>
+                        <div class="square" data-square="2" data-i="0" data-j="0">&#9822;</div>
+                    </div>
+                    {% for i in range(1, 9)|reverse %}
                     <div class="rank">
-                        {% for j in range(1, 9)|reverse %}
+                        {% for j in range(1, 9) %}
                             {% if [i, j] in moving.values() %}
                                 <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="1" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}"></div>
                             {% else %}
                                 <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="0" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}"></div>
-                            {% endif %}   
+                            {% endif %}
                         {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
-            <div class="index_row">
-                {% for j in range(8)|reverse %}
-                    <div class="index_square">{{files[j]}}</div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="index_row">
-                {% for j in range(8) %}
-                    <div class="index_square">{{files[j]}}</div>
-                {% endfor %}
-            </div>
-            <div class="board_main">
-                <div class="selection">
-                    <div class="square" data-square="5" data-i="0" data-j="0">&#9819;</div>
-                    <div class="square" data-square="4" data-i="0" data-j="0">&#9820;</div>
-                    <div class="square" data-square="3" data-i="0" data-j="0">&#9821;</div>
-                    <div class="square" data-square="2" data-i="0" data-j="0">&#9822;</div>
-                </div>
-                {% for i in range(1, 9)|reverse %}
-                <div class="rank">
-                    {% for j in range(1, 9) %}
-                        {% if [i, j] in moving.values() %}
-                            <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="1" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}"></div>
-                        {% else %}
-                            <div class="square" data-x="{{i}}" data-y="{{j}}" data-m="0" data-a="0" data-go="0" data-attack="0" data-square="{{rank[i][j]}}"></div>
-                        {% endif %}
                     {% endfor %}
                 </div>
+                <div class="index_row">
+                    {% for j in range(8) %}
+                        <div class="index_square" >{{files[j]}}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <div class="index_column">
+            {% if session['pieces'] %}
+                {% for i in range(1, 9) %}
+                    <div class="index_square">{{i}}</div>
                 {% endfor %}
-            </div>
-            <div class="index_row">
-                {% for j in range(8) %}
-                    <div class="index_square" >{{files[j]}}</div>
+            {% else %}
+                {% for i in range(1, 9)|reverse %}
+                    <div class="index_square">{{i}}</div>
                 {% endfor %}
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
-    <div class="index_column">
-        {% if session['pieces'] %}
-            {% for i in range(1, 9) %}
-                <div class="index_square">{{i}}</div>
-            {% endfor %}
-        {% else %}
-            {% for i in range(1, 9)|reverse %}
-                <div class="index_square">{{i}}</div>
-            {% endfor %}
-        {% endif %}
+    <div class="message_id">
+        <h4 class="game-id" data-i="{{ game_id }}">Your pieces are {{ session['pieces'] }}! Your game ID is {{ game_id }}!</h4>
     </div>
-</div>
-<div class="your_move">
-    <h4 class="game-id" data-i="{{ game_id }}">Your pieces are {{ session['pieces'] }}! Your game ID is {{ game_id }}!</h4>
 </div>
 {% endblock content %}
 {% block scripts %}

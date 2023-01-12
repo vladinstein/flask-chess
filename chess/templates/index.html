@@ -1,78 +1,80 @@
 {% extends 'layout.html' %}
 {% block content %}
-<h2 class="gr_header">Ready to play?</h2>
-<form method="POST" action="" novalidate>
-    {{ cr_form.hidden_tag() }}
-    <fieldset>
-        <legend>Create a new game</legend>
+<div class="index_flex">
+    <h2 class="gr_header">Ready to play?</h2>
+    <form method="POST" action="" novalidate>
+        {{ cr_form.hidden_tag() }}
+        <fieldset>
+            <legend>Create a new game</legend>
+            <div>
+                {{ cr_form.password.label }}
+                {% if cr_form.password.errors %}
+                    {{ cr_form.password(class="is-invalid") }}
+                    <div class="invalid_feedback">
+                        {% for error in cr_form.password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ cr_form.password }}
+                {% endif %}
+            </div>
+            <div>
+                {{ cr_form.confirm_password.label }}
+                {% if cr_form.confirm_password.errors %}
+                    {{ cr_form.confirm_password(class="is-invalid") }}
+                    <div class="invalid_feedback">
+                        {% for error in cr_form.confirm_password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ cr_form.confirm_password }}
+                {% endif %}
+            </div>
+            <div>
+                {{ cr_form.pieces.label }}
+                {{ cr_form.pieces }}
+            </div>
+        </fieldset>
         <div>
-            {{ cr_form.password.label }}
-            {% if cr_form.password.errors %}
-                {{ cr_form.password(class="is-invalid") }}
-                <div class="invalid_feedback">
-                    {% for error in cr_form.password.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-            {% else %}
-                {{ cr_form.password }}
-            {% endif %}
+            {{ cr_form.cr_submit }}
         </div>
+    </form>
+    <form method="POST" action="" novalidate>
+        {{ jn_form.hidden_tag() }}
+        <fieldset>
+            <legend>Join existing game</legend>
+            <div>
+                {{ jn_form.game_id.label }}
+                {% if jn_form.game_id.errors %}
+                    {{ jn_form.game_id(class="is-invalid") }}
+                    <div class="invalid_feedback">
+                        {% for error in jn_form.game_id.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ jn_form.game_id }}
+                {% endif %}
+            </div>
+            <div>
+                {{ jn_form.password.label }}
+                {% if jn_form.password.errors %}
+                    {{ jn_form.password(class="is-invalid") }}
+                    <div class="invalid_feedback">
+                        {% for error in jn_form.password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ jn_form.password }}
+                {% endif %}
+            </div>
+        </fieldset>
         <div>
-            {{ cr_form.confirm_password.label }}
-            {% if cr_form.confirm_password.errors %}
-                {{ cr_form.confirm_password(class="is-invalid") }}
-                <div class="invalid_feedback">
-                    {% for error in cr_form.confirm_password.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-            {% else %}
-                {{ cr_form.confirm_password }}
-            {% endif %}
+            {{ jn_form.jn_submit }}
         </div>
-        <div>
-            {{ cr_form.pieces.label }}
-            {{ cr_form.pieces }}
-        </div>
-    </fieldset>
-    <div>
-        {{ cr_form.cr_submit }}
-    </div>
-</form>
-<form method="POST" action="" novalidate>
-    {{ jn_form.hidden_tag() }}
-    <fieldset>
-        <legend>Join existing game</legend>
-        <div>
-            {{ jn_form.game_id.label }}
-            {% if jn_form.game_id.errors %}
-                {{ jn_form.game_id(class="is-invalid") }}
-                <div class="invalid_feedback">
-                    {% for error in jn_form.game_id.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-            {% else %}
-                {{ jn_form.game_id }}
-            {% endif %}
-        </div>
-        <div>
-            {{ jn_form.password.label }}
-            {% if jn_form.password.errors %}
-                {{ jn_form.password(class="is-invalid") }}
-                <div class="invalid_feedback">
-                    {% for error in jn_form.password.errors %}
-                        <span>{{ error }}</span>
-                    {% endfor %}
-                </div>
-            {% else %}
-                {{ jn_form.password }}
-            {% endif %}
-        </div>
-    </fieldset>
-    <div>
-        {{ jn_form.jn_submit }}
-    </div>
-</form>
+    </form>
+</div>
 {% endblock content %}

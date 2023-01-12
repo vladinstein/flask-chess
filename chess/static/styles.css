@@ -20,11 +20,25 @@ header {
 /* There was a justify-content: space-evenly; */
 
 main {
-    display: flex;
     position: relative;
+    flex-grow: 1;
+}
+
+.main_flex {
+    display: flex;
+    height: 100%;
     flex-direction: column;
     align-items: center;
-    flex-grow: 1;
+    justify-content: space-between;
+}
+
+.index_flex {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    text-align: center;
 }
 
 footer {
@@ -251,4 +265,5 @@ footer {
     right: 0;
     text-align: center;
 }
+
 

@@ -281,8 +281,9 @@ $(document).ready(function(){
         if ((data['check'] == true && $('.under_check').hasClass('hidden')) || (data['check'] == false && 
         !$('.under_check').hasClass('hidden'))) {
             $('.under_check').toggleClass('hidden')
-        }
-        $('.your_move').removeClass('hidden')
+        } else {
+            $('.your_move').removeClass('hidden')
+        }    
         $('.opp_move').addClass('hidden')
     })
     socket.on('checkmate', ()=>{
