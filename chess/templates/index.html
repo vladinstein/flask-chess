@@ -76,5 +76,44 @@
             {{ jn_form.jn_submit }}
         </div>
     </form>
+    <form method="POST" action="" novalidate>
+        {{ rt_form.hidden_tag() }}
+        <fieldset>
+            <legend>Return to the old game:</legend>
+            <div>
+                {{ rt_form.game_id.label }}
+                {% if rt_form.game_id.errors %}
+                    {{ rt_form.game_id(class="is-invalid") }}
+                    <div class="invalid_feedback">
+                        {% for error in rt_form.game_id.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ rt_form.game_id }}
+                {% endif %}
+            </div>
+            <div>
+                {{ rt_form.password.label }}
+                {% if rt_form.password.errors %}
+                    {{ rt_form.password(class="is-invalid") }}
+                    <div class="invalid_feedback">
+                        {% for error in rt_form.password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ rt_form.password }}
+                {% endif %}
+            </div>
+            <div>
+                {{ rt_form.pieces.label }}
+                {{ rt_form.pieces }}
+            </div>
+        </fieldset>
+        <div>
+            {{ rt_form.rt_submit }}
+        </div>
+    </form>
 </div>
 {% endblock content %}
