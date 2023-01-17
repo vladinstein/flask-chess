@@ -28,6 +28,68 @@ def add_header(response):
 #        return f(*args, **kwargs)
 #   return decorated_function
 
+@app.route("/", methods=['GET', 'POST'])
+def index():
+    cr_form = CreateGameForm()
+    jn_form = JoinGameForm()
+    rt_form = ReturnGameForm()
+    if cr_form.cr_submit.data and cr_form.validate():
+        session['creator'] = 1
+        session['join'] = 0
+        session['return'] = 0
+        hashed_password = bcrypt.generate_password_hash(cr_form.password.data).decode('utf-8')
+        if cr_form.pieces.data == 'black':
+            player_1 = True
+            session['pieces'] = 1
+        elif cr_form.pieces.data == 'random':
+            player_1 = bool(getrandbits(1))
+            if player_1:
+                session['pieces'] = 1
+            else:
+                session['pieces'] = 0
+        else:
+            player_1 = False
+            session['pieces'] = 0
+        game = Game(password=hashed_password, player_1=player_1)
+        db.session.add(game)
+        db.session.commit()
+        session['game_id'] = game.id
+        create_game(game.id)
+        flash('You have created a game. Send the ID of your game to your opponent and wait for him\
+              to connect.', 'success')
+        return redirect(url_for('game', game_id=game.id))
+    elif jn_form.jn_submit.data and jn_form.validate():
+        session['creator'] = 0
+        session['join'] = 1
+        session['return'] = 0
+        game = Game.query.get(jn_form.game_id.data)
+        if game and bcrypt.check_password_hash(game.password, jn_form.password.data) and not game.both_connected:
+            if game.player_1:
+                session['pieces'] = 0
+            else:
+                session['pieces'] = 1
+            session['game_id'] = game.id
+            flash('You have connected to the game.', 'success')
+            return redirect(url_for('game', game_id=game.id))
+        else:
+            flash('Couldn\'t connect to the game. Check the game ID and the password.', 'danger')
+    elif rt_form.rt_submit.data and rt_form.validate():
+        session['creator'] = 0
+        session['join'] = 0
+        session['return'] = 1
+        game = Game.query.get(rt_form.game_id.data)
+        if game and bcrypt.check_password_hash(game.password, rt_form.password.data):
+            if cr_form.pieces.data == 'black':
+                session['pieces'] = 1
+            else:
+                session['pieces'] = 0
+            session['game_id'] = game.id
+            flash('You have connected to the game.', 'success')
+            return redirect(url_for('game', game_id=game.id))
+        else:
+            flash('Couldn\'t connect to the game. Check the game ID and the password.', 'danger')
+    return render_template('index.html', cr_form=cr_form, jn_form=jn_form, rt_form=rt_form)
+
 @socketio.on('disconnect')
 def connect():
     game_id = session['game_id']
@@ -39,15 +101,23 @@ def connect():
     session['sid'] = request.sid
     game_id = session['game_id']
     game = Game.query.filter_by(id=game_id).first()
-    if session['join']:
+    # If this is a creator of the game, simply copy the sid value to the db.
+    if session['creator']:
+        if session['pieces'] == 0:
+            game.white_sid = session['sid'] 
+        else:
+            game.black_sid = session['sid']
+        db.session.commit()
+    # If someone is joining a game, copy sid value and send messages.
+    elif session['join']:
         if session['pieces'] == 0:
             game.white_sid = session['sid']
-            # Send messages to change/remove flask flash messages.
+            # Send socket messages to change/remove flask flash messages.
             socketio.emit('change_flash_creator', room=game.black_sid)
             socketio.emit('change_flash_2nd_user', room=game.white_sid)
         else:
             game.black_sid = session['sid']
-            # Send messages to change/remove flask flash messages.
+            # Send socket messages to change/remove flask flash messages.
             socketio.emit('change_flash_creator', room=game.white_sid)
             socketio.emit('change_flash_2nd_user', room=game.black_sid)
         moving = check_can_move(game_id, game, pieces = 0)
@@ -55,12 +125,7 @@ def connect():
         socketio.emit('wait_move_status', room=game.black_sid)
         game.both_connected = 1
         db.session.commit()
-    elif session['creator']:
-        if session['pieces'] == 0:
-            game.white_sid = session['sid'] 
-        else:
-            game.black_sid = session['sid']
-        db.session.commit()
+    # If someone is returning to a game, copy sid value and send a socket message.
     else:
         if session['pieces'] == 0:
             game.white_sid = session['sid']
@@ -201,68 +266,6 @@ def go(data):
     else:
         disable_castling_black(i, j, game)
     db.session.commit()
-
-@app.route("/", methods=['GET', 'POST'])
-def index():
-    cr_form = CreateGameForm()
-    jn_form = JoinGameForm()
-    rt_form = ReturnGameForm()
-    if cr_form.cr_submit.data and cr_form.validate():
-        session['creator'] = 1
-        session['join'] = 0
-        session['return'] = 0
-        hashed_password = bcrypt.generate_password_hash(cr_form.password.data).decode('utf-8')
-        if cr_form.pieces.data == 'black':
-            player_1 = True
-            session['pieces'] = 1
-        elif cr_form.pieces.data == 'random':
-            player_1 = bool(getrandbits(1))
-            if player_1:
-                session['pieces'] = 1
-            else:
-                session['pieces'] = 0
-        else:
-            player_1 = False
-            session['pieces'] = 0
-        game = Game(password=hashed_password, player_1=player_1)
-        db.session.add(game)
-        db.session.commit()
-        session['game_id'] = game.id
-        create_game(game.id)
-        flash('You have created a game. Send the ID of your game to your opponent and wait for him\
-              to connect.', 'success')
-        return redirect(url_for('game', game_id=game.id))
-    elif jn_form.jn_submit.data and jn_form.validate():
-        session['creator'] = 0
-        session['join'] = 1
-        session['return'] = 0
-        game = Game.query.get(jn_form.game_id.data)
-        if game and bcrypt.check_password_hash(game.password, jn_form.password.data) and not game.both_connected:
-            if game.player_1:
-                session['pieces'] = 0
-            else:
-                session['pieces'] = 1
-            session['game_id'] = game.id
-            flash('You have connected to the game.', 'success')
-            return redirect(url_for('game', game_id=game.id))
-        else:
-            flash('Couldn\'t connect to the game. Check the game ID and the password.', 'danger')
-    elif rt_form.rt_submit.data and rt_form.validate():
-        session['creator'] = 0
-        session['join'] = 0
-        session['return'] = 1
-        game = Game.query.get(rt_form.game_id.data)
-        if game and bcrypt.check_password_hash(game.password, rt_form.password.data):
-            if cr_form.pieces.data == 'black':
-                session['pieces'] = 1
-            else:
-                session['pieces'] = 0
-            session['game_id'] = game.id
-            flash('You have connected to the game.', 'success')
-            return redirect(url_for('game', game_id=game.id))
-        else:
-            flash('Couldn\'t connect to the game. Check the game ID and the password.', 'danger')
-    return render_template('index.html', cr_form=cr_form, jn_form=jn_form, rt_form=rt_form)
 
 @app.route("/game/<int:game_id>")
 def game(game_id):
