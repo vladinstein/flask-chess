@@ -22,6 +22,8 @@ class Game(db.Model):
     black_en_passant = db.Column(db.Boolean, default = False, nullable=False)
     black_en_passant_y = db.Column(db.Integer)
     both_connected = db.Column(db.Boolean, default = False, nullable=False)
+    white_disconnected = db.Column(db.Boolean, default = False, nullable=False)
+    black_disconnected = db.Column(db.Boolean, default = False, nullable=False)
     ranks = db.relationship('Rank', backref='game', lazy=True)
 
     def __repr__(self):
