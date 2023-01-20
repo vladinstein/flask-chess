@@ -322,5 +322,11 @@ $(document).ready(function(){
             $(".alert-success").hide()
         }, 5000);
     })
+    socket.on('change_flash_disconnected', ()=>{
+        $(".alert-success").html('Your opponent has disconnected.')
+        setTimeout(function() {
+            $(".alert-success").hide()
+        }, 5000);
+    })
 });
 

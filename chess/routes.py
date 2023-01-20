@@ -78,20 +78,23 @@ def index():
         session['join'] = 0
         session['return'] = 1
         game = Game.query.get(rt_form.game_id.data)
-        if game and bcrypt.check_password_hash(game.password, rt_form.password.data):
-            if rt_form.pieces.data == 'black':
-                session['pieces'] = 1
-                if game.white_disconnected == 1:
-                    flash('You have connected to the game. Waiting for your opponent.', 'success')
-            else:
-                session['pieces'] = 0
-                if game.black_disconnected == 1:
-                    flash('You have connected to the game. Waiting for your opponent.', 'success')
-            session['game_id'] = game.id
-            flash('You have connected to the game.', 'success')
-            return redirect(url_for('game', game_id=game.id))
+        if not game.both_connected:
+            flash('Cannot return to the game that hasn\'t started.', 'danger')
         else:
-            flash('Couldn\'t connect to the game. Check the game ID and the password.', 'danger')
+            if game and bcrypt.check_password_hash(game.password, rt_form.password.data):
+                if rt_form.pieces.data == 'black':
+                    session['pieces'] = 1
+                    if game.white_disconnected == 1:
+                        flash('You have connected to the game. Waiting for your opponent.', 'success')
+                else:
+                    session['pieces'] = 0
+                    if game.black_disconnected == 1:
+                        flash('You have connected to the game. Waiting for your opponent.', 'success')
+                session['game_id'] = game.id
+                flash('You have connected to the game.', 'success')
+                return redirect(url_for('game', game_id=game.id))
+            else:
+                flash('Couldn\'t connect to the game. Check the game ID and the password.', 'danger')
     return render_template('index.html', cr_form=cr_form, jn_form=jn_form, rt_form=rt_form)
 
 @socketio.on('disconnect')
@@ -100,8 +103,10 @@ def connect():
     game = Game.query.filter_by(id=game_id).first()
     if session['pieces'] == 0:
         game.white_disconnected = 1
+        socketio.emit('change_flash_disconnected', room=game.black_sid)
     else:
         game.black_disconnected = 1
+        socketio.emit('change_flash_disconnected', room=game.white_sid)
     db.session.commit()
 
 @socketio.on('connect')
@@ -112,7 +117,9 @@ def connect():
     # If this is a creator of the game, simply copy the sid value to the db.
     if session['creator']:
         if session['pieces'] == 0:
-            game.white_sid = session['sid'] 
+            game.white_sid = session['sid']
+            #If game.both_connected (?) - means he disconnected after - so you can notify another that he
+            #reconnected
         else:
             game.black_sid = session['sid']
         db.session.commit()
@@ -128,10 +135,11 @@ def connect():
             # Send socket messages to change/remove flask flash messages.
             socketio.emit('change_flash_first', room=game.white_sid)
             socketio.emit('change_flash_second', room=game.black_sid)
-        moving = check_can_move(game_id, game, pieces = 0)
-        socketio.emit('connected', moving, room=game.white_sid)
-        socketio.emit('wait_move_status', room=game.black_sid)
-        game.both_connected = 1
+        if not game.both_connected:
+            moving = check_can_move(game_id, game, pieces = 0)
+            socketio.emit('connected', moving, room=game.white_sid)
+            socketio.emit('wait_move_status', room=game.black_sid)
+            game.both_connected = 1
         db.session.commit()
     # If someone is returning to a game, copy sid value and send a socket message.
     else:
