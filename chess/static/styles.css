@@ -256,6 +256,12 @@ footer {
     left: 0;
 }
 
+.alert-additional {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .message {
     position: absolute;
     margin-left: auto;

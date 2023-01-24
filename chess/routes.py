@@ -98,15 +98,13 @@ def index():
     return render_template('index.html', cr_form=cr_form, jn_form=jn_form, rt_form=rt_form)
 
 @socketio.on('disconnect')
-def connect():
+def disconnect():
     game_id = session['game_id']
     game = Game.query.filter_by(id=game_id).first()
     if session['pieces'] == 0:
         game.white_disconnected = 1
-        socketio.emit('change_flash_disconnected', room=game.black_sid)
     else:
         game.black_disconnected = 1
-        socketio.emit('change_flash_disconnected', room=game.white_sid)
     db.session.commit()
 
 @socketio.on('connect')
@@ -115,13 +113,18 @@ def connect():
     game_id = session['game_id']
     game = Game.query.filter_by(id=game_id).first()
     # If this is a creator of the game, simply copy the sid value to the db.
+    print(session['creator'], session['join'], session['return'])
     if session['creator']:
         if session['pieces'] == 0:
             game.white_sid = session['sid']
-            #If game.both_connected (?) - means he disconnected after - so you can notify another that he
-            #reconnected
+            if game.both_connected:
+                socketio.emit('change_flash_first', room=game.black_sid)
+                socketio.emit('change_flash_connected', room=game.white_sid)
         else:
             game.black_sid = session['sid']
+            if game.both_connected:
+                socketio.emit('change_flash_first', room=game.white_sid)
+                socketio.emit('change_flash_connected', room=game.black_sid)
         db.session.commit()
     # If someone is joining a game, copy sid value and send messages.
     elif session['join']:

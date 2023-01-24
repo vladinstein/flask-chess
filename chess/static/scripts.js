@@ -322,6 +322,12 @@ $(document).ready(function(){
             $(".alert-success").hide()
         }, 5000);
     })
+    socket.on('change_flash_connected', ()=>{
+        $(".alert-additional").html('You have connected to the game.')
+        setTimeout(function() {
+            $(".alert-additional").hide()
+        }, 5000);
+    })
     socket.on('change_flash_disconnected', ()=>{
         $(".alert-success").html('Your opponent has disconnected.')
         setTimeout(function() {
