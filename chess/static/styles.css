@@ -7,14 +7,16 @@ html, body {
 }
 
 header {
-    background-color: lightgray; 
+    background-color: #6D9886;
     text-align: center;
 }
 
 .main_title {
-    color: black;
+    color: #393E46;
+    font-weight: bold;
     font-size: 3rem;
-    font-family: 'Nixie One', cursive;
+    font-family: 'Varela Round', sans-serif;
+    text-shadow: 2px 2px #32363d;
 }
 
 /* There was a justify-content: space-evenly; */
@@ -22,6 +24,8 @@ header {
 main {
     position: relative;
     flex-grow: 1;
+    background-color: #F2E7D5;
+    font-family: 'Varela Round', sans-serif;
 }
 
 .main_flex {
@@ -43,11 +47,28 @@ main {
 
 footer {
     height: 50px;
-    background-color: lightgrey;
+    background-color: #6D9886;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+fieldset {
+    border-color: #6D9886;
+    border-radius: 8px;
+    margin-bottom: 5px;
+}
+
+
+input[type="password"], input[type="text"] {
+    border-style: inset;
+    background-color: #F7F7F7;
+    margin-bottom: 5px;
+}
+
+select {
+    padding: 3px;
 }
 
 /* Main */
@@ -141,7 +162,6 @@ footer {
 
 [data-m='1']:hover {
     cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.1);
 }
 
 .square:nth-child(odd)[data-m='1']:hover {
@@ -154,11 +174,6 @@ footer {
 
 /* Active */
 
-[data-a='1'] {
-    cursor: pointer;
-    background-color: rgba(0, 0, 255, 0.3);
-}
-
 .square:nth-child(odd)[data-a='1'] {
     box-shadow: inset 0 0 0 100px rgba(0, 0, 255, 0.3);
 }
@@ -169,24 +184,18 @@ footer {
 
 [data-a='1']:hover {
     cursor: pointer;
-    background-color: rgba(0, 0, 255, 0.4);
 }
 
 .square:nth-child(odd)[data-a='1']:hover {
-    box-shadow: inset 0 0 0 100px rgba(0, 0, 255, 0.4);
+    box-shadow: inset 0 0 0 100px rgba(0, 0, 255, 0.5);
 }
 
 .square:nth-child(even)[data-a='1']:hover {
-    box-shadow: inset 0 0 0 100px rgba(0, 0, 255, 0.4);
+    box-shadow: inset 0 0 0 100px rgba(0, 0, 255, 0.5);
 }
 
 
 /* piece moves */
-
-[data-go='1'] {
-    cursor: pointer;
-    background-color: rgba(0, 255, 0, 0.3);
-}
 
 .square:nth-child(odd)[data-go='1'] {
     box-shadow: inset 0 0 0 100px rgba(0, 255, 0, 0.3);
@@ -198,7 +207,6 @@ footer {
 
 [data-go='1']:hover {
     cursor: pointer;
-    background-color: rgba(0, 255, 0, 0.4);
 }
 
 .square:nth-child(odd)[data-go='1']:hover {
@@ -212,27 +220,27 @@ footer {
 /* piece attacks */
 
 .square:nth-child(odd)[data-attack='1'] {
-    box-shadow: inset 0 0 0 100px rgba(255, 0, 0, 0.3);
+    box-shadow: inset 0 0 0 100px rgba(255, 0, 0, 0.4);
 }
 
 .square:nth-child(even)[data-attack='1'] {
-    box-shadow: inset 0 0 0 100px rgba(255, 0, 0, 0.3);
+    box-shadow: inset 0 0 0 100px rgba(255, 0, 0, 0.4);
 }
 
 [data-attack='1']:hover {
     cursor: pointer;
-    background-color: rgba(255, 0, 0, 0.4);
 }
 
 .square:nth-child(odd)[data-attack='1']:hover {
-    box-shadow: inset 0 0 0 100px rgba(255, 0, 0, 0.4);
+    box-shadow: inset 0 0 0 100px rgba(255, 0, 0, 0.5);
 }
 
 .square:nth-child(even)[data-attack='1']:hover {
-    box-shadow: inset 0 0 0 100px rgba(255, 0, 0, 0.4);
+    box-shadow: inset 0 0 0 100px rgba(255, 0, 0, 0.5);
 }
 
 /* Pawn choise */
+
 .selection .square:hover {
     cursor: pointer;
     background-color: rgba(111, 143, 114, 0.8);

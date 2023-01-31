@@ -57,8 +57,7 @@ def index():
         create_game(game.id)
         flash('You have created a game. Send the ID of your game to your opponent and wait for him\
               to connect.', 'success')
-        is_redirect = 1
-        return redirect(url_for('game', game_id=game.id, is_redirect=is_redirect))
+        return redirect(url_for('game', game_id=game.id))
     elif jn_form.jn_submit.data and jn_form.validate():
         session['creator'] = 0
         session['join'] = 1
@@ -71,8 +70,7 @@ def index():
                 session['pieces'] = 1
             session['game_id'] = game.id
             flash('You have connected to the game.', 'success')
-            is_redirect = 1
-            return redirect(url_for('game', game_id=game.id, is_redirect=is_redirect))
+            return redirect(url_for('game', game_id=game.id))
         else:
             flash('Couldn\'t connect to the game. Check the game ID and the password.', 'danger')
     elif rt_form.rt_submit.data and rt_form.validate():
@@ -94,8 +92,7 @@ def index():
                         flash('You have connected to the game. Waiting for your opponent.', 'success')
                 session['game_id'] = game.id
                 flash('You have connected to the game.', 'success')
-                is_redirect = 1
-                return redirect(url_for('game', game_id=game.id, is_redirect=is_redirect))
+                return redirect(url_for('game', game_id=game.id))
             else:
                 flash('Couldn\'t connect to the game. Check the game ID and the password.', 'danger')
     return render_template('index.html', cr_form=cr_form, jn_form=jn_form, rt_form=rt_form)
@@ -120,23 +117,27 @@ def connect():
         if session['pieces'] == 0:
             game.white_sid = session['sid']
             if game.both_connected:
-                socketio.emit('change_flash_first', room=game.black_sid)
                 socketio.emit('change_flash_connected', room=game.white_sid)
+                socketio.emit('change_flash_first', room=game.black_sid)          
         else:
             game.black_sid = session['sid']
             if game.both_connected:
-                socketio.emit('change_flash_first', room=game.white_sid)
                 socketio.emit('change_flash_connected', room=game.black_sid)
+                socketio.emit('change_flash_first', room=game.white_sid)
         db.session.commit()
     # If someone is joining a game, copy sid value and send messages.
     elif session['join']:
         if session['pieces'] == 0:
             game.white_sid = session['sid']
+            if game.both_connected:
+                socketio.emit('change_flash_connected', room=game.white_sid)
             # Send socket messages to change/remove flask flash messages.
             socketio.emit('change_flash_first', room=game.black_sid)
             socketio.emit('change_flash_second', room=game.white_sid)
         else:
             game.black_sid = session['sid']
+            if game.both_connected:
+                socketio.emit('change_flash_connected', room=game.black_sid)
             # Send socket messages to change/remove flask flash messages.
             socketio.emit('change_flash_first', room=game.white_sid)
             socketio.emit('change_flash_second', room=game.black_sid)
@@ -152,7 +153,7 @@ def connect():
             game.white_sid = session['sid']
             if game.white_disconnected == 1 and game.black_disconnected == 0:
                 socketio.emit('change_flash_first', room=game.black_sid)
-                socketio.emit('change_flash_second', room=game.white_sid)      
+                socketio.emit('change_flash_second', room=game.white_sid)
         else:
             game.black_sid = session['sid']
             if game.black_disconnected == 1 and game.white_disconnected == 0:
@@ -295,9 +296,9 @@ def go(data):
         disable_castling_black(i, j, game)
     db.session.commit()
 
-@app.route("/game/<int:game_id>/<int:is_redirect>")
-def game(game_id, is_redirect=0):
-    # is this solution ok? 
+@app.route("/game/<int:game_id>")
+def game(game_id):
+    # is this solution ok?
     try: 
         session['game_id']
     except KeyError:
@@ -321,14 +322,6 @@ def game(game_id, is_redirect=0):
             moving = check_can_move(game_id, game, blocklines=blocklines, checklines=checklines, pieces = 0)
         elif session ['pieces'] == 1 and game.p1_move == 0:
             moving = check_can_move(game_id, game, blocklines=blocklines, checklines=checklines, pieces = 1)
-    if not is_redirect:
-        if session['pieces'] == 1:
-            if game.white_disconnected == 1:
-                flash('You have connected to the game. Waiting for your opponent.', 'success')
-        else:
-            if game.black_disconnected == 1:
-                flash('You have connected to the game. Waiting for your opponent.', 'success')
-        flash('You have connected to the game.', 'success')
     response = make_response(render_template('game.html', files=files, rank=rank, moving=moving, 
                                              game_id=game_id, both_connected = game.both_connected,
                                              p1_move = game.p1_move, p1_check = game.p1_check,
