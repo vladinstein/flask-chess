@@ -20,14 +20,6 @@ def add_header(response):
       response.headers['Cache-Control'] = 'public, max-age=600'
   return response
 
-#def login_required(f):
-#    @wraps(f)
-#    def decorated_function(*args, **kwargs):
-#        if session.get('pieces') is None:
-#           return redirect('/',code=302)
-#        return f(*args, **kwargs)
-#   return decorated_function
-
 @app.route("/", methods=['GET', 'POST'])
 def index():
     cr_form = CreateGameForm()
