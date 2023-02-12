@@ -13,6 +13,8 @@ from chess import app, bcrypt, db, socketio
 from random import getrandbits
 from functools import wraps
 
+#dummy comment
+
 @app.after_request
 def add_header(response):    
   response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
