@@ -11,9 +11,6 @@ from chess.utils import get_moves, create_game, check_can_move, calculate_attack
                         calculate_checklines, disable_castling_white, disable_castling_black, switch_en_passant
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
-from functools import wraps
-
-#dummy comment
 
 @app.after_request
 def add_header(response):    
