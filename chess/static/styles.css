@@ -280,4 +280,9 @@ select {
     text-align: center;
 }
 
+@media only screen and (max-width: 600px) {
+    .square {width: 11%;}
+    .index_square {width: 6%;}
+} 
+
 
