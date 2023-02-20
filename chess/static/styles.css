@@ -281,8 +281,8 @@ select {
 }
 
 @media only screen and (max-width: 600px) {
-    .square {font-size: 3rem; width: 12.5%; aspect-ratio: 1 / 1;}
-    .index_square {font-size: 3rem; width: 12.5%;}
+    .square {font-size: 3rem; width: 12.5vmin; height: 12.5vmin;}
+    .index_square {font-size: 3rem; width: 12.5vmin; height: 12.5vmin;}
 } 
 
 
