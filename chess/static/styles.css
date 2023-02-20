@@ -281,8 +281,8 @@ select {
 }
 
 @media only screen and (max-width: 600px) {
-    .square {width: 11%;}
-    .index_square {width: 6%;}
+    .square {width: 12.5%;}
+    .index_square {width: 12.5%;}
 } 
 
 
