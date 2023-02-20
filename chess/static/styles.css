@@ -285,6 +285,7 @@ select {
     .index_square {font-size: 1rem; width: 12.5vmin; height: 12.5vmin;}
     .alert-success {font-size: 0.3rem;} 
     .alert-additional {font-size: 0.3rem;}
+    .index_column{display: none;}
 } 
 
 
