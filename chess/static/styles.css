@@ -125,6 +125,7 @@ select {
 }
 
 .square {
+    font-family: serif;
     font-size: 3.5rem;
     height: 65px;
     width: 65px;
