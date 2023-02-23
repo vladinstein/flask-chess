@@ -291,8 +291,7 @@ select {
     .game-id{margin-top: 0;}
 } 
 
-@media only screen and (min-device-width: 480px) 
-                   and (max-device-width: 640px) 
+@media only screen and (max-device-height: 575.98px) 
                    and (orientation: landscape) {
     html, body {flex-direction: row;}
     .square {font-size: 3rem; width: 12.5vmin; height: 12.5vmin;}
