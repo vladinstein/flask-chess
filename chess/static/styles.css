@@ -294,8 +294,9 @@ select {
 @media only screen and (max-device-height: 575.98px) 
                    and (orientation: landscape) {
     html, body {flex-direction: row;}
-    header {flex-grow: 1; display: flex; align-items: center; justify-content: center;}
-    footer {flex-grow: 1; height: 100%; text-align: center;}
+    header {flex-grow: 1; height: 100vmin; display: flex; align-items: center; justify-content: center;}
+    footer {flex-grow: 1; height: 100vmin; text-align: center;}
+    main {height: 100vmin;}
     .board {margin-top: 0;}
     .square {font-size: 3rem; width: 12.5vmin; height: 12.5vmin;}
     .index_square {font-size: 1rem; width: 12.5vmin; height: 12.5vmin;}
