@@ -295,12 +295,12 @@ select {
                    and (orientation: landscape) {
     html, body {flex-direction: row;}
     header {flex-grow: 1;}
-    footer {flex-grow: 1; height: 100%;}
+    footer {flex-grow: 1; height: 100%; text-align: center;}
     .square {font-size: 3rem; width: 12.5vmin; height: 12.5vmin;}
     .index_square {font-size: 1rem; width: 12.5vmin; height: 12.5vmin;}
     .alert-success {font-size: 0.5rem;}
-    .alert-additional {font-size: 0.3rem;}
-    .index_column{display: none;}
+    .alert-additional {font-size: 0.3rem; display: none;}
+    .index_row{display: none;}
     .main_title{margin-top: .33em; margin-bottom: .33em;}
     .game-id{margin-top: 0;}
 
