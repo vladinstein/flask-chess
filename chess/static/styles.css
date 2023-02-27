@@ -303,7 +303,9 @@ select {
     .alert-success {font-size: 0.5rem;}
     .alert-additional {font-size: 0.3rem;}
     .index_row{display: none;}
-    .message {display: none;}
+    .main{position: relative;}
+    .message {position: fixed; right: 76vmax;}
+    .message_id {position: fixed; right: 76vmax; top: 80vmin;}
     .main_title{margin-top: .33em; margin-bottom: .33em;}
     .game-id{margin-top: 0;}
 
