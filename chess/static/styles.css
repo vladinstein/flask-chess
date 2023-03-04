@@ -314,7 +314,7 @@ select {
     .main{position: relative;}
     .message {position: fixed; right: 76vmax;}
     .message_id {position: fixed; right: 76vmax; top: 75vmin;}
-    .main_title{margin-top: .33em; margin-bottom: .33em;}
+    .main_title{margin-top: .33em; margin-bottom: .33em; margin-left: .33em; margin-right: .33em;}
     .game-id{margin-top: 0;}
     .pieces {height: 110%; width: 110%;}
 }
