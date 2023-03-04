@@ -145,8 +145,8 @@ select {
 
 .pieces {
     object-fit: cover;
-    height: 110%;
-    width: 110%;
+    height: 100%;
+    width: 100%;
 }
 
 .index_square {
@@ -296,6 +296,7 @@ select {
     .index_column{display: none;}
     .main_title{margin-top: .33em; margin-bottom: .33em;}
     .game-id{margin-top: 0;}
+    .pieces {height: 110%; width: 110%;}
 } 
 
 @media only screen and (max-device-height: 575.98px) 
@@ -315,7 +316,7 @@ select {
     .message_id {position: fixed; right: 76vmax; top: 75vmin;}
     .main_title{margin-top: .33em; margin-bottom: .33em;}
     .game-id{margin-top: 0;}
-
+    .pieces {height: 110%; width: 110%;}
 }
 
 
