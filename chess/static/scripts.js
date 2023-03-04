@@ -28,29 +28,29 @@ window.addEventListener('DOMContentLoaded', function addpieces() {
         piece = square.getAttribute('data-square');
         moving = square.getAttribute('data-m');
         if (piece == 1) {
-        square.innerHTML = '&#9817;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_plt45.svg">'
         } else if (piece == 2) {
-        square.innerHTML = '&#9816;'    
+        square.innerHTML = '<img class="pieces" src="/static/Chess_nlt45.svg">'    
         } else if (piece == 3) {
-        square.innerHTML = '&#9815;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_blt45.svg">'
         } else if (piece == 4) {
-        square.innerHTML = '&#9814;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_rlt45.svg">'
         } else if (piece == 5) {
-        square.innerHTML = '&#9813;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_qlt45.svg">'
         } else if (piece == 6) {
-        square.innerHTML = '&#9812;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_klt45.svg">'
         } else if (piece == 7) {
-        square.innerHTML = '&#9823;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_pdt45.svg">'
         } else if (piece == 8) {
-        square.innerHTML = '&#9822;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_ndt45.svg">'
         } else if (piece == 9) {
-        square.innerHTML = '&#9821;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_bdt45.svg">'
         } else if (piece == 10) {
-        square.innerHTML = '&#9820;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_rdt45.svg">'
         } else if (piece == 11) {
-        square.innerHTML = '&#9819;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_qdt45.svg">'
         } else if (piece == 12) {
-        square.innerHTML = '&#9818;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_kdt45.svg">'
         } else if (piece == 0) {
         square.innerHTML = ''
         }  
