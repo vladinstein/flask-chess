@@ -142,6 +142,12 @@ select {
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
+.pieces {
+    object-fit: cover;
+    height: 110%;
+    width: 110%;
+}
+
 .index_square {
     font-size: 1.3rem;
     height: 65px;
@@ -305,7 +311,7 @@ select {
     .index_row{display: none;}
     .main{position: relative;}
     .message {position: fixed; right: 76vmax;}
-    .message_id {position: fixed; right: 76vmax; top: 80vmin;}
+    .message_id {position: fixed; right: 76vmax; top: 75vmin;}
     .main_title{margin-top: .33em; margin-bottom: .33em;}
     .game-id{margin-top: 0;}
 

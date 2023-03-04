@@ -28,7 +28,7 @@ window.addEventListener('DOMContentLoaded', function addpieces() {
         piece = square.getAttribute('data-square');
         moving = square.getAttribute('data-m');
         if (piece == 1) {
-        square.innerHTML = '&#9817;'
+        square.innerHTML = '<img class="pieces" src="/static/Chess_plt45.svg">'
         } else if (piece == 2) {
         square.innerHTML = '&#9816;'    
         } else if (piece == 3) {
