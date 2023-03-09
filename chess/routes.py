@@ -7,8 +7,9 @@ from flask_session import Session
 from chess.forms import CreateGameForm, JoinGameForm, ReturnGameForm
 from chess.models import Game, Rank
 from chess.utils import get_moves, create_game, check_can_move, calculate_attacks, calculate_possible_checks, \
-                        add_defences_to_db, check_if_check, get_king_coordinates, calculate_blocklines, \
-                        calculate_checklines, disable_castling_white, disable_castling_black, switch_en_passant
+                        add_attacks_to_db, add_defences_to_db, check_if_check, get_king_coordinates, \
+                        calculate_blocklines, calculate_checklines, disable_castling_white,\
+                        disable_castling_black, switch_en_passant
 from chess import app, bcrypt, db, socketio
 from random import getrandbits
 
@@ -234,6 +235,7 @@ def go(data):
     king_coordinates = get_king_coordinates(game_id)
     all_attacks, attack_king_coord, attack_king_pieces = calculate_attacks(game_id, king_coordinates=king_coordinates)
     into_check = calculate_possible_checks(game_id)
+    add_attacks_to_db(game_id, all_attacks)
     add_defences_to_db(game_id, into_check)
     check = check_if_check(game_id, all_attacks)
     if session['pieces'] == 0:
