@@ -295,6 +295,7 @@ select {
 }
 
 @media only screen and (max-device-width: 640px) {
+    body {height: max-content;}
     main {height: max-content;}
     .square {font-size: 3rem; width: 12.5vmin; height: 12.5vmin;}
     .index_square {font-size: 1rem; width: 12.5vmin; height: 12.5vmin;}
