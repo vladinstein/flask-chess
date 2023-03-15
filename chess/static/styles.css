@@ -294,7 +294,7 @@ select {
     text-align: center;
 }
 
-@media only screen and (max-device-width: 640px) {
+@media only screen and (min-width: 320px) and (max-width: 640px) {
     body {height: max-content;}
     main {height: max-content;}
     .square {font-size: 3rem; width: 12.5vmin; height: 12.5vmin;}
@@ -307,8 +307,7 @@ select {
     .pieces {height: 110%; width: 110%;}
 } 
 
-@media only screen and (max-device-height: 812px) 
-                   and (orientation: landscape) {
+@media only screen and (min-width: 641px) and (max-width: 812px) {
     body {flex-direction: row; height: max-content;}
     header {min-width: 25vmax; flex-grow: 1;}
     footer {min-width: 12vmax; flex-grow: 1; text-align: center;}
