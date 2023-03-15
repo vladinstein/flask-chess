@@ -70,7 +70,7 @@ def index():
         session['join'] = 0
         session['return'] = 1
         game = Game.query.get(rt_form.game_id.data)
-        if not game.both_connected:
+        if game == None or not game.both_connected:
             flash('Cannot return to the game that hasn\'t started.', 'danger')
         else:
             if game and bcrypt.check_password_hash(game.password, rt_form.password.data):
