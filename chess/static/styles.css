@@ -305,7 +305,7 @@ select {
     .pieces {height: 110%; width: 110%;}
 } 
 
-@media only screen and (max-device-height: 575.98px) 
+@media only screen and (max-device-height: 640px) 
                    and (orientation: landscape) {
     body {flex-direction: row; height: max-content;}
     header {min-width: 25vmax; flex-grow: 1;}
