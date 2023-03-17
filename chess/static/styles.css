@@ -307,7 +307,7 @@ select {
     .pieces {height: 110%; width: 110%;}
 } 
 
-@media only screen and (min-width: 641px) and (max-width: 812px) {
+@media only screen and (min-width: 641px) and (max-width: 812px) and (orientation: landscape)  {
     body {flex-direction: row; height: max-content;}
     header {min-width: 25vmax; flex-grow: 1;}
     footer {min-width: 12vmax; flex-grow: 1; text-align: center;}
