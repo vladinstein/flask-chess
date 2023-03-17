@@ -21,7 +21,7 @@ header {
     font-size: 3rem;
     font-family: 'Varela Round', sans-serif;
     text-shadow: 2px 2px #32363d;
-    text-decoration: none!important;
+    text-decoration: none;
 }
 
 /* There was a justify-content: space-evenly; */
