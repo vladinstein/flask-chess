@@ -79,6 +79,10 @@ select {
     padding: 3px;
 }
 
+.submit_return {
+    margin-bottom: 5px;
+}
+
 /* Main */
 
 .hidden {
