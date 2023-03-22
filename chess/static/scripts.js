@@ -88,34 +88,42 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
         y = $(this).attr('data-y')
         i = $('.square[data-a="1"]').attr('data-x')
         j = $('.square[data-a="1"]').attr('data-y')
-    if (piece == 6 && piece2 == 4 && $(this).attr('data-y') == 8) {
+    if (piece == 6 && y - j > 1) {
+        piece2 = $('.square[data-x="1"][data-y="8"]').attr('data-square')
+        text2 = $('.square[data-x="1"][data-y="8"]').html()
         $('.square[data-x="1"][data-y="6"]').html(text2)
         $('.square[data-x="1"][data-y="6"]').attr('data-square', piece2)
         $('.square[data-x="1"][data-y="7"]').html(text)
         $('.square[data-x="1"][data-y="7"]').attr('data-square', piece)
-        $(this).html('')
-        $(this).attr('data-square', '0')
-    } else if (piece == 6 && piece2 == 4 && $(this).attr('data-y') == 1) {
+        $('.square[data-x="1"][data-y="8"]').html('')
+        $('.square[data-x="1"][data-y="8"]').attr('data-square', '0')
+    } else if (piece == 6 && y - j < -1) {
+        piece2 = $('.square[data-x="1"][data-y="1"]').attr('data-square')
+        text2 = $('.square[data-x="1"][data-y="1"]').html()
         $('.square[data-x="1"][data-y="4"]').html(text2)
         $('.square[data-x="1"][data-y="4"]').attr('data-square', piece2)
         $('.square[data-x="1"][data-y="3"]').html(text)
         $('.square[data-x="1"][data-y="3"]').attr('data-square', piece)
-        $(this).html('')
-        $(this).attr('data-square', '0')
-    } else if (piece == 12 && piece2 == 10 && $(this).attr('data-y') == 8) {
+        $('.square[data-x="1"][data-y="1"]').html('')
+        $('.square[data-x="1"][data-y="1"]').attr('data-square', '0')
+    } else if (piece == 12 && y - j > 1) {
+        piece2 = $('.square[data-x="8"][data-y="8"]').attr('data-square')
+        text2 = $('.square[data-x="8"][data-y="8"]').html()
         $('.square[data-x="8"][data-y="6"]').html(text2)
         $('.square[data-x="8"][data-y="6"]').attr('data-square', piece2)
         $('.square[data-x="8"][data-y="7"]').html(text)
         $('.square[data-x="8"][data-y="7"]').attr('data-square', piece)
-        $(this).html('')
-        $(this).attr('data-square', '0')
-    } else if (piece == 12 && piece2 == 10 && $(this).attr('data-y') == 1) {
+        $('.square[data-x="8"][data-y="8"]').html('')
+        $('.square[data-x="8"][data-y="8"]').attr('data-square', '0')
+    } else if (piece == 12 && y - j < -1) {
+        piece2 = $('.square[data-x="8"][data-y="1"]').attr('data-square')
+        text2 = $('.square[data-x="8"][data-y="1"]').html()
         $('.square[data-x="8"][data-y="4"]').html(text2)
         $('.square[data-x="8"][data-y="4"]').attr('data-square', piece2)
         $('.square[data-x="8"][data-y="3"]').html(text)
         $('.square[data-x="8"][data-y="3"]').attr('data-square', piece)
-        $(this).html('')
-        $(this).attr('data-square', '0')
+        $('.square[data-x="8"][data-y="1"]').html('')
+        $('.square[data-x="8"][data-y="1"]').attr('data-square', '0')
     } else if ((piece == 1 || piece == 7) && piece2 == 0 && 
     Math.abs($(this).attr('data-y') - $('.square[data-a="1"]').attr('data-y')) == 1) {
         $(this).html(text)
@@ -223,30 +231,30 @@ $(document).ready(function(){
             var text = $('.square[data-x=' + data['i'] + '][data-y=' + data['j'] + ']').html()
         }
         if (data['castling'] == true) {
-            if (piece == 6 && piece2 == 4 && data['y'] == 8) {
-                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
-                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
+            if (piece == 6 && piece2 == 4 && (data['y'] == 8 || data['y'] == 7)) {
+                $('.square[data-x="1"][data-y="8"]').html('')
+                $('.square[data-x="1"][data-y="8"]').attr('data-square', '0')
                 $('.square[data-x="1"][data-y="7"]').html('<img class="pieces" src="/static/Chess_klt45.svg">')
                 $('.square[data-x="1"][data-y="7"]').attr('data-square', '6')
                 $('.square[data-x="1"][data-y="6"]').html('<img class="pieces" src="/static/Chess_rlt45.svg">')
                 $('.square[data-x="1"][data-y="6"]').attr('data-square', '4')
-            } else if (piece == 6 && piece2 == 4 && data['y'] == 1) {
-                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
-                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
+            } else if (piece == 6 && piece2 == 4 && (data['y'] == 1 || data['y'] == 3)) {
+                $('.square[data-x="1"][data-y="1"]').html('')
+                $('.square[data-x="1"][data-y="1"]').attr('data-square', '0')
                 $('.square[data-x="1"][data-y="3"]').html('<img class="pieces" src="/static/Chess_klt45.svg">')
                 $('.square[data-x="1"][data-y="3"]').attr('data-square', '6')
                 $('.square[data-x="1"][data-y="4"]').html('<img class="pieces" src="/static/Chess_rlt45.svg">')
                 $('.square[data-x="1"][data-y="4"]').attr('data-square', '4')
-            } else if (piece == 12 && piece2 == 10 && data['y'] == 8) {
-                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
-                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
+            } else if (piece == 12 && piece2 == 10 && (data['y'] == 8 || data['y'] == 7)) {
+                $('.square[data-x="8"][data-y="8"]').html('')
+                $('.square[data-x="8"][data-y="8"]').attr('data-square', '0')
                 $('.square[data-x="8"][data-y="7"]').html('<img class="pieces" src="/static/Chess_kdt45.svg">')
                 $('.square[data-x="8"][data-y="7"]').attr('data-square', '12')
                 $('.square[data-x="8"][data-y="6"]').html('<img class="pieces" src="/static/Chess_rdt45.svg">')
                 $('.square[data-x="8"][data-y="6"]').attr('data-square', '10')
-            } else if (piece == 12 && piece2 == 10 && data['y'] == 1) {
-                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').html('')
-                $('.square[data-x=' + data['x'] + '][data-y=' + data['y'] + ']').attr('data-square', '0')
+            } else if (piece == 12 && piece2 == 10 && (data['y'] == 1 || data['y'] == 3)) {
+                $('.square[data-x="8"][data-y="1"]').html('')
+                $('.square[data-x="8"][data-y="1"]').attr('data-square', '0')
                 $('.square[data-x="8"][data-y="3"]').html('<img class="pieces" src="/static/Chess_kdt45.svg">')
                 $('.square[data-x="8"][data-y="3"]').attr('data-square', '12')
                 $('.square[data-x="8"][data-y="4"]').html('<img class="pieces" src="/static/Chess_rdt45.svg">')

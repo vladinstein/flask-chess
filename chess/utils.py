@@ -1654,7 +1654,8 @@ def add_white_king_castling(game_id, moves, z):
         white_king_castling = 0
     if white_king_castling:
         moves[z] = [1, 8]
-        z += 1
+        moves[z+1] = [1, 7]
+        z += 2
     return moves, z
 
 def add_white_queen_castling(game_id, moves, z):
@@ -1670,7 +1671,8 @@ def add_white_queen_castling(game_id, moves, z):
         white_queen_castling = 0
     if white_queen_castling:
         moves[z] = [1, 1]
-        z += 1
+        moves[z+1] = [1, 3]
+        z += 2
     return moves, z
 
 def add_black_king_castling(game_id, moves, z):
@@ -1686,7 +1688,8 @@ def add_black_king_castling(game_id, moves, z):
         black_king_castling = 0
     if black_king_castling:
         moves[z] = [8, 8]
-        z += 1
+        moves[z+1] = [8, 7]
+        z += 2
     return moves, z
 
 def add_black_queen_castling(game_id, moves, z):
@@ -1702,7 +1705,8 @@ def add_black_queen_castling(game_id, moves, z):
         black_queen_castling = 0
     if black_queen_castling:
         moves[z] = [8, 1]
-        z += 1
+        moves[z+1] = [8, 3]
+        z += 2
     return moves, z
 
 def switch_en_passant(piece, i, x, y, game, game_id):

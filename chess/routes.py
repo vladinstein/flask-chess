@@ -195,25 +195,25 @@ def go(data):
     rank = Rank.query.filter_by(game_id=game_id, number=i).first()
     if (piece > 7 and piece2 == 7) or (piece > 1 and piece < 6 and piece2 == 1):
         promotion = True
-    if piece == 6 and piece2 == 4 and y == 8:
+    if piece == 6 and piece2 == 4 and (y == 8 or y == 7):
         castling = True
         rank.e = 0
         rank.g = 6
         rank.f = 4
         rank.h = 0
-    elif piece == 6 and piece2 == 4 and y == 1:
+    elif piece == 6 and piece2 == 4 and (y == 1 or y == 3):
         castling = True
         rank.a = 0
         rank.c = 6
         rank.d = 4
         rank.e = 0
-    elif piece == 12 and piece2 == 10 and y == 8:
+    elif piece == 12 and piece2 == 10 and (y == 8 or y == 7):
         castling = True
         rank.e = 0
         rank.g = 12
         rank.f = 10
         rank.h = 0
-    elif piece == 12 and piece2 == 10 and y == 1:
+    elif piece == 12 and piece2 == 10 and (y == 1 or y == 3):
         castling = True
         rank.a = 0
         rank.c = 12
