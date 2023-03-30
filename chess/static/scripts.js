@@ -136,13 +136,13 @@ $(document).on('click', '.square[data-go="1"], .square[data-attack="1"]', functi
         $('.selection > .square').attr('data-i', i)
         $('.selection > .square').attr('data-j', j)
         if (y == 1 || y == 5) {
-            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '32px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '1.5em'})
         } else if (y == 2 || y == 6) {
-            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '97px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '4.5em'})
         } else if (y == 3 || y == 7) {
-            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '162px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '7.5em'})
         } else if (y == 4 || y == 8) {
-            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '227px'})
+            $('.selection').css({'visibility': 'visible', 'opacity': '1', 'margin-left': '10.5em'})
         }
     } else if (piece == 7 && x == 1) {
         $(this).html(text)
